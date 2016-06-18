@@ -42,6 +42,7 @@ void Server::runServer() {
 		if (rec == sf::Socket::Done) {
 			// maintain connections based on data received (join or left)
 			char *data = (char *)dataPacket.getData();
+			userInfo user;
 			printf(data);
 			if (strcmp(data, "left game") == 0) {
 				for (int i = 0; i < connections.size(); i++) {
@@ -52,16 +53,26 @@ void Server::runServer() {
 				continue;
 			}
 			else if (strcmp(data, "join game") == 0) {
-				userInfo user;
+				user.name = "Player" + uniqueConnectionCount;
 				user.ip = senderIp;
 				user.port = senderPort;
+				uniqueConnectionCount++;
 				connections.push_back(user);
 				continue;
 			}
+			else {
+				for (int i = 0; i < connections.size(); i++) {
+					if (connections[i].ip == senderIp && connections[i].port == senderPort) {
+						user = connections[i];
+					}
+				}
+			}
+			sf::Packet resultPacket;
+			resultPacket << user.name << dataPacket;
 			// send data to every connection
 			for (int i = 0; i < connections.size(); i++) {
 				if (connections[i].ip != senderIp && connections[i].port != senderPort) {
-					if (serverSocket.send(dataPacket, connections[i].ip, connections[i].port) != sf::Socket::Done) {
+					if (serverSocket.send(resultPacket, connections[i].ip, connections[i].port) != sf::Socket::Done) {
 						// Error sending packet
 					}
 				}

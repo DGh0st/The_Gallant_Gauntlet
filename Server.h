@@ -18,5 +18,6 @@ private:
 	sf::UdpSocket serverSocket; // server socket (UDP)
 	unsigned short port; // port for the server
 	std::vector<userInfo> connections; // list of connections (users)
+	int uniqueConnectionCount = 0; // number of unique connections
 };
 

@@ -25,7 +25,7 @@ public:
 
 private:
 	sf::RectangleShape player; // shape of the character
-	int maxHealth, health, damage; // health and damage
+	sf::Int16 maxHealth, health, damage; // health and damage
 	sf::Clock diveResetTimer; // reset timer for diving in specific direction
 	sf::Vector2f divingMovement; // movement of the character when diving
 	sf::Keyboard::Key lastKey; // last key released (W, A, S, D) required for diving
