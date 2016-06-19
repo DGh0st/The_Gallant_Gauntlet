@@ -4,8 +4,18 @@
 #include "Button.h"
 #include "Textfield.h"
 
+void playScreen() {
+	currentScreenDisplayed = joinServer;
+}
+void createServerScreen() {
+	currentScreenDisplayed = createServer;
+}
+void ingameScreen() {
+	currentScreenDisplayed = ingame;
+}
+
 int main() {
-	sf::RenderWindow window(sf::VideoMode(800, 500), "Demon Hunter"); //, sf::Style::Fullscreen);
+	sf::RenderWindow window(sf::VideoMode(800, 500), "Game 2"); //, sf::Style::Fullscreen);
 	windowSize = window.getSize();
 
 	sf::Font font;
@@ -13,6 +23,7 @@ int main() {
 	Character player = Character();
 	sf::Keyboard::Key releasedKey = sf::Keyboard::Unknown;
 	
+	Textfield joinTF(font,sf::Vector2f(650.0f,50.0f));
 	userInfo serverInfo;
 
 	while (window.isOpen()) {
@@ -32,6 +43,7 @@ int main() {
 					releasedKey = tempKey;
 				}
 			}
+			joinTF.handleEvent(event);
 		}
 
 		if (currentScreenDisplayed == ingame) {
@@ -47,54 +59,67 @@ int main() {
 		// actually join server (create a client object)
 		currentScreenDisplayed = ingame;*/
 
-		/*if (currentScreenDisplayed == title) {
-			// need to design title
+		if (currentScreenDisplayed == title) {
+			//title text
+			sf::Text titleText("Title", font);
+			titleText.setOrigin(titleText.getGlobalBounds().width/2,titleText.getGlobalBounds().height/2);
+			titleText.setPosition(sf::Vector2f(windowSize.x/2, 10.0f));
+			//play button
+			sf::Text playText("Play", font);
+			playText.setColor(sf::Color::Black);
+			Button playButton(playText, sf::Vector2f(100.0f,75.0f), playScreen);
+			playButton.setOrigin(playButton.getGlobalBounds().width / 2.0f, playButton.getGlobalBounds().height / 2.0f);
+			playButton.setPosition(sf::Vector2f(windowSize.x/2, 100.0f));
+			window.draw(titleText);
+			playButton.draw(window);
+			//create game button
+			sf::Text createText("Create Game", font);
+			createText.setColor(sf::Color::Black);
+			Button createButton(createText, sf::Vector2f(200.0f, 75.0f), createServerScreen);
+			createButton.setOrigin(createButton.getGlobalBounds().width / 2.0f, createButton.getGlobalBounds().height / 2.0f);
+			createButton.setPosition(sf::Vector2f(windowSize.x / 2, 300.0f));
+			window.draw(titleText);
+			createButton.draw(window);
 		}
 		else if (currentScreenDisplayed == joinServer) {
-			// join a server text
-			sf::Text text1("Join a Server", font, 128);
-			text1.setOrigin(text1.getGlobalBounds().width / 2.0f, text1.getGlobalBounds().height / 2.0f);
-			text1.setPosition(window.getSize().x / 2.0f, window.getSize().y / 2.0f - text1.getGlobalBounds().height * 1.1f);
-			text1.setColor(sf::Color::Blue);
-			// ip format text
-			sf::Text text2("Server Address", font, 16);
-			text2.setOrigin(text2.getGlobalBounds().width / 2.0f, text2.getGlobalBounds().height / 2.0f);
-			text2.setPosition(window.getSize().x / 2.0f, window.getSize().y / 2.0f - text2.getGlobalBounds().height * 2.0f);
-			text2.setColor(sf::Color::Cyan);
-			// ip and port entered
-			sf::Text text(connectToIPandPort, font, 32);
-			text.setOrigin(text.getGlobalBounds().width / 2.0f, text.getGlobalBounds().height / 2.0f);
-			text.setPosition(window.getSize().x / 2.0f, window.getSize().y / 2.0f);
-			text.setColor(sf::Color::Black);
-			// white background
-			sf::RectangleShape background(sf::Vector2f(300.0f, 40.0f));
-			background.setOrigin(150.0f, 10.0f);
-			background.setFillColor(sf::Color::White);
-			background.setPosition(window.getSize().x / 2.0f, window.getSize().y / 2.0f);
-			// ip and port entered
-			sf::Text text3("Done", font, 24);
-			text3.setOrigin(text3.getGlobalBounds().width / 2.0f, text3.getGlobalBounds().height / 2.0f);
-			text3.setPosition(window.getSize().x / 2.0f, window.getSize().y / 2.0f + text3.getGlobalBounds().height * 3.0f);
-			text3.setColor(sf::Color::Black);
-			// button
-			sf::RectangleShape button(sf::Vector2f(150.0f, 32.0f));
-			button.setOrigin(75.0f, 8.0f);
-			button.setFillColor(sf::Color::Green);
-			button.setPosition(window.getSize().x / 2.0f, window.getSize().y / 2.0f + text3.getGlobalBounds().height * 2.8f);
+			//server address text
+			sf::Text serverText("Server Address", font, 16);
+			serverText.setOrigin(serverText.getGlobalBounds().width / 2.0f, serverText.getGlobalBounds().height / 2.0f);
+			serverText.setPosition(window.getSize().x / 2.0f, window.getSize().y / 2.0f - serverText.getGlobalBounds().height * 4.0f);
+			serverText.setColor(sf::Color::Cyan);
+			//join text field
+			joinTF.setOrigin(joinTF.getGlobalBounds().width / 2.0f, joinTF.getGlobalBounds().height / 2.0f);
+			joinTF.setPosition(window.getSize().x / 2.0f, window.getSize().y / 2.0f);
+			//join game button
+			sf::Text joinText("Join Game", font);
+			joinText.setColor(sf::Color::Black);
+			Button joinButton(joinText, sf::Vector2f(200.0f, 75.0f),ingameScreen);
+			joinButton.setOrigin(joinButton.getGlobalBounds().width / 2.0f, joinButton.getGlobalBounds().height / 2.0f);
+			joinButton.setPosition(sf::Vector2f(windowSize.x / 2, 400.0f));
 			// draw
-			window.draw(background);
-			window.draw(button);
-			window.draw(text);
-			window.draw(text1);
-			window.draw(text2);
-			window.draw(text3);
+			window.draw(serverText);
+			joinTF.draw(window);
+			joinButton.draw(window);
 		}
 		else if (currentScreenDisplayed == createServer) {
-
+			//ip and instructions on joining a server text
+			sf::Text ipText("Want others to join your server? Have them use this IP address:123.123.123.123:5555", font, 20);
+			ipText.setOrigin(ipText.getGlobalBounds().width / 2.0f, ipText.getGlobalBounds().height / 2.0f);
+			ipText.setPosition(window.getSize().x / 2.0f, window.getSize().y / 2.0f - ipText.getGlobalBounds().height * 10.0f);
+			ipText.setColor(sf::Color::Cyan);
+			//join game button
+			sf::Text joinText("Join Game", font);
+			joinText.setColor(sf::Color::Black);
+			Button joinButton(joinText, sf::Vector2f(200.0f, 75.0f), ingameScreen);
+			joinButton.setOrigin(joinButton.getGlobalBounds().width / 2.0f, joinButton.getGlobalBounds().height / 2.0f);
+			joinButton.setPosition(sf::Vector2f(windowSize.x / 2, 400.0f));
+			//draw
+			joinButton.draw(window);
+			window.draw(ipText);
 		}
 		else if (currentScreenDisplayed == ingame) {
 			player.draw(window);
-		}*/
+		}
 
 		window.display();
 	}
