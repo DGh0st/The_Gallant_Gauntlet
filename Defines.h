@@ -1,4 +1,6 @@
-#pragma once
+#ifndef DEFINES_H
+#define DEFINES_H
+#include <SFML/Network.hpp>
 
 // all
 #define windowDesignSize sf::Vector2u(1920, 1080) // UI designed for these resolutions
@@ -10,13 +12,18 @@ static sf::Vector2u windowSize(1920, 1080); // current window size
 #define moveRightKey sf::Keyboard::D // right
 // character
 #define PI 3.14159265f
-#define characterSize 20.0f // size of the character
+#define playerSize 20.0f // size of the character
 // Server and Client
+#ifndef USERINFO
+#define USERINFO
+
 struct userInfo {
-	std::string name; // name of the user
+	std::string name = ""; // name of the user
 	sf::IpAddress ip = sf::IpAddress::None; // ip used to connect to server
-	unsigned short port; // port used to connect to server
+	unsigned short port = 1000; // port used to connect to server
 };
+
+#endif // !USERINFO
 // main
 enum screenTypes {
 	title = 0, // title screen
@@ -24,4 +31,5 @@ enum screenTypes {
 	joinServer = 2, // join a server screen
 	ingame = 3, // in game screen
 };
-static screenTypes currentScreenDisplayed = title;
+
+#endif // !DEFINES_H

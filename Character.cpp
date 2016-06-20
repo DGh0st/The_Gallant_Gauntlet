@@ -3,14 +3,14 @@
 #include <fstream>
 #include <stdlib.h>
 
-#include "character.h"
+#include "Character.h"
 #include "Defines.h"
 
 Character::Character(int maxHealth, int damage, float divingAccuracy, float charSpeed, float diveSpeed, float diveResetTime, float diveResistance) : maxHealth(maxHealth), health(maxHealth), damage(damage), divingAccuracy(divingAccuracy), charSpeed(charSpeed), diveSpeed(diveSpeed), diveResetTime(diveResetTime), diveResistance(diveResistance) {
-	player = sf::RectangleShape(sf::Vector2f(characterSize, characterSize));
+	player = sf::RectangleShape(sf::Vector2f(playerSize, playerSize));
 	player.setFillColor(sf::Color::Green);
-	player.setOrigin(characterSize / 2, characterSize / 2);
-	player.setPosition(characterSize, characterSize);
+	player.setOrigin(playerSize / 2, playerSize / 2);
+	player.setPosition(playerSize, playerSize);
 	divingMovement = sf::Vector2f(0.0f, 0.0f);
 	lastKey = sf::Keyboard::Unknown;
 	diveResetTimer.restart();

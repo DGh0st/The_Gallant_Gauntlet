@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CHARACTER_H
+#define CHARACTER_H
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
 
@@ -19,9 +20,9 @@ public:
 	// character movement
 	void move(const sf::RenderWindow & window, const sf::Keyboard::Key releasedKey);
 	// chain packets of type character
-	sf::Packet chainDataToPacket(sf::Packet &packet);
+	sf::Packet chainDataToPacket(sf::Packet & packet);
 	// extract packets of type character
-	sf::Packet extractPacketToData(sf::Packet &packet);
+	sf::Packet extractPacketToData(sf::Packet & packet);
 
 private:
 	sf::RectangleShape player; // shape of the character
@@ -35,3 +36,5 @@ private:
 	float diveResetTime; // time required to reset the dive key (cooldown on diving)
 	float diveResistance; // resistance when diving (simply to not make it jump in one frame)
 };
+
+#endif // !CHARACTER_H

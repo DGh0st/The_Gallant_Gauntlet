@@ -15,6 +15,11 @@ Textfield ::~Textfield() {
 }
 
 void Textfield::operator=(const Textfield & other) {
+	this->setSize(other.getSize());
+	this->setOrigin(other.getOrigin());
+	this->setFillColor(other.getFillColor());
+	this->setScale(other.getScale());
+	this->setPosition(other.getPosition());
 	string = other.string;
 	inputText = other.inputText;
 	cursor = other.cursor;
@@ -49,7 +54,7 @@ void Textfield::handleEvent(sf::Event event) {
 		blinkCursorTimer.restart();
 	}
 	else if (event.type == sf::Event::MouseButtonPressed) {
-		if (this->getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+		if (this->getGlobalBounds().contains((float) event.mouseButton.x, (float) event.mouseButton.y)) {
 			hasFocus = true;
 		}
 		else {

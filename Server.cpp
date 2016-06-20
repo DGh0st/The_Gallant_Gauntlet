@@ -3,22 +3,13 @@
 Server::Server(unsigned short port) {
 	// clean up list of connections
 	connections = std::vector<userInfo>(0);
-	// check the port and bind it to server
-	if (port < 1000) {
-		port = sf::Socket::AnyPort;
-	}
-	if (serverSocket.bind(port) != sf::Socket::Done) {
-		// failed to bind
-	}
-	this->port = serverSocket.getLocalPort();
 	// start server
 	running = true;
 }
 
 Server::~Server() {
-	// unbind port and stop server
-	serverSocket.unbind();
-	running = false;
+	// stop server
+	stopServer();
 }
 
 void Server::operator=(const Server & other) {
@@ -27,12 +18,15 @@ void Server::operator=(const Server & other) {
 	running = other.running;
 	// unbind the port
 	other.~Server();
-	if (serverSocket.bind(port) != sf::Socket::Done) {
-		// failed to bind
-	}
 }
 
 void Server::runServer() {
+	sf::UdpSocket serverSocket; // server socket (UDP)
+	// bind port
+	while (serverSocket.bind(port) != sf::Socket::Done) {
+		port = sf::Socket::AnyPort;
+	}
+	port = serverSocket.getLocalPort();
 	sf::Packet dataPacket;
 	sf::IpAddress senderIp;
 	unsigned short senderPort;
@@ -53,7 +47,7 @@ void Server::runServer() {
 				continue;
 			}
 			else if (strcmp(data, "join game") == 0) {
-				user.name = "Player" + uniqueConnectionCount;
+				user.name = uniqueConnectionCount;
 				user.ip = senderIp;
 				user.port = senderPort;
 				uniqueConnectionCount++;
@@ -79,4 +73,13 @@ void Server::runServer() {
 			}
 		}
 	}
+	serverSocket.unbind();
+}
+
+void Server::stopServer() {
+	running = false;
+}
+
+unsigned int Server::getPort() {
+	return port;
 }

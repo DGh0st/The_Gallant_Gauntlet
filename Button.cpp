@@ -1,6 +1,6 @@
 #include "Button.h"
 
-Button::Button(sf::Text & text, sf::Vector2f & padding, void (*function)()) : sf::RectangleShape(), callback_function(function) {
+Button::Button(sf::Text & text, sf::Vector2f & padding, void (*function)()) : sf::RectangleShape(), callback_function(function), padding(padding) {
 	this->setSize(sf::Vector2f(buttonText.getGlobalBounds().width + padding.x, buttonText.getGlobalBounds().height + padding.y));
 	buttonText = sf::Text(text);
 	buttonText.setOrigin(buttonText.getGlobalBounds().width / 2.0f, buttonText.getGlobalBounds().height / 2.0f);
@@ -11,6 +11,11 @@ Button::~Button() {
 }
 
 void Button::operator=(const Button & other) {
+	this->setSize(other.getSize());
+	this->setOrigin(other.getOrigin());
+	this->setFillColor(other.getFillColor());
+	this->setScale(other.getScale());
+	this->setPosition(other.getPosition());
 	buttonText = sf::Text(other.buttonText);
 	normalColor = other.normalColor;
 	hoverColor = other.hoverColor;
@@ -23,27 +28,34 @@ void Button::operator=(const Button & other) {
 
 void Button::draw(sf::RenderWindow & window) {
 	window.draw(*this);
-	sf::FloatRect buttonBounds = this->getGlobalBounds();
-	buttonText.setPosition(sf::Vector2f(buttonBounds.left + buttonBounds.width / 2.0f, buttonBounds.top + buttonBounds.height / 2.0f));
+	buttonText.setPosition(sf::Vector2f(this->getGlobalBounds().left + this->getGlobalBounds().width / 2.0f, this->getGlobalBounds().top + this->getGlobalBounds().height / 2.0f));
 	window.draw(buttonText);
-	handleMouseMovement(window);
 }
 
-void Button::handleMouseMovement(sf::RenderWindow & window) {
-	if (this->getGlobalBounds().contains((sf::Vector2f) sf::Mouse::getPosition(window))) {
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-			this->setFillColor(clickedColor);
-			this->setTexture(&clickedTexture);
-			// call the on click function that they provided
-			callback_function();
+void Button::handleEvent(sf::Event event) {
+	if (event.type == sf::Event::MouseButtonPressed) {
+		if (this->getGlobalBounds().contains((float) event.mouseButton.x, (float) event.mouseButton.y)) {
+			if (event.mouseButton.button == sf::Mouse::Left) {
+				this->setFillColor(clickedColor);
+				this->setTexture(&clickedTexture);
+				hasFocus = true;
+				// call the on click function that they provided
+			}
+			else {
+				this->setFillColor(hoverColor);
+				this->setTexture(&hoverTexture);
+				hasFocus = false;
+			}
 		}
 		else {
-			this->setFillColor(hoverColor);
-			this->setTexture(&hoverTexture);
+			this->setFillColor(normalColor);
+			this->setTexture(&normalTexture);
+			hasFocus = false;
 		}
 	}
-	else {
-		this->setFillColor(normalColor);
-		this->setTexture(&normalTexture);
+	else if (event.type == sf::Event::MouseButtonReleased) {
+		if (event.mouseButton.button == sf::Mouse::Left && hasFocus) {
+			callback_function();
+		}
 	}
 }

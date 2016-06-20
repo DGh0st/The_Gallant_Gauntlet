@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TEXTFIELD_H
+#define TEXTFIELD_H
 #include <SFML/Graphics.hpp>
 
 class Textfield : public sf::RectangleShape {
@@ -35,3 +36,5 @@ private:
 	bool hasFocus = false;
 	sf::Vector2f padding;
 };
+
+#endif // !TEXTFIELD_H
