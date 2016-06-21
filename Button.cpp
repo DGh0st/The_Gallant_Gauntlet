@@ -1,6 +1,6 @@
 #include "Button.h"
 
-Button::Button(sf::Text & text, sf::Vector2f & padding, void (*function)()) : sf::RectangleShape(), callback_function(function), padding(padding) {
+Button::Button(sf::Text & text, sf::Vector2f & padding, void (*function)()) : sf::RectangleShape(), callback_function(function) {
 	this->setSize(sf::Vector2f(buttonText.getGlobalBounds().width + padding.x, buttonText.getGlobalBounds().height + padding.y));
 	buttonText = sf::Text(text);
 	buttonText.setOrigin(buttonText.getGlobalBounds().width / 2.0f, buttonText.getGlobalBounds().height / 2.0f);
@@ -24,6 +24,7 @@ void Button::operator=(const Button & other) {
 	hoverTexture = other.hoverTexture;
 	clickedTexture = other.clickedTexture;
 	callback_function = other.callback_function;
+	hasFocus = false;
 }
 
 void Button::draw(sf::RenderWindow & window) {

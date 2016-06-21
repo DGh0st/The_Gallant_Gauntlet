@@ -40,7 +40,6 @@ private:
 	sf::Texture clickedTexture;
 	void (*callback_function)() = NULL;
 	bool hasFocus = false;
-	sf::Vector2f padding;
 };
 
 #endif // !BUTTON_H
