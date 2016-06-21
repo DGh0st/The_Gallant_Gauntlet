@@ -157,10 +157,6 @@ int main() {
 		}
 		else if (currentScreenDisplayed == createServer) {
 			//ip and instructions on joining a server text
-			/*char *ipString = "Please use 888.888.888:88888 to connect to the server...";
-			if (isServerInitializedAndRunning && runningServer.getPort() != 0) {
-				sprintf(ipString, "Please use %s:%d to connect to the server", sf::IpAddress::getPublicAddress().toString().c_str(), runningServer.getPort());
-			}*/
 			std::ostringstream ipString;
 			ipString << "Please use " << sf::IpAddress::getPublicAddress().toString() << ":" << runningServer.getPort() << " to connect to the server.";
 			sf::Text ipText(ipString.str(), font, 20);
@@ -178,10 +174,13 @@ int main() {
 			window.draw(ipText);
 		}
 		else if (currentScreenDisplayed == ingame) {
+			// player movement and send that data to server
 			player.move(window, releasedKey);
 			sf::Packet packet;
 			packet = player.chainDataToPacket(packet);
 			runningClient.sendPacket(clientSocket, packet);
+			// draw
+			runningClient.draw(window);
 			player.draw(window);
 		}
 

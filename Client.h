@@ -29,6 +29,8 @@ public:
 	void receivePackets(sf::UdpSocket & socket);
 	// stop receiving packets
 	void stopReceivingPackets();
+	// draw other players
+	void draw(sf::RenderWindow & window);
 
 private:
 	unsigned short port; // port for the client

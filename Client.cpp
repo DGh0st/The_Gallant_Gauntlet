@@ -76,3 +76,9 @@ void Client::receivePackets(sf::UdpSocket & socket) {
 void Client::stopReceivingPackets() {
 	server = userInfo();
 }
+
+void Client::draw(sf::RenderWindow & window) {
+	for (int i = 0; i < otherPlayers.size(); i++) {
+		otherPlayers[i].userCharacter.draw(window);
+	}
+}
