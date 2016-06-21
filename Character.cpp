@@ -46,9 +46,11 @@ void Character::move(const sf::RenderWindow & window, const sf::Keyboard::Key re
 	sf::Vector2i diff = mousePos - charPos;
 	float angle = (float)atan2(diff.y, diff.x) * (180 / PI);
 	player.setRotation(angle);
+	playerSprite.setRotation(angle);
 	// dive/roll in progress if needed
 	if (divingMovement != sf::Vector2f(0.0f, 0.0f)) {
 		player.move(divingMovement);
+		playerSprite.move(divingMovement);
 		divingMovement = sf::Vector2f(divingMovement.x * diveResistance, divingMovement.y * diveResistance);
 		if (abs(divingMovement.x) < divingAccuracy && abs(divingMovement.y) < divingAccuracy) {
 			divingMovement = sf::Vector2f(0.0f, 0.0f);
@@ -80,15 +82,19 @@ void Character::move(const sf::RenderWindow & window, const sf::Keyboard::Key re
 	// normal movement
 	if (sf::Keyboard::isKeyPressed(moveUpKey)) {
 		player.move(sf::Vector2f(0.0f, -charSpeed)); // up
+		playerSprite.move(sf::Vector2f(0.0f, -charSpeed)); // up
 	}
 	if (sf::Keyboard::isKeyPressed(moveDownKey)) {
 		player.move(sf::Vector2f(0.0f, charSpeed)); // down
+		playerSprite.move(sf::Vector2f(0.0f, charSpeed)); // down
 	}
 	if (sf::Keyboard::isKeyPressed(moveLeftKey)) {
 		player.move(sf::Vector2f(-charSpeed, 0.0f)); // left
+		playerSprite.move(sf::Vector2f(-charSpeed, 0.0f)); // left
 	}
 	if (sf::Keyboard::isKeyPressed(moveRightKey)) {
 		player.move(sf::Vector2f(charSpeed, 0.0f)); // right
+		playerSprite.move(sf::Vector2f(charSpeed, 0.0f)); // right
 	}
 }
 

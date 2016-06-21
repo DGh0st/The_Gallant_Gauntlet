@@ -23,9 +23,10 @@ public:
 	sf::Packet chainDataToPacket(sf::Packet & packet);
 	// extract packets of type character
 	sf::Packet extractPacketToData(sf::Packet & packet);
-
-private:
+protected:
 	sf::RectangleShape player; // shape of the character
+	sf::Sprite playerSprite; //sprite of character
+private:
 	sf::Int16 maxHealth, health, damage; // health and damage
 	sf::Clock diveResetTimer; // reset timer for diving in specific direction
 	sf::Vector2f divingMovement; // movement of the character when diving

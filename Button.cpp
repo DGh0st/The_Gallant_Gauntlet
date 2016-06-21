@@ -24,7 +24,6 @@ void Button::operator=(const Button & other) {
 	hoverTexture = other.hoverTexture;
 	clickedTexture = other.clickedTexture;
 	callback_function = other.callback_function;
-	hasFocus = false;
 }
 
 void Button::draw(sf::RenderWindow & window) {

@@ -8,21 +8,22 @@
 #include "Textfield.h"
 #include "Server.h"
 #include "Client.h"
+#include "Ranger.h"
 
 static screenTypes currentScreenDisplayed = title; // current displayed screen
 
-// info about server (from server side)
+												   // info about server (from server side)
 static Server runningServer; // holds the server itself, if running server on your pc
 static bool isServerInitializedAndRunning = false;
 std::thread serverThread; // thread server is running on
 
-// info about server (from client side)
+						  // info about server (from client side)
 static userInfo serverInfo; // info about the server for the user
 sf::UdpSocket clientSocket;
 static Client runningClient = Client(clientSocket, serverInfo); // holds the client that connects to the server
 std::thread clientThread; // thread client is running on
 
-// get IP address and port from the user in joinScreen
+						  // get IP address and port from the user in joinScreen
 static std::string connectToIPandPort = "";
 
 void runClient() {
@@ -82,8 +83,14 @@ int main() {
 	sf::Font font;
 	font.loadFromFile("fonts/times.ttf");
 	Character player = Character();
+	font.loadFromFile("fonts/times.ttf");
+	sf::Texture rangerTexture;
+	rangerTexture.loadFromFile("textures/ranger.png");
+	sf::Texture arrowTexture;
+	arrowTexture.loadFromFile("textures/arrow.png");
+	Ranger ranger(rangerTexture, arrowTexture, 0.25f);
 	sf::Keyboard::Key releasedKey = sf::Keyboard::Unknown;
-	
+
 	Textfield joinTF(font, sf::Vector2f(650.0f, 50.0f));
 	Button playButton, createButton, joinButton;
 
@@ -176,12 +183,16 @@ int main() {
 		else if (currentScreenDisplayed == ingame) {
 			// player movement and send that data to server
 			player.move(window, releasedKey);
+			ranger.move(window, releasedKey);
+			ranger.shoot(window);
 			sf::Packet packet;
 			packet = player.chainDataToPacket(packet);
 			runningClient.sendPacket(clientSocket, packet);
 			// draw
 			runningClient.draw(window);
 			player.draw(window);
+			ranger.draw(window);
+			ranger.drawArrows(window);
 		}
 
 		window.display();
