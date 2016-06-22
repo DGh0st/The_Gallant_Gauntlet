@@ -1,4 +1,5 @@
 #include "Client.h"
+#include "ClientData.h"
 
 Client::Client(sf::UdpSocket & socket, userInfo server) : server(server) {
 	otherPlayers = std::vector<PlayerData>(0);
@@ -53,20 +54,23 @@ void Client::receivePackets(sf::UdpSocket & socket) {
 				printf("[Client] received success\n");
 				continue; // connected to server successfully
 			}
-			int senderId;
-			packet >> senderId;
+			ClientData cd;
+			packet >> cd;
+			sf::Packet resultPacket;
+			resultPacket.clear();
+			resultPacket << cd.data;
 			int i;
 			for (i = 0; i < otherPlayers.size(); i++) {
-				if (senderId == otherPlayers[i].userID) {
-					otherPlayers[i].userCharacter.extractPacketToData(packet);
+				if (cd.id == otherPlayers[i].userID) {
+					otherPlayers[i].userCharacter.extractPacketToData(resultPacket);
 					break;
 				}
 			}
 			if (i == otherPlayers.size()) {
 				PlayerData userData;
-				userData.userID = senderId;
+				userData.userID = cd.id;
 				userData.userCharacter = Character();
-				userData.userCharacter.extractPacketToData(packet);
+				userData.userCharacter.extractPacketToData(resultPacket);
 				otherPlayers.push_back(userData);
 			}
 		}

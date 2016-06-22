@@ -1,4 +1,5 @@
 #include "Server.h"
+#include "ClientData.h"
 
 Server::Server(unsigned short port) : port(port) {
 	// clean up list of connections
@@ -73,8 +74,13 @@ void Server::runServer() {
 					}
 				}
 			}
-			// insert id
-			dataPacket << user.id;
+			ClientData cd;
+			cd.id = user.id;
+			dataPacket >> data;
+			// result packet
+			sf::Packet resultPacket;
+			resultPacket.clear();
+			resultPacket << cd;
 			// send data to every connection
 			for (int i = 0; i < connections.size(); i++) {
 				if (connections[i].ip != senderIp || connections[i].port != senderPort) {
