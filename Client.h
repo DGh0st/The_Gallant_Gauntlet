@@ -5,7 +5,7 @@
 #include "Character.h"
 
 struct PlayerData {
-	std::string userID;
+	int userID;
 	Character userCharacter;
 };
 

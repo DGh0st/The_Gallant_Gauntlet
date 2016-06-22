@@ -4,7 +4,7 @@ Client::Client(sf::UdpSocket & socket, userInfo server) : server(server) {
 	otherPlayers = std::vector<PlayerData>(0);
 	if (server.ip != sf::IpAddress::None) {
 		// setup port stuff
-		if (socket.bind(server.port + 1) != sf::Socket::Done) {
+		if (socket.bind(sf::Socket::AnyPort) != sf::Socket::Done) {
 			// failed to bind
 		}
 		port = socket.getLocalPort();
@@ -50,17 +50,15 @@ void Client::receivePackets(sf::UdpSocket & socket) {
 			char *data = (char *)packet.getData();
 			packet >> data >> clientIDfromServer;
 			if (strcmp(data, "success") == 0) {
-				printf("[Client] received success");
+				printf("[Client] received success\n");
 				continue; // connected to server successfully
 			}
-			std::string senderId;
-			sf::Packet characterData;
-			characterData.clear();
-			packet << senderId << characterData;
+			int senderId;
+			packet >> senderId;
 			int i;
 			for (i = 0; i < otherPlayers.size(); i++) {
 				if (senderId == otherPlayers[i].userID) {
-					otherPlayers[i].userCharacter.extractPacketToData(characterData);
+					otherPlayers[i].userCharacter.extractPacketToData(packet);
 					break;
 				}
 			}
@@ -68,7 +66,7 @@ void Client::receivePackets(sf::UdpSocket & socket) {
 				PlayerData userData;
 				userData.userID = senderId;
 				userData.userCharacter = Character();
-				userData.userCharacter.extractPacketToData(characterData);
+				userData.userCharacter.extractPacketToData(packet);
 				otherPlayers.push_back(userData);
 			}
 		}

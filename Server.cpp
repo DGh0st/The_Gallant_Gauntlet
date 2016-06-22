@@ -57,6 +57,7 @@ void Server::runServer() {
 				user.port = senderPort;
 				uniqueConnectionCount++;
 				connections.push_back(user);
+				printf("[Server] Checking sizes... %zu vs %d\n", connections.size(), uniqueConnectionCount);
 				sf::Packet successPacket;
 				successPacket.clear();
 				successPacket << "success" << user.id;
@@ -65,10 +66,18 @@ void Server::runServer() {
 				}
 				continue;
 			}
+			else {
+				for (int i = 0; i < connections.size(); i++) {
+					if (connections[i].ip == senderIp && connections[i].port == senderPort) {
+						user = connections[i];
+					}
+				}
+			}
+			// insert id
+			dataPacket << user.id;
 			// send data to every connection
 			for (int i = 0; i < connections.size(); i++) {
-				if (connections[i].ip != senderIp && connections[i].port != senderPort) {
-					printf("[Server] Sending data...\n");
+				if (connections[i].ip != senderIp || connections[i].port != senderPort) {
 					if (serverSocket.send(dataPacket, connections[i].ip, connections[i].port) != sf::Socket::Done) {
 						// Error sending packet
 					}
