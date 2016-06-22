@@ -26,13 +26,13 @@ public:
 protected:
 	sf::RectangleShape player; // shape of the character
 	sf::Sprite playerSprite; //sprite of character
+	float charSpeed; // normal character movement speed
 private:
 	sf::Int16 maxHealth, health, damage; // health and damage
 	sf::Clock diveResetTimer; // reset timer for diving in specific direction
 	sf::Vector2f divingMovement; // movement of the character when diving
 	sf::Keyboard::Key lastKey; // last key released (W, A, S, D) required for diving
 	float divingAccuracy; // stop diving once movement is less than this
-	float charSpeed; // normal character movement speed
 	float diveSpeed; // character dive speed
 	float diveResetTime; // time required to reset the dive key (cooldown on diving)
 	float diveResistance; // resistance when diving (simply to not make it jump in one frame)

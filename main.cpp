@@ -8,7 +8,9 @@
 #include "Textfield.h"
 #include "Server.h"
 #include "Client.h"
+#include "ProjectileShooter.h"
 #include "Ranger.h"
+#include "Mage.h"
 
 static screenTypes currentScreenDisplayed = title; // current displayed screen
 
@@ -86,9 +88,16 @@ int main() {
 	font.loadFromFile("fonts/times.ttf");
 	sf::Texture rangerTexture;
 	rangerTexture.loadFromFile("textures/ranger.png");
+	sf::Texture mageTexture;
+	mageTexture.loadFromFile("textures/mage.png");
 	sf::Texture arrowTexture;
 	arrowTexture.loadFromFile("textures/arrow.png");
-	Ranger ranger(rangerTexture, arrowTexture, 0.25f);
+	sf::Texture fireballA;
+	fireballA.loadFromFile("textures/fireballA.png");
+	sf::Texture fireballB;
+	fireballB.loadFromFile("textures/fireballB.png");
+	Mage ranger(mageTexture, fireballA, fireballB, 0.3f, 0.5f, 0.3f, 0.3f);
+	//Ranger ranger(rangerTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
 	sf::Keyboard::Key releasedKey = sf::Keyboard::Unknown;
 
 	Textfield joinTF(font, sf::Vector2f(650.0f, 50.0f));
@@ -183,16 +192,22 @@ int main() {
 		else if (currentScreenDisplayed == ingame) {
 			// player movement and send that data to server
 			player.move(window, releasedKey);
+			//mage.move(window,releasedKey);
+			//mage.shoot(window);
 			ranger.move(window, releasedKey);
 			ranger.shoot(window);
+
 			sf::Packet packet;
 			packet = player.chainDataToPacket(packet);
 			runningClient.sendPacket(clientSocket, packet);
 			// draw
 			runningClient.draw(window);
 			player.draw(window);
+			//mage.drawProjectiles(window);
+			//mage.draw(window);
+			ranger.drawProjectiles(window);
 			ranger.draw(window);
-			ranger.drawArrows(window);
+
 		}
 
 		window.display();

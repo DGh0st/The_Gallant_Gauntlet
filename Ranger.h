@@ -5,49 +5,24 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
-#include "Character.h"
+#include "ProjectileShooter.h"
 
-class Ranger : public Character {
+class Ranger : public ProjectileShooter {
 public:
-	struct Arrow {
-		//default arrow constructor
-		Arrow();
-		//constructor
-		Arrow(sf::RenderWindow & window, sf::Texture & arrowTexture);
-		//sprite of arrow, created using "arrowTexture"
-		sf::Sprite arrowSprite;
-		//start position based on player position
-		sf::Vector2f startPos;
-		//mouse position when arrow was created
-		sf::Vector2i mousePos;
-	};
 	//constructor that creates the ranger
-	//@param arrowTexture: texture to use for arrows
+	//@param rangerTexture: texture for ranger
+	//@param arrowTextureA: texture for first animation frame of arrow
+	//@param arrowTextureB: texture for second animation frame of arrow (same texture as A if no animation for arrow)
 	//@param arrowSpeed: speed of arrows shot
-	Ranger(sf::Texture & rangerTexture, sf::Texture & arrowTexture, float arrowSpeed = 10.0f);
-	//draws ranger
-	void draw(sf::RenderWindow & window);
-	//shoots arrow on left click
-	void shoot(sf::RenderWindow & window);
-	//draws and moves all arrows
-	void drawArrows(sf::RenderWindow & window);
+	//@param arrowReloadTime: time before you can shoot another arrow
+	Ranger(sf::Texture & rangerTexture, sf::Texture & arrowTextureA, sf::Texture & arrowTextureB, float moveSpeed = 1.5f,
+		float arrowSpeed = 1.0f, float arrowReloadTime = 0.3f, float timeAfterShot = 1.0f, float slowSpeed = 0.1f);
+
+	void move(const sf::RenderWindow & window, const sf::Keyboard::Key releasedKey);
+
 private:
-	sf::Sprite rangerSprite; //sprite of ranger
-	float arrowSpeed; //speed of arrows shot
-	std::vector<Arrow*> arrows; //stores all arrows
-
-								//--ARROW--
-								//creates arrows, sets position and rotation, and inserts into "arrows" vector
-	void createArrow(sf::RenderWindow & window);
-	//checks if arrow is on screen (called by "drawArrows")
-	//@param arrow: arrow to check
-	//@return bool: true if arrow is on screen, false if arrow is not on screen
-	bool Ranger::arrowOnScreen(Arrow * arrow);
-	//called by "drawArrows" to move all arrows forward
-	void moveArrow(Arrow * arrow);
-	sf::Texture arrowTexture; //texture for arrow
-	sf::Clock clock; //used for arrow shooting
-
+	float moveSpeed;
+	float slowSpeed;
 };
 
 #endif
