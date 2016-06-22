@@ -1,5 +1,4 @@
 #include "Client.h"
-#include "ClientData.h"
 
 Client::Client(sf::UdpSocket & socket, userInfo server) : server(server) {
 	otherPlayers = std::vector<PlayerData>(0);
@@ -48,29 +47,28 @@ void Client::receivePackets(sf::UdpSocket & socket) {
 		}*/
 		if (rec == sf::Socket::Done) {
 			// manage packet data
-			char *data = (char *)packet.getData();
-			packet >> data >> clientIDfromServer;
+			sf::Packet copyPacket(packet);
+			char *data = (char *)copyPacket.getData();
+			copyPacket >> data;
 			if (strcmp(data, "success") == 0) {
-				printf("[Client] received success\n");
+				copyPacket >> clientIDfromServer;
+				printf("[Client] received success ... %s vs %s\n", data, clientIDfromServer.c_str());
 				continue; // connected to server successfully
 			}
-			ClientData cd;
-			packet >> cd;
-			sf::Packet resultPacket;
-			resultPacket.clear();
-			resultPacket << cd.data;
+			std::string senderId;
+			packet >> senderId;
 			int i;
 			for (i = 0; i < otherPlayers.size(); i++) {
-				if (cd.id == otherPlayers[i].userID) {
-					otherPlayers[i].userCharacter.extractPacketToData(resultPacket);
+				if (senderId == otherPlayers[i].userID) {
+					otherPlayers[i].userCharacter.extractPacketToData(packet);
 					break;
 				}
 			}
 			if (i == otherPlayers.size()) {
 				PlayerData userData;
-				userData.userID = cd.id;
+				userData.userID = senderId;
 				userData.userCharacter = Character();
-				userData.userCharacter.extractPacketToData(resultPacket);
+				userData.userCharacter.extractPacketToData(packet);
 				otherPlayers.push_back(userData);
 			}
 		}
@@ -92,4 +90,8 @@ void Client::draw(sf::RenderWindow & window) {
 	for (int i = 0; i < otherPlayers.size(); i++) {
 		otherPlayers[i].userCharacter.draw(window);
 	}
+}
+
+std::string Client::getClientId() {
+	return clientIDfromServer;
 }

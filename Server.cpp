@@ -1,5 +1,4 @@
 #include "Server.h"
-#include "ClientData.h"
 
 Server::Server(unsigned short port) : port(port) {
 	// clean up list of connections
@@ -41,9 +40,9 @@ void Server::runServer() {
 		//printf("[Server] Received data...\n");
 		if (rec == sf::Socket::Done) {
 			// maintain connections based on data received (join or left)
-			char *data = (char *)dataPacket.getData();
-			dataPacket >> data;
-			userInfo user;
+			sf::Packet copyPacket(dataPacket);
+			char *data = (char *)copyPacket.getData();
+			copyPacket >> data;
 			if (strcmp(data, "left game") == 0) {
 				for (int i = 0; i < connections.size(); i++) {
 					if (connections[i].ip == senderIp && connections[i].port == senderPort) {
@@ -53,7 +52,8 @@ void Server::runServer() {
 				continue;
 			}
 			else if (strcmp(data, "join game") == 0) {
-				user.id = uniqueConnectionCount;
+				userInfo user;
+				user.name = "Player" + std::to_string(uniqueConnectionCount);
 				user.ip = senderIp;
 				user.port = senderPort;
 				uniqueConnectionCount++;
@@ -61,26 +61,12 @@ void Server::runServer() {
 				printf("[Server] Checking sizes... %zu vs %d\n", connections.size(), uniqueConnectionCount);
 				sf::Packet successPacket;
 				successPacket.clear();
-				successPacket << "success" << user.id;
+				successPacket << "success" << user.name;
 				if (serverSocket.send(successPacket, senderIp, senderPort)) {
 					// failed sending "success"
 				}
 				continue;
 			}
-			else {
-				for (int i = 0; i < connections.size(); i++) {
-					if (connections[i].ip == senderIp && connections[i].port == senderPort) {
-						user = connections[i];
-					}
-				}
-			}
-			ClientData cd;
-			cd.id = user.id;
-			dataPacket >> data;
-			// result packet
-			sf::Packet resultPacket;
-			resultPacket.clear();
-			resultPacket << cd;
 			// send data to every connection
 			for (int i = 0; i < connections.size(); i++) {
 				if (connections[i].ip != senderIp || connections[i].port != senderPort) {

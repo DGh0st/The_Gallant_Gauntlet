@@ -98,8 +98,8 @@ void Character::move(const sf::RenderWindow & window, const sf::Keyboard::Key re
 	}
 }
 
-sf::Packet Character::chainDataToPacket(sf::Packet & packet) {
-	return (packet << maxHealth << health << damage << player.getPosition().x << player.getPosition().y) ? packet : sf::Packet();
+sf::Packet Character::chainDataToPacket(sf::Packet & packet, std::string value) {
+	return (packet << value << maxHealth << health << damage << player.getPosition().x << player.getPosition().y) ? packet : sf::Packet();
 }
 
 sf::Packet Character::extractPacketToData(sf::Packet & packet) {

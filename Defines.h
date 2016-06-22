@@ -15,7 +15,7 @@ static sf::Vector2u windowSize(1920, 1080); // current window size
 #define playerSize 20.0f // size of the character
 // Server and Client
 struct userInfo {
-	int id = -1; // name of the user
+	std::string name = ""; // name of the user
 	sf::IpAddress ip = sf::IpAddress::None; // ip used to connect to server
 	unsigned short port = 1000; // port used to connect to server
 };

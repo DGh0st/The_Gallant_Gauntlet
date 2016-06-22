@@ -54,11 +54,11 @@ void onJoinGameClickFromClient() {
 		// port not included
 		return;
 	}
-	else if (serverInfo.id != -2) {
+	else if (serverInfo.name != "Server") {
 		// parse ip and port
 		size_t offset = connectToIPandPort.find_first_of(":", 0);
 		serverInfo.ip = sf::IpAddress(connectToIPandPort.substr(0, offset));
-		serverInfo.id = -2;
+		serverInfo.name = "Server";
 		serverInfo.port = (unsigned short)atoi(connectToIPandPort.substr(offset + 1, connectToIPandPort.length() - offset).c_str());
 		// actually join server
 		runningClient = Client(clientSocket, serverInfo);
@@ -68,9 +68,9 @@ void onJoinGameClickFromClient() {
 }
 
 void onJoinGameClickFromServer() {
-	if (serverInfo.id != -2) {
+	if (serverInfo.name != "Server") {
 		serverInfo.ip = sf::IpAddress::getLocalAddress();
-		serverInfo.id = -2;
+		serverInfo.name = "Server";
 		serverInfo.port = runningServer.getPort();
 		runningClient = Client(clientSocket, serverInfo);
 		clientThread = std::thread(&runClient);
@@ -198,17 +198,18 @@ int main() {
 			window.draw(ipText);
 		}
 		else if (currentScreenDisplayed == ingame) {
-			// player movement and send that data to server
-			player.move(window, releasedKey);
-			//mage.move(window,releasedKey);
-			//mage.shoot(window);
-			mager.move(window, releasedKey);
-			mager.shoot(window);
-
-			sf::Packet packet;
-			packet.clear();
-			packet = player.chainDataToPacket(packet);
-			runningClient.sendPacket(clientSocket, packet);
+			if (window.hasFocus()) {
+				// player movement and send that data to server
+				player.move(window, releasedKey);
+				//mage.move(window,releasedKey);
+				//mage.shoot(window);
+				mager.move(window, releasedKey);
+				mager.shoot(window);
+				sf::Packet packet;
+				packet.clear();
+				packet = player.chainDataToPacket(packet, runningClient.getClientId());
+				runningClient.sendPacket(clientSocket, packet);
+			}
 			// draw
 			runningClient.draw(window);
 			player.draw(window);
@@ -228,7 +229,7 @@ int main() {
 		serverThread.join();
 	}
 
-	if (serverInfo.id == -2) {
+	if (serverInfo.name == "Server") {
 		runningClient.stopReceivingPackets();
 		clientThread.join();
 		serverInfo = userInfo();

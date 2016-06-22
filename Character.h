@@ -20,7 +20,7 @@ public:
 	// character movement
 	void move(const sf::RenderWindow & window, const sf::Keyboard::Key releasedKey);
 	// chain packets of type character
-	sf::Packet chainDataToPacket(sf::Packet & packet);
+	sf::Packet chainDataToPacket(sf::Packet & packet, std::string value);
 	// extract packets of type character
 	sf::Packet extractPacketToData(sf::Packet & packet);
 protected:

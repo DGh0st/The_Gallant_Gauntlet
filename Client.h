@@ -5,7 +5,7 @@
 #include "Character.h"
 
 struct PlayerData {
-	int userID;
+	std::string userID;
 	Character userCharacter;
 };
 
@@ -31,12 +31,14 @@ public:
 	void stopReceivingPackets();
 	// draw other players
 	void draw(sf::RenderWindow & window);
+	// get client id
+	std::string getClientId();
 
 private:
 	unsigned short port; // port for the client
 	userInfo server; // server ip and port
 	std::vector<PlayerData> otherPlayers;
-	int clientIDfromServer; // id of the client gotten from the server
+	std::string clientIDfromServer; // id of the client gotten from the server
 };
 
 #endif // !CLIENT_H
