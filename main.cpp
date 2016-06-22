@@ -14,18 +14,18 @@
 
 static screenTypes currentScreenDisplayed = title; // current displayed screen
 
-												   // info about server (from server side)
+// info about server (from server side)
 static Server runningServer; // holds the server itself, if running server on your pc
 static bool isServerInitializedAndRunning = false;
 std::thread serverThread; // thread server is running on
 
-						  // info about server (from client side)
+// info about server (from client side)
 static userInfo serverInfo; // info about the server for the user
 sf::UdpSocket clientSocket;
 static Client runningClient = Client(clientSocket, serverInfo); // holds the client that connects to the server
 std::thread clientThread; // thread client is running on
 
-						  // get IP address and port from the user in joinScreen
+// get IP address and port from the user in joinScreen
 static std::string connectToIPandPort = "";
 
 void runClient() {
@@ -46,19 +46,19 @@ void onCreateGameClick() {
 }
 
 void onJoinGameClickFromClient() {
-	if (connectToIPandPort.size() < 12) {
-		// string shorter than 0.0.0.0:1000
+	if (connectToIPandPort.size() < 9) {
+		// string shorter than 0.0.0.0:1
 		return;
 	}
 	else if (connectToIPandPort.find_first_of(":", 0) == std::string::npos) {
 		// port not included
 		return;
 	}
-	else if (serverInfo.name != "Server") {
+	else if (serverInfo.id != -2) {
 		// parse ip and port
-		size_t offset = connectToIPandPort.find_last_of(":", 0);
+		size_t offset = connectToIPandPort.find_first_of(":", 0);
 		serverInfo.ip = sf::IpAddress(connectToIPandPort.substr(0, offset));
-		serverInfo.name = "Server";
+		serverInfo.id = -2;
 		serverInfo.port = (unsigned short)atoi(connectToIPandPort.substr(offset + 1, connectToIPandPort.length() - offset).c_str());
 		// actually join server
 		runningClient = Client(clientSocket, serverInfo);
@@ -68,9 +68,9 @@ void onJoinGameClickFromClient() {
 }
 
 void onJoinGameClickFromServer() {
-	if (serverInfo.name != "Server") {
-		serverInfo.ip = sf::IpAddress::getPublicAddress();
-		serverInfo.name = "Server";
+	if (serverInfo.id != -2) {
+		serverInfo.ip = sf::IpAddress::getLocalAddress();
+		serverInfo.id = -2;
 		serverInfo.port = runningServer.getPort();
 		runningClient = Client(clientSocket, serverInfo);
 		clientThread = std::thread(&runClient);
@@ -96,8 +96,8 @@ int main() {
 	fireballA.loadFromFile("textures/fireballA.png");
 	sf::Texture fireballB;
 	fireballB.loadFromFile("textures/fireballB.png");
-	Mage ranger(mageTexture, fireballA, fireballB, 0.3f, 0.5f, 0.3f, 0.3f);
-	//Ranger ranger(rangerTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
+	//Mage mager(mageTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
+	Ranger mager(rangerTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
 	sf::Keyboard::Key releasedKey = sf::Keyboard::Unknown;
 
 	Textfield joinTF(font, sf::Vector2f(650.0f, 50.0f));
@@ -119,10 +119,18 @@ int main() {
 					releasedKey = tempKey;
 				}
 			}
-			joinTF.handleEvent(event);
-			playButton.handleEvent(event);
-			createButton.handleEvent(event);
-			joinButton.handleEvent(event);
+
+			if (currentScreenDisplayed == title) {
+				playButton.handleEvent(event);
+				createButton.handleEvent(event);
+			}
+			else if (currentScreenDisplayed == joinServer) {
+				joinTF.handleEvent(event);
+				joinButton.handleEvent(event);
+			} 
+			else if (currentScreenDisplayed == createServer) {
+				joinButton.handleEvent(event);
+			}
 		}
 
 		window.clear();
@@ -194,10 +202,11 @@ int main() {
 			player.move(window, releasedKey);
 			//mage.move(window,releasedKey);
 			//mage.shoot(window);
-			ranger.move(window, releasedKey);
-			ranger.shoot(window);
+			mager.move(window, releasedKey);
+			mager.shoot(window);
 
 			sf::Packet packet;
+			packet.clear();
 			packet = player.chainDataToPacket(packet);
 			runningClient.sendPacket(clientSocket, packet);
 			// draw
@@ -205,8 +214,8 @@ int main() {
 			player.draw(window);
 			//mage.drawProjectiles(window);
 			//mage.draw(window);
-			ranger.drawProjectiles(window);
-			ranger.draw(window);
+			mager.drawProjectiles(window);
+			mager.draw(window);
 
 		}
 
@@ -219,7 +228,7 @@ int main() {
 		serverThread.join();
 	}
 
-	if (serverInfo.name == "Server") {
+	if (serverInfo.id == -2) {
 		runningClient.stopReceivingPackets();
 		clientThread.join();
 		serverInfo = userInfo();

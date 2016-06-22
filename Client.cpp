@@ -4,9 +4,8 @@ Client::Client(sf::UdpSocket & socket, userInfo server) : server(server) {
 	otherPlayers = std::vector<PlayerData>(0);
 	if (server.ip != sf::IpAddress::None) {
 		// setup port stuff
-		if (socket.bind(sf::Socket::AnyPort) != sf::Socket::Done) {
+		if (socket.bind(server.port + 1) != sf::Socket::Done) {
 			// failed to bind
-			while (socket.bind(sf::Socket::AnyPort) != sf::Socket::Done);
 		}
 		port = socket.getLocalPort();
 	}
@@ -32,6 +31,7 @@ void Client::sendPacket(sf::UdpSocket & socket, sf::Packet & packet) {
 void Client::receivePackets(sf::UdpSocket & socket) {
 	// send "join game" packet to the server
 	sf::Packet joinServerPacket;
+	joinServerPacket.clear();
 	joinServerPacket << "join game";
 	sendPacket(socket, joinServerPacket);
 	// setup variables and run receive
@@ -40,14 +40,21 @@ void Client::receivePackets(sf::UdpSocket & socket) {
 	unsigned short senderPort;
 
 	while (server.ip != sf::IpAddress::None) {
+		packet.clear();
 		int rec = socket.receive(packet, senderIp, senderPort);
-		if (senderIp != server.ip || senderPort != server.port) {
+		/*if (senderIp != server.ip || senderPort != server.port) {
 			continue; // got packet from wrong server so just ignore it
-		}
+		}*/
 		if (rec == sf::Socket::Done) {
 			// manage packet data
+			char *data = (char *)packet.getData();
+			packet >> data >> clientIDfromServer;
+			if (strcmp(data, "success") == 0) {
+				continue; // connected to server successfully
+			}
 			std::string senderId;
 			sf::Packet characterData;
+			characterData.clear();
 			packet << senderId << characterData;
 			int i;
 			for (i = 0; i < otherPlayers.size(); i++) {
@@ -67,6 +74,7 @@ void Client::receivePackets(sf::UdpSocket & socket) {
 	}
 	// send "left game" packet to the server
 	sf::Packet leftServerPacket;
+	leftServerPacket.clear();
 	leftServerPacket << "left game";
 	sendPacket(socket, leftServerPacket);
 	// unbind port

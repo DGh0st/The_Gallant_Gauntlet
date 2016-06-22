@@ -36,6 +36,7 @@ private:
 	unsigned short port; // port for the client
 	userInfo server; // server ip and port
 	std::vector<PlayerData> otherPlayers;
+	int clientIDfromServer; // id of the client gotten from the server
 };
 
 #endif // !CLIENT_H
