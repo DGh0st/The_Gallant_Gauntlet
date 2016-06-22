@@ -50,6 +50,7 @@ void Client::receivePackets(sf::UdpSocket & socket) {
 			char *data = (char *)packet.getData();
 			packet >> data >> clientIDfromServer;
 			if (strcmp(data, "success") == 0) {
+				printf("[Client] received success");
 				continue; // connected to server successfully
 			}
 			std::string senderId;

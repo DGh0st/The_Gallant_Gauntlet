@@ -14,16 +14,11 @@ static sf::Vector2u windowSize(1920, 1080); // current window size
 #define PI 3.14159265f
 #define playerSize 20.0f // size of the character
 // Server and Client
-#ifndef USERINFO
-#define USERINFO
-
 struct userInfo {
 	int id = -1; // name of the user
 	sf::IpAddress ip = sf::IpAddress::None; // ip used to connect to server
 	unsigned short port = 1000; // port used to connect to server
 };
-
-#endif // !USERINFO
 // main
 enum screenTypes {
 	title = 0, // title screen
