@@ -37,6 +37,7 @@ void Character::operator=(const Character & other) {
 
 void Character::draw(sf::RenderWindow & window) const {
 	window.draw(player);
+	window.draw(playerSprite);
 }
 
 void Character::move(const sf::RenderWindow & window, const sf::Keyboard::Key releasedKey) {
@@ -81,20 +82,20 @@ void Character::move(const sf::RenderWindow & window, const sf::Keyboard::Key re
 	}
 	// normal movement
 	if (sf::Keyboard::isKeyPressed(moveUpKey)) {
-		player.move(sf::Vector2f(0.0f, -charSpeed)); // up
-		playerSprite.move(sf::Vector2f(0.0f, -charSpeed)); // up
+		player.setPosition(player.getPosition() + sf::Vector2f(0.0f, -charSpeed)); // up
+		playerSprite.setPosition(playerSprite.getPosition() + sf::Vector2f(0.0f, -charSpeed)); // up
 	}
 	if (sf::Keyboard::isKeyPressed(moveDownKey)) {
-		player.move(sf::Vector2f(0.0f, charSpeed)); // down
-		playerSprite.move(sf::Vector2f(0.0f, charSpeed)); // down
+		player.setPosition(player.getPosition() + sf::Vector2f(0.0f, charSpeed)); // down
+		playerSprite.setPosition(playerSprite.getPosition() + sf::Vector2f(0.0f, charSpeed)); // down
 	}
 	if (sf::Keyboard::isKeyPressed(moveLeftKey)) {
-		player.move(sf::Vector2f(-charSpeed, 0.0f)); // left
-		playerSprite.move(sf::Vector2f(-charSpeed, 0.0f)); // left
+		player.setPosition(player.getPosition() + sf::Vector2f(-charSpeed, 0.0f)); // left
+		playerSprite.setPosition(playerSprite.getPosition() + sf::Vector2f(-charSpeed, 0.0f)); // left
 	}
 	if (sf::Keyboard::isKeyPressed(moveRightKey)) {
-		player.move(sf::Vector2f(charSpeed, 0.0f)); // right
-		playerSprite.move(sf::Vector2f(charSpeed, 0.0f)); // right
+		player.setPosition(player.getPosition() + sf::Vector2f(charSpeed, 0.0f)); // right
+		playerSprite.setPosition(playerSprite.getPosition() + sf::Vector2f(charSpeed, 0.0f)); // right
 	}
 }
 

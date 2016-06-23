@@ -11,6 +11,7 @@
 #include "ProjectileShooter.h"
 #include "Ranger.h"
 #include "Mage.h"
+#include "Knight.h"
 
 static screenTypes currentScreenDisplayed = title; // current displayed screen
 
@@ -90,14 +91,19 @@ int main() {
 	rangerTexture.loadFromFile("textures/ranger.png");
 	sf::Texture mageTexture;
 	mageTexture.loadFromFile("textures/mage.png");
+	sf::Texture knightTexture;
+	knightTexture.loadFromFile("textures/knight.png");
 	sf::Texture arrowTexture;
 	arrowTexture.loadFromFile("textures/arrow.png");
 	sf::Texture fireballA;
 	fireballA.loadFromFile("textures/fireballA.png");
 	sf::Texture fireballB;
 	fireballB.loadFromFile("textures/fireballB.png");
-	//Mage mager(mageTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
-	Ranger mager(rangerTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
+	sf::Texture swordTexture;
+	swordTexture.loadFromFile("textures/sword.png");
+	//Mage mage(mageTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
+	//Ranger ranger(rangerTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
+	Knight knight(knightTexture, swordTexture, 0.2f);
 	sf::Keyboard::Key releasedKey = sf::Keyboard::Unknown;
 
 	Textfield joinTF(font, sf::Vector2f(650.0f, 50.0f));
@@ -203,8 +209,8 @@ int main() {
 				player.move(window, releasedKey);
 				//mage.move(window,releasedKey);
 				//mage.shoot(window);
-				mager.move(window, releasedKey);
-				mager.shoot(window);
+				knight.swingSword();
+				knight.move(window, releasedKey);
 				sf::Packet packet;
 				packet.clear();
 				packet = player.chainDataToPacket(packet, runningClient.getClientId());
@@ -215,8 +221,9 @@ int main() {
 			player.draw(window);
 			//mage.drawProjectiles(window);
 			//mage.draw(window);
-			mager.drawProjectiles(window);
-			mager.draw(window);
+			knight.drawSword(window);
+			knight.draw(window);
+			
 
 		}
 
