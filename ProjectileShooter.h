@@ -10,11 +10,11 @@
 class ProjectileShooter : public Character {
 public:
 	struct Projectile {
-		// default projectile constructor
+		//default projectile constructor
 		Projectile();
-		// constructor for player
-		Projectile(sf::RenderWindow & window, sf::Texture & projectileTexture, sf::Sprite playerSprite);
-		// constructor for internet player
+		//constructor for player projectiles
+		Projectile(sf::RenderWindow & window, sf::Texture & projectileTexture, sf::Sprite startSprite);
+		//constructor for internet player projectiles
 		Projectile(sf::Texture & projectileTexture, sf::Sprite playerSprite);
 		//sprite of projectile, created using "projectileTexture"
 		sf::Sprite projectileSprite;
@@ -28,28 +28,37 @@ public:
 	};
 	//constructor that creates the projectileShooter
 	//@param projectileShooterTexture: texture for projectileShooter
+	//@param weaponTexture: texture for weapon
 	//@param projectileTextureA: texture for first animation frame of projectile
 	//@param projectileTextureB: texture for second animation frame of projectile (same texture as A if no animation for projectile)
 	//@param projectileSpeed: speed of projectiles shot
 	//@param projectileReloadTime: time before you can shoot another projectile
-	ProjectileShooter(sf::Texture & projectileShooterTexture, sf::Texture & projectileTextureA, sf::Texture & projectileTextureB,
-		float projectileSpeed = 0.25f, float projectileReloadTime = 0.3f, float timeAfterShot = 1.0f);
+	//@param timeAfterShot: amount of time you want slow to last
+	//@param fromWeapon: whether projectile should come from weapon (otherwise comes from player)
+	ProjectileShooter(sf::Texture & projectileShooterTexture, sf::Texture & weaponTexture, sf::Texture & projectileTextureA, 
+		sf::Texture & projectileTextureB, float projectileSpeed = 0.25f, float projectileReloadTime = 0.3f, float timeAfterShot = 1.0f, 
+		bool fromWeapon = false);
 	//draws projectileShooter
 	void draw(sf::RenderWindow & window);
 	//shoots projectile on left click, and updates "isShooting" based on "timeAfterShot"
 	void shoot(sf::RenderWindow & window);
 	//draws and moves all projectiles
 	void drawProjectiles(sf::RenderWindow & window);
+	//sets weapon of projectileShooter based on "fromWeapon"
+	void setWeapon(sf::RenderWindow & window);
 protected:
-	bool isShooting; //true if shot and time within "timeAfterShot" seconds
+	bool isShooting = false; //true if shot and time within "timeAfterShot" seconds
 	float timeAfterShot; //amount of time you want slow to last
+	sf::Sprite weaponSprite; //sprite for weapon
+	sf::CircleShape weaponCircle; //circle that weapon rotates around
 private:
-	sf::Clock clockProjectile; //used for checking time since projectile was fired
+	bool fromWeapon; //whether projectile shoots from weapon (or from player)
 	sf::Texture projectileTextureA; //texture for first animation frame of projectile
 	sf::Texture projectileTextureB; //texture for second animation frame of projectile
-	std::vector<Projectile*> projectiles; //stores all projectiles
 	float projectileSpeed; //speed of projectiles shot
 	float projectileReloadTime; //time before you can shoot another projectile
+	std::vector<Projectile*> projectiles; //stores all projectiles
+	sf::Clock clockProjectile; //used for checking time since projectile was fired
 
 	//--PROJECTILE--
 	//checks if projectile is on screen (called by "drawProjectiles")

@@ -30,7 +30,7 @@ std::thread clientThread; // thread client is running on
 static std::string connectToIPandPort = "";
 
 // textures
-sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture;
+sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture;
 
 void runClient() {
 	runningClient.receivePackets(clientSocket, rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture);
@@ -96,8 +96,10 @@ int main() {
 	fireballA.loadFromFile("textures/fireballA.png");
 	fireballB.loadFromFile("textures/fireballB.png");
 	swordTexture.loadFromFile("textures/sword.png");
-	Mage mage(mageTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
-	//Ranger ranger(rangerTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
+	bowTexture.loadFromFile("textures/bow.png");
+	staffTexture.loadFromFile("textures/staff.png");
+	Mage mage(mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
+	//Ranger ranger(rangerTexture, bowtexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
 	//Knight knight(knightTexture, swordTexture, 0.2f);
 	mage.setIsPlayer(true);
 
