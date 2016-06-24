@@ -27,7 +27,7 @@ void Knight::swingSword() {
 		swordSprite.setRotation(swordCircle.getRotation() + 15);
 	}
 	//if left click and swingTime(time swinging sword)+reloadTime(time before sword can swing again) went by, then swing sword
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && (clockSwingTime.getElapsedTime().asSeconds() > reloadTime + swingTime)) {
+	if (isPlayer && sf::Mouse::isButtonPressed(sf::Mouse::Left) && (clockSwingTime.getElapsedTime().asSeconds() > reloadTime + swingTime)) {
 		isSwinging = true;
 		clockSwingTime.restart();
 	}
@@ -41,4 +41,21 @@ void Knight::swingSword() {
 		swordSprite.setPosition(x, y);
 		swordSprite.setRotation(swordCircle.getRotation() + 15 - clockSwingTime.getElapsedTime().asSeconds() * 100.2f);
 	}
+}
+
+sf::Packet Knight::chainDataToPacket(sf::Packet & packet, std::string value) {
+	return (packet << value << "Knight" << maxHealth << health << damage << playerSprite.getPosition().x << playerSprite.getPosition().y << playerSprite.getRotation() << isSwinging << clockSwingTime.getElapsedTime().asSeconds()) ? packet : sf::Packet();
+}
+
+sf::Packet Knight::extractPacketToData(sf::Packet & packet) {
+	sf::Vector2f pos;
+	float rotation;
+	float clockTime;
+	packet >> maxHealth >> health >> damage >> pos.x >> pos.y >> rotation >> isSwinging >> clockTime;
+	playerSprite.setPosition(pos);
+	playerSprite.setRotation(rotation);
+	if (clockTime < 0.05f) {
+		clockSwingTime.restart();
+	}
+	return packet;
 }

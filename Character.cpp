@@ -7,10 +7,6 @@
 #include "Defines.h"
 
 Character::Character(int maxHealth, int damage, float divingAccuracy, float charSpeed, float diveSpeed, float diveResetTime, float diveResistance) : maxHealth(maxHealth), health(maxHealth), damage(damage), divingAccuracy(divingAccuracy), charSpeed(charSpeed), diveSpeed(diveSpeed), diveResetTime(diveResetTime), diveResistance(diveResistance) {
-	player = sf::RectangleShape(sf::Vector2f(playerSize, playerSize));
-	player.setFillColor(sf::Color::Green);
-	player.setOrigin(playerSize / 2, playerSize / 2);
-	player.setPosition(playerSize, playerSize);
 	divingMovement = sf::Vector2f(0.0f, 0.0f);
 	lastKey = sf::Keyboard::Unknown;
 	diveResetTimer.restart();
@@ -21,7 +17,6 @@ Character::~Character() {
 }
 
 void Character::operator=(const Character & other) {
-	player = other.player;
 	maxHealth = other.maxHealth;
 	health = other.health;
 	damage = other.damage;
@@ -36,21 +31,18 @@ void Character::operator=(const Character & other) {
 }
 
 void Character::draw(sf::RenderWindow & window) const {
-	window.draw(player);
 	window.draw(playerSprite);
 }
 
 void Character::move(const sf::RenderWindow & window, const sf::Keyboard::Key releasedKey) {
 	// player rotation
-	sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-	sf::Vector2i charPos = (sf::Vector2i)player.getPosition();
+	sf::Vector2i mousePos = (sf::Vector2i)window.mapPixelToCoords(sf::Mouse::getPosition(window));
+	sf::Vector2i charPos = (sf::Vector2i)playerSprite.getPosition();
 	sf::Vector2i diff = mousePos - charPos;
 	float angle = (float)atan2(diff.y, diff.x) * (180 / PI);
-	player.setRotation(angle);
 	playerSprite.setRotation(angle);
 	// dive/roll in progress if needed
 	if (divingMovement != sf::Vector2f(0.0f, 0.0f)) {
-		player.move(divingMovement);
 		playerSprite.move(divingMovement);
 		divingMovement = sf::Vector2f(divingMovement.x * diveResistance, divingMovement.y * diveResistance);
 		if (abs(divingMovement.x) < divingAccuracy && abs(divingMovement.y) < divingAccuracy) {
@@ -82,30 +74,32 @@ void Character::move(const sf::RenderWindow & window, const sf::Keyboard::Key re
 	}
 	// normal movement
 	if (sf::Keyboard::isKeyPressed(moveUpKey)) {
-		player.setPosition(player.getPosition() + sf::Vector2f(0.0f, -charSpeed)); // up
 		playerSprite.setPosition(playerSprite.getPosition() + sf::Vector2f(0.0f, -charSpeed)); // up
 	}
 	if (sf::Keyboard::isKeyPressed(moveDownKey)) {
-		player.setPosition(player.getPosition() + sf::Vector2f(0.0f, charSpeed)); // down
 		playerSprite.setPosition(playerSprite.getPosition() + sf::Vector2f(0.0f, charSpeed)); // down
 	}
 	if (sf::Keyboard::isKeyPressed(moveLeftKey)) {
-		player.setPosition(player.getPosition() + sf::Vector2f(-charSpeed, 0.0f)); // left
 		playerSprite.setPosition(playerSprite.getPosition() + sf::Vector2f(-charSpeed, 0.0f)); // left
 	}
 	if (sf::Keyboard::isKeyPressed(moveRightKey)) {
-		player.setPosition(player.getPosition() + sf::Vector2f(charSpeed, 0.0f)); // right
 		playerSprite.setPosition(playerSprite.getPosition() + sf::Vector2f(charSpeed, 0.0f)); // right
 	}
 }
 
+sf::Vector2f Character::getCenter() {
+	return sf::Vector2f(playerSprite.getGlobalBounds().left + playerSprite.getGlobalBounds().width / 2.0f, playerSprite.getGlobalBounds().top + playerSprite.getGlobalBounds().height / 2.0f);
+}
+
 sf::Packet Character::chainDataToPacket(sf::Packet & packet, std::string value) {
-	return (packet << value << maxHealth << health << damage << player.getPosition().x << player.getPosition().y) ? packet : sf::Packet();
+	return (packet << value << "Character" << maxHealth << health << damage << playerSprite.getPosition().x << playerSprite.getPosition().y << playerSprite.getRotation()) ? packet : sf::Packet();
 }
 
 sf::Packet Character::extractPacketToData(sf::Packet & packet) {
 	sf::Vector2f pos;
-	packet >> maxHealth >> health >> damage >> pos.x >> pos.y;
-	player.setPosition(pos);
+	float rotation;
+	packet >> maxHealth >> health >> damage >> pos.x >> pos.y >> rotation;
+	playerSprite.setPosition(pos);
+	playerSprite.setRotation(rotation);
 	return packet;
 }

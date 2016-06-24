@@ -16,3 +16,16 @@ void Ranger::move(const sf::RenderWindow & window, const sf::Keyboard::Key relea
 	}
 	Character::move(window, releasedKey);
 }
+
+sf::Packet Ranger::chainDataToPacket(sf::Packet & packet, std::string value) {
+	return (packet << value << "Ranger" << maxHealth << health << damage << playerSprite.getPosition().x << playerSprite.getPosition().y << playerSprite.getRotation() << isShooting) ? packet : sf::Packet();
+}
+
+sf::Packet Ranger::extractPacketToData(sf::Packet & packet) {
+	sf::Vector2f pos;
+	float rotation;
+	packet >> maxHealth >> health >> damage >> pos.x >> pos.y >> rotation >> isShooting;
+	playerSprite.setPosition(pos);
+	playerSprite.setRotation(rotation);
+	return packet;
+}

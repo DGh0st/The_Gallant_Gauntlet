@@ -21,7 +21,6 @@ void Server::operator=(const Server & other) {
 }
 
 void Server::runServer() {
-	printf("[Server] Starting on %u\n", port);
 	sf::UdpSocket serverSocket; // server socket (UDP)
 	uniqueConnectionCount = 0;
 	// bind port
@@ -29,36 +28,52 @@ void Server::runServer() {
 		port = sf::Socket::AnyPort;
 	}
 	port = serverSocket.getLocalPort();
+	printf("[Server] Started on %s:%u\n", sf::IpAddress::getPublicAddress().toString().c_str(), port);
 	sf::Packet dataPacket;
 	sf::IpAddress senderIp;
 	unsigned short senderPort;
 	
 	while (running) {
 		dataPacket.clear();
-		//printf("[Server] Waiting for data... %zu vs %d\n", connections.size(), uniqueConnectionCount);
 		int rec = serverSocket.receive(dataPacket, senderIp, senderPort);
-		//printf("[Server] Received data...\n");
 		if (rec == sf::Socket::Done) {
 			// maintain connections based on data received (join or left)
 			sf::Packet copyPacket(dataPacket);
 			char *data = (char *)copyPacket.getData();
 			copyPacket >> data;
 			if (strcmp(data, "left game") == 0) {
-				for (int i = 0; i < connections.size(); i++) {
+				int i;
+				for (i = 0; i < connections.size(); i++) {
 					if (connections[i].ip == senderIp && connections[i].port == senderPort) {
-						connections.erase(connections.begin() + i);
+						printf("[Server] %s left game\n", connections[i].name.c_str());
+						break;
 					}
+				}
+				if (i < connections.size()) {
+					// construct left game packet
+					sf::Packet leftGamePacket;
+					leftGamePacket.clear();
+					leftGamePacket << "left game" << connections[i].name;
+					// send player left game to everyone
+					for (int i = 0; i < connections.size(); i++) {
+						if (serverSocket.send(leftGamePacket, connections[i].ip, connections[i].port)) {
+							// failed sending leftGamePacket
+						}
+					}
+					// erase from connections
+					connections.erase(connections.begin() + i);
 				}
 				continue;
 			}
 			else if (strcmp(data, "join game") == 0) {
+				uniqueConnectionCount++;
 				userInfo user;
 				user.name = "Player" + std::to_string(uniqueConnectionCount);
 				user.ip = senderIp;
 				user.port = senderPort;
-				uniqueConnectionCount++;
 				connections.push_back(user);
-				printf("[Server] Checking sizes... %zu vs %d\n", connections.size(), uniqueConnectionCount);
+				printf("[Server] %s joined game\n", user.name.c_str());
+				// send "success" with user.name
 				sf::Packet successPacket;
 				successPacket.clear();
 				successPacket << "success" << user.name;
@@ -77,6 +92,16 @@ void Server::runServer() {
 			}
 		}
 	}
+	// send "closed" to every connection
+	sf::Packet closedPacket;
+	closedPacket.clear();
+	closedPacket << "closed";
+	for (int i = 0; i < connections.size(); i++) {
+		if (serverSocket.send(closedPacket, connections[i].ip, connections[i].port) != sf::Socket::Done) {
+			// Error sending packet
+		}
+	}
+	// unbind port
 	serverSocket.unbind();
 }
 

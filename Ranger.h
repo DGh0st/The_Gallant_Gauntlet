@@ -17,12 +17,17 @@ public:
 	//@param arrowReloadTime: time before you can shoot another arrow
 	Ranger(sf::Texture & rangerTexture, sf::Texture & arrowTextureA, sf::Texture & arrowTextureB, float moveSpeed = 1.5f,
 		float arrowSpeed = 1.0f, float arrowReloadTime = 0.3f, float timeAfterShot = 1.0f, float slowSpeed = 0.1f);
-
+	// move
 	void move(const sf::RenderWindow & window, const sf::Keyboard::Key releasedKey);
+	// chain packets of type Knight
+	sf::Packet chainDataToPacket(sf::Packet & packet, std::string value);
+	// extract packets of type Knight
+	sf::Packet extractPacketToData(sf::Packet & packet);
 
 private:
 	float moveSpeed;
 	float slowSpeed;
+	sf::Clock lastProjectileAdded; // clock since last projectile added
 };
 
 #endif

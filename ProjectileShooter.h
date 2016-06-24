@@ -10,10 +10,12 @@
 class ProjectileShooter : public Character {
 public:
 	struct Projectile {
-		//default projectile constructor
+		// default projectile constructor
 		Projectile();
-		//constructor
+		// constructor for player
 		Projectile(sf::RenderWindow & window, sf::Texture & projectileTexture, sf::Sprite playerSprite);
+		// constructor for internet player
+		Projectile(sf::Texture & projectileTexture, sf::Sprite playerSprite);
 		//sprite of projectile, created using "projectileTexture"
 		sf::Sprite projectileSprite;
 		//start position based on player position
@@ -42,12 +44,12 @@ protected:
 	bool isShooting; //true if shot and time within "timeAfterShot" seconds
 	float timeAfterShot; //amount of time you want slow to last
 private:
+	sf::Clock clockProjectile; //used for checking time since projectile was fired
 	sf::Texture projectileTextureA; //texture for first animation frame of projectile
 	sf::Texture projectileTextureB; //texture for second animation frame of projectile
+	std::vector<Projectile*> projectiles; //stores all projectiles
 	float projectileSpeed; //speed of projectiles shot
 	float projectileReloadTime; //time before you can shoot another projectile
-	std::vector<Projectile*> projectiles; //stores all projectiles
-	sf::Clock clockProjectile; //used for checking time since projectile was fired
 
 	//--PROJECTILE--
 	//checks if projectile is on screen (called by "drawProjectiles")

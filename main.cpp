@@ -29,8 +29,12 @@ std::thread clientThread; // thread client is running on
 // get IP address and port from the user in joinScreen
 static std::string connectToIPandPort = "";
 
+// textures
+sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture;
+
 void runClient() {
-	runningClient.receivePackets(clientSocket);
+	runningClient.receivePackets(clientSocket, rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture);
+	currentScreenDisplayed = title;
 }
 
 void onPlayClick() {
@@ -42,6 +46,13 @@ void onCreateGameClick() {
 		runningServer = Server(9000);
 		serverThread = std::thread(&Server::runServer, &runningServer);
 		isServerInitializedAndRunning = true;
+	}
+	if (serverInfo.name != "Server") {
+		serverInfo.ip = sf::IpAddress::getLocalAddress();
+		serverInfo.name = "Server";
+		serverInfo.port = runningServer.getPort();
+		runningClient = Client(clientSocket, serverInfo);
+		clientThread = std::thread(&runClient);
 	}
 	currentScreenDisplayed = createServer;
 }
@@ -69,13 +80,6 @@ void onJoinGameClickFromClient() {
 }
 
 void onJoinGameClickFromServer() {
-	if (serverInfo.name != "Server") {
-		serverInfo.ip = sf::IpAddress::getLocalAddress();
-		serverInfo.name = "Server";
-		serverInfo.port = runningServer.getPort();
-		runningClient = Client(clientSocket, serverInfo);
-		clientThread = std::thread(&runClient);
-	}
 	currentScreenDisplayed = ingame;
 }
 
@@ -85,25 +89,21 @@ int main() {
 
 	sf::Font font;
 	font.loadFromFile("fonts/times.ttf");
-	Character player = Character();
-	font.loadFromFile("fonts/times.ttf");
-	sf::Texture rangerTexture;
 	rangerTexture.loadFromFile("textures/ranger.png");
-	sf::Texture mageTexture;
 	mageTexture.loadFromFile("textures/mage.png");
-	sf::Texture knightTexture;
 	knightTexture.loadFromFile("textures/knight.png");
-	sf::Texture arrowTexture;
 	arrowTexture.loadFromFile("textures/arrow.png");
-	sf::Texture fireballA;
 	fireballA.loadFromFile("textures/fireballA.png");
-	sf::Texture fireballB;
 	fireballB.loadFromFile("textures/fireballB.png");
-	sf::Texture swordTexture;
 	swordTexture.loadFromFile("textures/sword.png");
-	//Mage mage(mageTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
+	Mage mage(mageTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
 	//Ranger ranger(rangerTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
-	Knight knight(knightTexture, swordTexture, 0.2f);
+	//Knight knight(knightTexture, swordTexture, 0.2f);
+	mage.setIsPlayer(true);
+
+	sf::View playerView = sf::View(mage.getCenter(), (sf::Vector2f)windowSize);
+	sf::View normalView = window.getView();
+
 	sf::Keyboard::Key releasedKey = sf::Keyboard::Unknown;
 
 	Textfield joinTF(font, sf::Vector2f(650.0f, 50.0f));
@@ -115,8 +115,12 @@ int main() {
 		sf::Event event;
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)) {
-				runningServer.stopServer();
 				runningClient.stopReceivingPackets();
+				sf::Packet leavingPacket;
+				leavingPacket.clear();
+				leavingPacket << "left game";
+				runningClient.sendPacket(clientSocket, leavingPacket);
+				runningServer.stopServer();
 				window.close();
 			}
 			else if (currentScreenDisplayed == ingame && event.type == sf::Event::KeyReleased) {
@@ -142,6 +146,7 @@ int main() {
 		window.clear();
 
 		if (currentScreenDisplayed == title) {
+			window.setView(normalView);
 			//title text
 			sf::Text titleText("Title", font, 64U);
 			titleText.setOrigin(titleText.getGlobalBounds().width / 2, titleText.getGlobalBounds().height / 2);
@@ -164,6 +169,7 @@ int main() {
 			createButton.draw(window);
 		}
 		else if (currentScreenDisplayed == joinServer) {
+			window.setView(normalView);
 			// set joinTF's string to connectToIPandPort
 			connectToIPandPort = joinTF.getString();
 			//server address text
@@ -186,6 +192,7 @@ int main() {
 			joinButton.draw(window);
 		}
 		else if (currentScreenDisplayed == createServer) {
+			window.setView(normalView);
 			//ip and instructions on joining a server text
 			std::ostringstream ipString;
 			ipString << "Please use " << sf::IpAddress::getPublicAddress().toString() << ":" << runningServer.getPort() << " to connect to the server.";
@@ -204,27 +211,29 @@ int main() {
 			window.draw(ipText);
 		}
 		else if (currentScreenDisplayed == ingame) {
+			playerView.setCenter(mage.getCenter());
+			window.setView(playerView);
 			if (window.hasFocus()) {
 				// player movement and send that data to server
-				player.move(window, releasedKey);
-				//mage.move(window,releasedKey);
-				//mage.shoot(window);
-				knight.swingSword();
-				knight.move(window, releasedKey);
+				mage.move(window, releasedKey);
+				mage.shoot(window);
+				//knight.swingSword();
+				//knight.move(window, releasedKey);
+				//ranger.move(window, releasedKey);
+				//ranger.shoot(window);
 				sf::Packet packet;
 				packet.clear();
-				packet = player.chainDataToPacket(packet, runningClient.getClientId());
+				packet = mage.chainDataToPacket(packet, runningClient.getClientId());
 				runningClient.sendPacket(clientSocket, packet);
 			}
 			// draw
 			runningClient.draw(window);
-			player.draw(window);
-			//mage.drawProjectiles(window);
-			//mage.draw(window);
-			knight.drawSword(window);
-			knight.draw(window);
-			
-
+			mage.drawProjectiles(window);
+			mage.draw(window);
+			//knight.drawSword(window);
+			//knight.draw(window);
+			//ranger.drawProjectiles(window);
+			//ranger.draw(window);
 		}
 
 		window.display();

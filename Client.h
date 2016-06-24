@@ -6,7 +6,8 @@
 
 struct PlayerData {
 	std::string userID;
-	Character userCharacter;
+	std::string fighterClass;
+	Character *userCharacter;
 };
 
 class Client {
@@ -26,7 +27,7 @@ public:
 	void sendPacket(sf::UdpSocket & socket, sf::Packet & packet);
 	// receive packets if any
 	// @param socket: the client's socket to receive packets on
-	void receivePackets(sf::UdpSocket & socket);
+	void receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture, sf::Texture & mageTexture, sf::Texture & knightTexture, sf::Texture & arrowTexture, sf::Texture & fireballA, sf::Texture & fireballB, sf::Texture & swordTexture);
 	// stop receiving packets
 	void stopReceivingPackets();
 	// draw other players
@@ -35,6 +36,7 @@ public:
 	std::string getClientId();
 
 private:
+	bool running;
 	unsigned short port; // port for the client
 	userInfo server; // server ip and port
 	std::vector<PlayerData> otherPlayers;
