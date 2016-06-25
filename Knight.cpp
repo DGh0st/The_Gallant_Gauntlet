@@ -11,8 +11,9 @@ Knight::Knight(sf::Texture & knightTexture, sf::Texture & swordTexture,float mov
 	swordCircle.setOrigin(swordCircle.getRadius(), swordCircle.getRadius());
 }
 
-void Knight::drawSword(sf::RenderWindow & window) {
+void Knight::draw(sf::RenderWindow & window) {
 	window.draw(swordSprite);
+	window.draw(playerSprite);
 }
 
 void Knight::swingSword() {

@@ -10,7 +10,7 @@ public:
 	//constructor that creates the knight
 	Knight(sf::Texture & knightTexture, sf::Texture & swordTexture, float moveSpeed = 1.5f, int maxHealth = 100.0f, int damage = 10.0f);
 	//draws sword using "swordSprite"
-	void drawSword(sf::RenderWindow & window);
+	void draw(sf::RenderWindow & window);
 	//swing and rotate sword
 	void swingSword();
 	// chain packets of type Knight

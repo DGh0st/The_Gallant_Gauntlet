@@ -27,6 +27,13 @@ enum screenTypes {
 	createServer = 1, // create a server screen
 	joinServer = 2, // join a server screen
 	ingame = 3, // in game screen
+	classSelect = 4 // class selection screen
+};
+enum classTypes {
+	knight = 0,
+	ranger = 1,
+	mage = 2
+
 };
 
 #endif // !DEFINES_H

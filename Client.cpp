@@ -150,7 +150,6 @@ void Client::draw(sf::RenderWindow & window) {
 	for (int i = 0; i < otherPlayers.size(); i++) {
 		if (otherPlayers[i].fighterClass == "Knight") {
 			((Knight *)(otherPlayers[i].userCharacter))->swingSword();
-			((Knight *)(otherPlayers[i].userCharacter))->drawSword(window);
 			((Knight *)(otherPlayers[i].userCharacter))->draw(window);
 		}
 		else if (otherPlayers[i].fighterClass == "Mage") {
