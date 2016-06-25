@@ -5,6 +5,8 @@
 // all
 #define windowDesignSize sf::Vector2u(1920, 1080) // UI designed for these resolutions
 static sf::Vector2u windowSize(1920, 1080); // current window size
+static int kills = 0, deaths = 0;
+#define totalMatchTime 1800 // time in seconds per match/game
 // main and character
 #define moveUpKey sf::Keyboard::W // up
 #define moveDownKey sf::Keyboard::S // down

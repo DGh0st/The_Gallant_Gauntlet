@@ -23,6 +23,7 @@ private:
 	unsigned short port; // port for the server
 	std::vector<userInfo> connections; // list of connections (users)
 	int uniqueConnectionCount = 0; // number of unique connections
+	sf::Clock gameTimer; // timer for the game (30 min per game)
 };
 
 #endif // !SERVER_H

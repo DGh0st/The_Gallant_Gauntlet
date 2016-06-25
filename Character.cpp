@@ -35,6 +35,10 @@ void Character::draw(sf::RenderWindow & window) const {
 }
 
 void Character::move(const sf::RenderWindow & window, const sf::Keyboard::Key releasedKey) {
+	// increase death counter if needed
+	if (isPlayer && health <= 0) {
+		deaths++;
+	}
 	// player rotation
 	sf::Vector2i mousePos = (sf::Vector2i)window.mapPixelToCoords(sf::Mouse::getPosition(window));
 	sf::Vector2i charPos = (sf::Vector2i)playerSprite.getPosition();

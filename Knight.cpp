@@ -27,7 +27,7 @@ void Knight::swingSword() {
 		swordSprite.setRotation(swordCircle.getRotation() + 15);
 	}
 	//if left click and swingTime(time swinging sword)+reloadTime(time before sword can swing again) went by, then swing sword
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && (clockSwingTime.getElapsedTime().asSeconds() > reloadTime + swingTime)) {
+	if (isPlayer && sf::Mouse::isButtonPressed(sf::Mouse::Left) && (clockSwingTime.getElapsedTime().asSeconds() > reloadTime + swingTime)) {
 		isSwinging = true;
 		clockSwingTime.restart();
 	}

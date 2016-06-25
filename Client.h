@@ -27,7 +27,7 @@ public:
 	void sendPacket(sf::UdpSocket & socket, sf::Packet & packet);
 	// receive packets if any
 	// @param socket: the client's socket to receive packets on
-	void receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture, sf::Texture & mageTexture, sf::Texture & knightTexture, sf::Texture & arrowTexture, sf::Texture & fireballA, sf::Texture & fireballB, sf::Texture & swordTexture);
+	void receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture, sf::Texture & mageTexture, sf::Texture & knightTexture, sf::Texture & arrowTexture, sf::Texture & fireballA, sf::Texture & fireballB, sf::Texture & swordTexture, sf::Texture & bowTexture, sf::Texture & staffTexture);
 	// stop receiving packets
 	void stopReceivingPackets();
 	// draw other players
@@ -35,6 +35,7 @@ public:
 	// get client id
 	std::string getClientId();
 
+	float timeLeftInGame; // time left in game (in seconds)
 private:
 	bool running;
 	unsigned short port; // port for the client

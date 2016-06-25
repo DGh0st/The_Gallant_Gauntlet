@@ -67,27 +67,38 @@ void Server::runServer() {
 			}
 			else if (strcmp(data, "join game") == 0) {
 				uniqueConnectionCount++;
+				float timeLeft = totalMatchTime;
+				if (uniqueConnectionCount == 2) {
+					gameTimer.restart(); // game doesn't start till two players join game
+					timeLeft = (totalMatchTime - gameTimer.getElapsedTime().asSeconds());
+				}
+				else if (uniqueConnectionCount > 2) {
+					timeLeft = (totalMatchTime - gameTimer.getElapsedTime().asSeconds());
+				}
 				userInfo user;
 				user.name = "Player" + std::to_string(uniqueConnectionCount);
 				user.ip = senderIp;
 				user.port = senderPort;
 				connections.push_back(user);
 				printf("[Server] %s joined game\n", user.name.c_str());
-				// send "success" with user.name
+				// send "success" with user.name and time left in game
 				sf::Packet successPacket;
 				successPacket.clear();
-				successPacket << "success" << user.name;
+				successPacket << "success" << user.name << timeLeft;
 				if (serverSocket.send(successPacket, senderIp, senderPort)) {
 					// failed sending "success"
 				}
 				continue;
 			}
+			float timeLeft = totalMatchTime;
+			if (uniqueConnectionCount >= 2) {
+				timeLeft = (totalMatchTime - gameTimer.getElapsedTime().asSeconds());
+			}
+			dataPacket << timeLeft;
 			// send data to every connection
 			for (int i = 0; i < connections.size(); i++) {
-				if (connections[i].ip != senderIp || connections[i].port != senderPort) {
-					if (serverSocket.send(dataPacket, connections[i].ip, connections[i].port) != sf::Socket::Done) {
-						// Error sending packet
-					}
+				if (serverSocket.send(dataPacket, connections[i].ip, connections[i].port) != sf::Socket::Done) {
+					// Error sending packet
 				}
 			}
 		}

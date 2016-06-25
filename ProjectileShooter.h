@@ -1,5 +1,3 @@
-#pragma once
-
 #ifndef ProjectileShooter_H
 #define ProjectileShooter_H
 
@@ -15,7 +13,7 @@ public:
 		//constructor for player projectiles
 		Projectile(sf::RenderWindow & window, sf::Texture & projectileTexture, sf::Sprite startSprite);
 		//constructor for internet player projectiles
-		Projectile(sf::Texture & projectileTexture, sf::Sprite playerSprite);
+		Projectile(sf::Vector2i mousePos, sf::Texture & projectileTexture, sf::Sprite startSprite);
 		//sprite of projectile, created using "projectileTexture"
 		sf::Sprite projectileSprite;
 		//start position based on player position
@@ -35,8 +33,8 @@ public:
 	//@param projectileReloadTime: time before you can shoot another projectile
 	//@param timeAfterShot: amount of time you want slow to last
 	//@param fromWeapon: whether projectile should come from weapon (otherwise comes from player)
-	ProjectileShooter(sf::Texture & projectileShooterTexture, sf::Texture & weaponTexture, sf::Texture & projectileTextureA, 
-		sf::Texture & projectileTextureB, float projectileSpeed = 0.25f, float projectileReloadTime = 0.3f, float timeAfterShot = 1.0f, 
+	ProjectileShooter(sf::Texture & projectileShooterTexture, sf::Texture & weaponTexture, sf::Texture & projectileTextureA,
+		sf::Texture & projectileTextureB, float projectileSpeed = 0.25f, float projectileReloadTime = 0.3f, float timeAfterShot = 1.0f,
 		bool fromWeapon = false);
 	//draws projectileShooter
 	void draw(sf::RenderWindow & window);
@@ -51,14 +49,16 @@ protected:
 	float timeAfterShot; //amount of time you want slow to last
 	sf::Sprite weaponSprite; //sprite for weapon
 	sf::CircleShape weaponCircle; //circle that weapon rotates around
-private:
 	bool fromWeapon; //whether projectile shoots from weapon (or from player)
 	sf::Texture projectileTextureA; //texture for first animation frame of projectile
 	sf::Texture projectileTextureB; //texture for second animation frame of projectile
-	float projectileSpeed; //speed of projectiles shot
-	float projectileReloadTime; //time before you can shoot another projectile
 	std::vector<Projectile*> projectiles; //stores all projectiles
 	sf::Clock clockProjectile; //used for checking time since projectile was fired
+	sf::Clock clockReload; //used for projectile shooting
+	sf::Uint64 uniqueProjectilesCounter = 0; // number of projectiles shot so far by player
+private:
+	float projectileSpeed; //speed of projectiles shot
+	float projectileReloadTime; //time before you can shoot another projectile
 
 	//--PROJECTILE--
 	//checks if projectile is on screen (called by "drawProjectiles")
@@ -67,7 +67,6 @@ private:
 	bool projectileOnScreen(Projectile * projectile);
 	//called by "drawProjectiles" to move all projectiles forward
 	void moveProjectile(Projectile * projectile);
-	sf::Clock clockReload; //used for projectile shooting
 
 };
 

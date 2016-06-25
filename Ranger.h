@@ -1,5 +1,3 @@
-#pragma once
-
 #ifndef RANGER_H
 #define RANGER_H
 

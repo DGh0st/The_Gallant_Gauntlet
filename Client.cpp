@@ -31,7 +31,7 @@ void Client::sendPacket(sf::UdpSocket & socket, sf::Packet & packet) {
 	}
 }
 
-void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture, sf::Texture & mageTexture, sf::Texture & knightTexture, sf::Texture & arrowTexture, sf::Texture & fireballA, sf::Texture & fireballB, sf::Texture & swordTexture) {
+void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture, sf::Texture & mageTexture, sf::Texture & knightTexture, sf::Texture & arrowTexture, sf::Texture & fireballA, sf::Texture & fireballB, sf::Texture & swordTexture, sf::Texture & bowTexture, sf::Texture & staffTexture) {
 	// send "join game" packet to the server
 	sf::Packet joinServerPacket;
 	joinServerPacket.clear();
@@ -54,6 +54,7 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 			copyPacket >> data;
 			if (strcmp(data, "success") == 0) {
 				copyPacket >> clientIDfromServer;
+				copyPacket >> timeLeftInGame;
 				printf("[Client] joined server as %s\n", clientIDfromServer.c_str());
 				continue; // connected to server successfully
 			}
@@ -81,6 +82,19 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 			packet >> senderId;
 			std::string fighterName;
 			packet >> fighterName;
+			if (senderId == clientIDfromServer) {
+				if (fighterName == "Knight") {
+					Knight(knightTexture, swordTexture).extractPacketToData(packet);
+				}
+				else if (fighterName == "Mage") {
+					Mage(mageTexture, staffTexture, fireballA, fireballB).extractPacketToData(packet);
+				}
+				else if (fighterName == "Ranger") {
+					Ranger(rangerTexture, bowTexture, arrowTexture, arrowTexture).extractPacketToData(packet);
+				}
+				packet >> timeLeftInGame;
+				continue;
+			}
 			int i;
 			for (i = 0; i < otherPlayers.size(); i++) {
 				if (senderId == otherPlayers[i].userID) {
@@ -93,6 +107,7 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 					else if (fighterName == "Ranger") {
 						((Ranger *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
 					}
+					packet >> timeLeftInGame;
 					break;
 				}
 			}
@@ -104,12 +119,13 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 					userData.userCharacter = new Knight(knightTexture, swordTexture, 0.2f);
 				}
 				else if (fighterName == "Mage") {
-					userData.userCharacter = new Mage(mageTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
+					userData.userCharacter = new Mage(mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
 				}
 				else if (fighterName == "Ranger") {
-					userData.userCharacter = new Ranger(rangerTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
+					userData.userCharacter = new Ranger(rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
 				}
 				userData.userCharacter->extractPacketToData(packet);
+				packet >> timeLeftInGame;
 				otherPlayers.push_back(userData);
 				printf("[Client] %s joined game\n", userData.userID.c_str());
 			}
@@ -135,16 +151,20 @@ void Client::draw(sf::RenderWindow & window) {
 		if (otherPlayers[i].fighterClass == "Knight") {
 			((Knight *)(otherPlayers[i].userCharacter))->swingSword();
 			((Knight *)(otherPlayers[i].userCharacter))->drawSword(window);
+			((Knight *)(otherPlayers[i].userCharacter))->draw(window);
 		}
 		else if (otherPlayers[i].fighterClass == "Mage") {
 			((Mage *)(otherPlayers[i].userCharacter))->shoot(window);
+			((Mage *)(otherPlayers[i].userCharacter))->setWeapon(window);
 			((Mage *)(otherPlayers[i].userCharacter))->drawProjectiles(window);
+			((Mage *)(otherPlayers[i].userCharacter))->draw(window);
 		}
 		else if (otherPlayers[i].fighterClass == "Ranger") {
 			((Ranger *)(otherPlayers[i].userCharacter))->shoot(window);
+			((Ranger *)(otherPlayers[i].userCharacter))->setWeapon(window);
 			((Ranger *)(otherPlayers[i].userCharacter))->drawProjectiles(window);
+			((Ranger *)(otherPlayers[i].userCharacter))->draw(window);
 		}
-		otherPlayers[i].userCharacter->draw(window);
 	}
 }
 

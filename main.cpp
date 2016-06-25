@@ -14,6 +14,7 @@
 #include "Knight.h"
 
 static screenTypes currentScreenDisplayed = title; // current displayed screen
+bool screenReseted; // did leave game or server closed and screen returned to title
 
 // info about server (from server side)
 static Server runningServer; // holds the server itself, if running server on your pc
@@ -33,8 +34,9 @@ static std::string connectToIPandPort = "";
 sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture;
 
 void runClient() {
-	runningClient.receivePackets(clientSocket, rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture);
+	runningClient.receivePackets(clientSocket, rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture);
 	currentScreenDisplayed = title;
+	screenReseted = true;
 }
 
 void onPlayClick() {
@@ -47,11 +49,14 @@ void onCreateGameClick() {
 		serverThread = std::thread(&Server::runServer, &runningServer);
 		isServerInitializedAndRunning = true;
 	}
-	if (serverInfo.name != "Server") {
+	if (serverInfo.name != "Server" || screenReseted) {
 		serverInfo.ip = sf::IpAddress::getLocalAddress();
 		serverInfo.name = "Server";
 		serverInfo.port = runningServer.getPort();
 		runningClient = Client(clientSocket, serverInfo);
+		if (screenReseted) {
+			clientThread.join();
+		}
 		clientThread = std::thread(&runClient);
 	}
 	currentScreenDisplayed = createServer;
@@ -66,20 +71,29 @@ void onJoinGameClickFromClient() {
 		// port not included
 		return;
 	}
-	else if (serverInfo.name != "Server") {
+	if (serverInfo.name != "Server" || screenReseted) {
 		// parse ip and port
 		size_t offset = connectToIPandPort.find_first_of(":", 0);
 		serverInfo.ip = sf::IpAddress(connectToIPandPort.substr(0, offset));
 		serverInfo.name = "Server";
 		serverInfo.port = (unsigned short)atoi(connectToIPandPort.substr(offset + 1, connectToIPandPort.length() - offset).c_str());
-		// actually join server
+		// create client to join server
 		runningClient = Client(clientSocket, serverInfo);
+		if (screenReseted) {
+			clientThread.join();
+		}
 		clientThread = std::thread(&runClient);
 	}
+	// reset kills and deaths
+	kills = 0;
+	deaths = 0;
 	currentScreenDisplayed = ingame;
 }
 
 void onJoinGameClickFromServer() {
+	// reset kills and deaths
+	kills = 0;
+	deaths = 0;
 	currentScreenDisplayed = ingame;
 }
 
@@ -98,12 +112,12 @@ int main() {
 	swordTexture.loadFromFile("textures/sword.png");
 	bowTexture.loadFromFile("textures/bow.png");
 	staffTexture.loadFromFile("textures/staff.png");
-	Mage mage(mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
-	//Ranger ranger(rangerTexture, bowtexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
+	//Mage mage(mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
+	Ranger ranger(rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
 	//Knight knight(knightTexture, swordTexture, 0.2f);
-	mage.setIsPlayer(true);
+	ranger.setIsPlayer(true);
 
-	sf::View playerView = sf::View(mage.getCenter(), (sf::Vector2f)windowSize);
+	sf::View playerView = sf::View(ranger.getCenter(), (sf::Vector2f)windowSize);
 	sf::View normalView = window.getView();
 
 	sf::Keyboard::Key releasedKey = sf::Keyboard::Unknown;
@@ -213,29 +227,43 @@ int main() {
 			window.draw(ipText);
 		}
 		else if (currentScreenDisplayed == ingame) {
-			playerView.setCenter(mage.getCenter());
+			playerView.setCenter(ranger.getCenter());
 			window.setView(playerView);
+			std::ostringstream killsDeathString;
+			killsDeathString << "Kills: " << kills << " Deaths: " << deaths;
+			sf::Text playerStats(killsDeathString.str(), font, 15U);
+			playerStats.setOrigin(playerStats.getGlobalBounds().width, 0.0f);
+			playerStats.setPosition(sf::Vector2f(ranger.getCenter().x + windowSize.x / 2.0f - 10.0f, ranger.getCenter().y - windowSize.y / 2.0f));
+			char gameTimeString[] = "000:000";
+			sprintf_s(gameTimeString, sizeof(gameTimeString), "%.2d:%.2d", (int)runningClient.timeLeftInGame / 60, (int)runningClient.timeLeftInGame % 60);
+			sf::Text gameTimeText(gameTimeString, font, 30U);
+			gameTimeText.setOrigin(gameTimeText.getGlobalBounds().width / 2.0f, 0.0f);
+			gameTimeText.setPosition(sf::Vector2f(ranger.getCenter().x, ranger.getCenter().y - windowSize.y / 2.0f));
 			if (window.hasFocus()) {
 				// player movement and send that data to server
-				mage.move(window, releasedKey);
-				mage.shoot(window);
+				//mage.move(window, releasedKey);
+				//mage.shoot(window);
+				//mage.setWeapon(window);
 				//knight.swingSword();
 				//knight.move(window, releasedKey);
-				//ranger.move(window, releasedKey);
-				//ranger.shoot(window);
+				ranger.move(window, releasedKey);
+				ranger.shoot(window);
+				ranger.setWeapon(window);
 				sf::Packet packet;
 				packet.clear();
-				packet = mage.chainDataToPacket(packet, runningClient.getClientId());
+				packet = ranger.chainDataToPacket(packet, runningClient.getClientId());
 				runningClient.sendPacket(clientSocket, packet);
 			}
 			// draw
 			runningClient.draw(window);
-			mage.drawProjectiles(window);
-			mage.draw(window);
+			//mage.drawProjectiles(window);
+			//mage.draw(window);
 			//knight.drawSword(window);
 			//knight.draw(window);
-			//ranger.drawProjectiles(window);
-			//ranger.draw(window);
+			ranger.drawProjectiles(window);
+			ranger.draw(window);
+			window.draw(playerStats);
+			window.draw(gameTimeText);
 		}
 
 		window.display();

@@ -1,5 +1,3 @@
-#pragma once
-
 #ifndef MAGE_H
 #define MAGE_H
 
@@ -19,7 +17,7 @@ public:
 	//@param timeAfterShot: amount of time you want slowSpeed to last
 	//@param slowSpeed: movement speed when shooting
 	//@param fromWeapon: whether fireball shoots from weapon (or from player)
-	Mage(sf::Texture & mageTexture, sf::Texture & staffTexture, sf::Texture & fireballTextureA, sf::Texture & fireballTextureB, 
+	Mage(sf::Texture & mageTexture, sf::Texture & staffTexture, sf::Texture & fireballTextureA, sf::Texture & fireballTextureB,
 		float moveSpeed = 1.5f, float fireballSpeed = 0.5f, float fireballReloadTime = 0.3f, float timeAfterShot = 1.0f, float slowSpeed = 0.0f,
 		bool fromWeapon = true);
 	//movement for mage
