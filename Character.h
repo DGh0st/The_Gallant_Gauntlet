@@ -32,6 +32,7 @@ protected:
 	float charSpeed; // normal character movement speed
 	sf::Int16 maxHealth, health, damage; // health and damage
 	bool isPlayer = false; // is the current Character the player or someone over the internet
+	sf::CircleShape playerCircle; //circle used for player collisions
 private:
 	sf::Clock diveResetTimer; // reset timer for diving in specific direction
 	sf::Vector2f divingMovement; // movement of the character when diving

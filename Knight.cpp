@@ -9,9 +9,15 @@ Knight::Knight(sf::Texture & knightTexture, sf::Texture & swordTexture,float mov
 	charSpeed = moveSpeed;
 	swordCircle = sf::CircleShape(60.0f);
 	swordCircle.setOrigin(swordCircle.getRadius(), swordCircle.getRadius());
+	swordRect = sf::RectangleShape(sf::Vector2f(100.0f, 30.0f));
+	swordRect.setFillColor(sf::Color::White);
+	swordRect.setOrigin((swordRect.getGlobalBounds().width / 2.0f)-50.0f, swordRect.getGlobalBounds().height / 2.0f);
 }
 
 void Knight::draw(sf::RenderWindow & window) {
+	swordRect.setPosition(swordSprite.getPosition());
+	swordRect.setRotation(swordSprite.getRotation());
+	window.draw(swordRect);
 	window.draw(swordSprite);
 	window.draw(playerSprite);
 }
@@ -35,6 +41,7 @@ void Knight::swingSword() {
 	//if swinging and swingTime went by, then done swinging
 	if (isSwinging && clockSwingTime.getElapsedTime().asSeconds() > swingTime) {
 		isSwinging = false;
+		swordIntersected = false;
 	}
 	else if (isSwinging) { //else if swinging, move swordSprite in arc and rotate slightly
 		float x = swordCircle.getPosition().x + (swordCircle.getRadius())*cos(clockSwingTime.getElapsedTime().asSeconds() * 3 - PI / 3 - swordCircle.getRotation()*(PI / 180));
@@ -42,6 +49,48 @@ void Knight::swingSword() {
 		swordSprite.setPosition(x, y);
 		swordSprite.setRotation(swordCircle.getRotation() + 15 - clockSwingTime.getElapsedTime().asSeconds() * 100.2f);
 	}
+}
+
+bool Knight::collisionSP(sf::CircleShape & player) {
+	sf::FloatRect swordBox = swordRect.getGlobalBounds();
+	//if not swinging, we don't want collision to register so return false
+	//if sword already intersected, return false to prevent multiple intersections on one swing
+	//if swordBox and rectangle encompassing player circle don't intersect, no collision possible (light, quick check)
+	if (!isSwinging || swordIntersected || !swordBox.intersects(player.getGlobalBounds())) {
+		return false;
+	}
+	//full collision check between sword and circle of player
+	float circleX = player.getPosition().x;
+	float closestX;
+	if (circleX < swordBox.left) { //circle to left of rect
+		closestX = swordBox.left;
+	}
+	else if (circleX > swordBox.left + swordBox.width) { //circle to right of rect
+		closestX = swordBox.left + swordBox.width;
+	}
+	else {
+		closestX = circleX;
+	}
+
+	float circleY = player.getPosition().y;
+	float closestY;
+	if (circleY < swordBox.top) { //circle above rect
+		closestY = swordBox.top;
+	}
+	else if (circleY > swordBox.top + swordBox.height) { //circle below rect
+		closestY = swordBox.top + swordBox.height;
+	}
+	else {
+		closestY = circleY;
+	}
+
+	float dx = (circleX - closestX) * (circleX - closestX);
+	float dy = (circleY - closestY) * (circleY - closestY);
+	bool ret = sqrt(dx + dy) < player.getRadius();
+	if (ret) {
+		swordIntersected = true;
+	}
+	return ret;
 }
 
 sf::Packet Knight::chainDataToPacket(sf::Packet & packet, std::string value) {

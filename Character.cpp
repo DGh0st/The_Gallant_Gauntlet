@@ -10,6 +10,8 @@ Character::Character(int maxHealth, int damage, float divingAccuracy, float char
 	divingMovement = sf::Vector2f(0.0f, 0.0f);
 	lastKey = sf::Keyboard::Unknown;
 	diveResetTimer.restart();
+	playerCircle = sf::CircleShape(46.0f);
+	playerCircle.setOrigin(playerCircle.getRadius(), playerCircle.getRadius());
 }
 
 Character::~Character() {
@@ -31,7 +33,7 @@ void Character::operator=(const Character & other) {
 }
 
 void Character::draw(sf::RenderWindow & window) const {
-	window.draw(playerSprite);
+	window.draw(playerSprite);	
 }
 
 void Character::move(const sf::RenderWindow & window, const sf::Keyboard::Key releasedKey) {
@@ -89,6 +91,9 @@ void Character::move(const sf::RenderWindow & window, const sf::Keyboard::Key re
 	if (sf::Keyboard::isKeyPressed(moveRightKey)) {
 		playerSprite.setPosition(playerSprite.getPosition() + sf::Vector2f(charSpeed, 0.0f)); // right
 	}
+
+	//keep player circle on top of player
+	playerCircle.setPosition(playerSprite.getPosition());
 }
 
 sf::Vector2f Character::getCenter() {

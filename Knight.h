@@ -13,6 +13,10 @@ public:
 	void draw(sf::RenderWindow & window);
 	//swing and rotate sword
 	void swingSword();
+	//collision between sword and player
+	//@param player: circle to test if intersecting with sword
+	//@return: true if sword and player are intersecting, false otherwise
+	bool collisionSP(sf::CircleShape & player);
 	// chain packets of type Knight
 	sf::Packet chainDataToPacket(sf::Packet & packet, std::string value);
 	// extract packets of type Knight
@@ -24,6 +28,8 @@ private:
 	float reloadTime = 0.1f; //how long before you can swing again
 	float swingTime = 0.75; //how long the swing lasts
 	sf::Clock clockSwingTime; //used for timing how long before you can swing again, timing how long swing lasts, and rotating sword based on times
+	sf::RectangleShape swordRect; //bounding box for sword
+	bool swordIntersected = false; //whether or not sword already hit something this swing
 };
 
 #endif
