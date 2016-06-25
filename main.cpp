@@ -14,7 +14,8 @@
 #include "Knight.h"
 
 static screenTypes currentScreenDisplayed = title; // current displayed screen
-bool screenReseted; // did leave game or server closed and screen returned to title
+bool screenReseted = false; // did leave game or server closed and screen returned to title
+bool isSelectionScreenDisplayed = false; // is class selection overlay displayed currently
 
 // info about server (from server side)
 static Server runningServer; // holds the server itself, if running server on your pc
@@ -33,8 +34,9 @@ static std::string connectToIPandPort = "";
 // textures
 sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture;
 
-// class variable (holds class of player. 0 = knight, 1 = ranger, 2 = mage)
-classTypes classVar = knight; //default knight class to start
+// holds class of player (current and next respawn). 0 = knight, 1 = ranger, 2 = mage
+classTypes respawnClass = knight; //default knight class to start
+classTypes currentClass = knight;
 
 void runClient() {
 	runningClient.receivePackets(clientSocket, rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture);
@@ -101,15 +103,18 @@ void onJoinGameClickFromServer() {
 }
 
 void onKnightClick() {
-	classVar = knight;
+	respawnClass = knight;
+	isSelectionScreenDisplayed = false;
 }
 
 void onRangerClick() {
-	classVar = ranger;
+	respawnClass = ranger;
+	isSelectionScreenDisplayed = false;
 }
 
 void onMageClick() {
-	classVar = mage;
+	respawnClass = mage;
+	isSelectionScreenDisplayed = false;
 }
 
 int main() {
@@ -127,7 +132,7 @@ int main() {
 	swordTexture.loadFromFile("textures/sword.png");
 	bowTexture.loadFromFile("textures/bow.png");
 	staffTexture.loadFromFile("textures/staff.png");
-	Character* player = (Character*)new Knight(knightTexture, swordTexture, 0.2f); //default knight class to start
+	Character* player = (Character*)(new Knight(knightTexture, swordTexture, 0.2f)); //default knight class to start
 	player->setIsPlayer(true);
 
 	sf::View playerView = sf::View(player->getCenter(), (sf::Vector2f)windowSize);
@@ -170,15 +175,14 @@ int main() {
 			else if (currentScreenDisplayed == createServer) {
 				joinButton.handleEvent(event);
 			}
-			else if (currentScreenDisplayed == ingame && event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::H) {
-				currentScreenDisplayed = classSelect;
-			}
-			else if (currentScreenDisplayed == classSelect) {
-				knightButton.handleEvent(event);
-				rangerButton.handleEvent(event);
-				mageButton.handleEvent(event);
-				if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::H) {
-					currentScreenDisplayed = ingame;
+			else if (currentScreenDisplayed == ingame) {
+				if (isSelectionScreenDisplayed) {
+					knightButton.handleEvent(event);
+					rangerButton.handleEvent(event);
+					mageButton.handleEvent(event);
+				}
+				if (event.type == sf::Event::KeyReleased && event.key.code == classSelectionDisplayKey) {
+					isSelectionScreenDisplayed = !isSelectionScreenDisplayed; // toogles
 				}
 			}
 		}
@@ -253,14 +257,16 @@ int main() {
 			//code to add to respawn --
 			/*if (classVar == knight) {
 				player = (Character*)new Knight(knightTexture, swordTexture, 0.2f);
+				currentClass = knight;
 			}
 			else if (classVar == ranger) {
 				player = (Character*)new Ranger(rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
+				currentClass = ranger;
 			}
 			else if (classVar == mage) {
 				player = (Character*)new Mage(mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
+				currentClass = mage;
 			}*/ //--
-
 			playerView.setCenter(player->getCenter());
 			window.setView(playerView);
 			std::ostringstream killsDeathString;
@@ -268,7 +274,7 @@ int main() {
 			sf::Text playerStats(killsDeathString.str(), font, 15U);
 			playerStats.setOrigin(playerStats.getGlobalBounds().width, 0.0f);
 			playerStats.setPosition(sf::Vector2f(player->getCenter().x + windowSize.x / 2.0f - 10.0f, player->getCenter().y - windowSize.y / 2.0f));
-			char gameTimeString[100] = "00:00";
+			char gameTimeString[] = "00:00";
 			sprintf_s(gameTimeString, sizeof(gameTimeString), "%.2d:%.2d", (int)runningClient.timeLeftInGame / 60, (int)runningClient.timeLeftInGame % 60);
 			sf::Text gameTimeText(gameTimeString, font, 30U);
 			gameTimeText.setOrigin(gameTimeText.getGlobalBounds().width / 2.0f, 0.0f);
@@ -277,18 +283,18 @@ int main() {
 				// player movement and send that data to server	
 				sf::Packet packet;
 				packet.clear();
-				if (classVar == knight) {
+				if (currentClass == knight) {
 					((Knight*)player)->swingSword();
 					((Knight*)player)->move(window, releasedKey);
 					packet = ((Knight*)player)->chainDataToPacket(packet, runningClient.getClientId());
 				}
-				else if (classVar == ranger) {
+				else if (currentClass == ranger) {
 					((Ranger*)player)->move(window, releasedKey);
 					((Ranger*)player)->shoot(window);
 					((Ranger*)player)->setWeapon(window);
 					packet = ((Ranger*)player)->chainDataToPacket(packet, runningClient.getClientId());
 			    }
-				else if (classVar == mage) {
+				else if (currentClass == mage) {
 					((Mage*)player)->move(window, releasedKey);
 					((Mage*)player)->shoot(window);
 					((Mage*)player)->setWeapon(window);
@@ -298,69 +304,73 @@ int main() {
 			}
 			// draw
 			runningClient.draw(window);	
-			if (classVar == knight) {
+			if (currentClass == knight) {
 				((Knight*)player)->draw(window);
 			}
-			else if (classVar == ranger) {
+			else if (currentClass == ranger) {
 				((Ranger*)player)->drawProjectiles(window);
 				((Ranger*)player)->draw(window);
 			}
-			else if (classVar == mage) {
+			else if (currentClass == mage) {
 				((Mage*)player)->drawProjectiles(window);
 				((Mage*)player)->draw(window);
 			}
 			window.draw(playerStats);
 			window.draw(gameTimeText);
-		}
-		else if (currentScreenDisplayed == classSelect) {
-			window.setView(normalView);
-			//title text
-			sf::Text titleText("Class Selection", font, 64U);
-			titleText.setOrigin(titleText.getGlobalBounds().width / 2, titleText.getGlobalBounds().height / 2);
-			titleText.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f - 200.0f));
-			window.draw(titleText);
-			//knight button
-			sf::Text knightText("Knight", font, 32U);
-			knightText.setColor(sf::Color::Black);
-			knightButton = Button(knightText, sf::Vector2f(150.0f, 75.0f), onKnightClick);
-			knightButton.setOrigin(knightButton.getGlobalBounds().width / 2.0f, knightButton.getGlobalBounds().height / 2.0f);
-			knightButton.setPosition(sf::Vector2f(windowSize.x / 2.0f - 250.0f, windowSize.y / 2.0f + 150.0f));
-			window.draw(knightText);
-			knightButton.draw(window);
-			//ranger button
-			sf::Text rangerText("Ranger", font, 32U);
-			rangerText.setColor(sf::Color::Black);
-			rangerButton = Button(rangerText, sf::Vector2f(150.0f, 75.0f), onRangerClick);
-			rangerButton.setOrigin(rangerButton.getGlobalBounds().width / 2.0f, rangerButton.getGlobalBounds().height / 2.0f);
-			rangerButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f + 150.0f));
-			window.draw(rangerText);
-			rangerButton.draw(window);
-			//mage button
-			sf::Text mageText("Mage", font, 32U);
-			mageText.setColor(sf::Color::Black);
-			mageButton = Button(mageText, sf::Vector2f(150.0f, 75.0f), onMageClick);
-			mageButton.setOrigin(mageButton.getGlobalBounds().width / 2.0f, mageButton.getGlobalBounds().height / 2.0f);
-			mageButton.setPosition(sf::Vector2f(windowSize.x / 2.0f + 250.0f, windowSize.y / 2.0f + 150.0f));
-			window.draw(mageText);
-			mageButton.draw(window);
-			//knight sprite
-			sf::Sprite knightSprite(knightTexture);
-			knightSprite.setOrigin(knightSprite.getGlobalBounds().width / 2.0f, knightSprite.getGlobalBounds().height / 2.0f);
-			knightSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f - 250.0f, windowSize.y / 2.0f + 25.0f));
-			knightSprite.setRotation(knightSprite.getRotation() + 90);
-			window.draw(knightSprite);
-			//ranger sprite
-			sf::Sprite rangerSprite(rangerTexture);
-			rangerSprite.setOrigin(rangerSprite.getGlobalBounds().width / 2.0f, rangerSprite.getGlobalBounds().height / 2.0f);
-			rangerSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f + 25.0f));
-			rangerSprite.setRotation(rangerSprite.getRotation() + 91);
-			window.draw(rangerSprite);
-			//mage sprite
-			sf::Sprite mageSprite(mageTexture);
-			mageSprite.setOrigin(mageSprite.getGlobalBounds().width / 2.0f, mageSprite.getGlobalBounds().height / 2.0f);
-			mageSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f + 250.0f, windowSize.y / 2.0f + 25.0f));
-			mageSprite.setRotation(mageSprite.getRotation() + 100);
-			window.draw(mageSprite);
+			if (isSelectionScreenDisplayed) {
+				window.setView(normalView);
+				//backdrop
+				sf::RectangleShape backdrop((sf::Vector2f) windowSize);
+				backdrop.setFillColor(sf::Color(0, 0, 0, 150));
+				window.draw(backdrop);
+				//title text
+				sf::Text titleText("Class Selection", font, 64U);
+				titleText.setOrigin(titleText.getGlobalBounds().width / 2, titleText.getGlobalBounds().height / 2);
+				titleText.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f - 200.0f));
+				window.draw(titleText);
+				//knight button
+				sf::Text knightText("Knight", font, 32U);
+				knightText.setColor(sf::Color::Black);
+				knightButton = Button(knightText, sf::Vector2f(150.0f, 75.0f), onKnightClick);
+				knightButton.setOrigin(knightButton.getGlobalBounds().width / 2.0f, knightButton.getGlobalBounds().height / 2.0f);
+				knightButton.setPosition(sf::Vector2f(windowSize.x / 2.0f - 250.0f, windowSize.y / 2.0f + 150.0f));
+				window.draw(knightText);
+				knightButton.draw(window);
+				//ranger button
+				sf::Text rangerText("Ranger", font, 32U);
+				rangerText.setColor(sf::Color::Black);
+				rangerButton = Button(rangerText, sf::Vector2f(150.0f, 75.0f), onRangerClick);
+				rangerButton.setOrigin(rangerButton.getGlobalBounds().width / 2.0f, rangerButton.getGlobalBounds().height / 2.0f);
+				rangerButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f + 150.0f));
+				window.draw(rangerText);
+				rangerButton.draw(window);
+				//mage button
+				sf::Text mageText("Mage", font, 32U);
+				mageText.setColor(sf::Color::Black);
+				mageButton = Button(mageText, sf::Vector2f(150.0f, 75.0f), onMageClick);
+				mageButton.setOrigin(mageButton.getGlobalBounds().width / 2.0f, mageButton.getGlobalBounds().height / 2.0f);
+				mageButton.setPosition(sf::Vector2f(windowSize.x / 2.0f + 250.0f, windowSize.y / 2.0f + 150.0f));
+				window.draw(mageText);
+				mageButton.draw(window);
+				//knight sprite
+				sf::Sprite knightSprite(knightTexture);
+				knightSprite.setOrigin(knightSprite.getGlobalBounds().width / 2.0f, knightSprite.getGlobalBounds().height / 2.0f);
+				knightSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f - 250.0f, windowSize.y / 2.0f + 25.0f));
+				knightSprite.setRotation(knightSprite.getRotation() + 90);
+				window.draw(knightSprite);
+				//ranger sprite
+				sf::Sprite rangerSprite(rangerTexture);
+				rangerSprite.setOrigin(rangerSprite.getGlobalBounds().width / 2.0f, rangerSprite.getGlobalBounds().height / 2.0f);
+				rangerSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f + 25.0f));
+				rangerSprite.setRotation(rangerSprite.getRotation() + 91);
+				window.draw(rangerSprite);
+				//mage sprite
+				sf::Sprite mageSprite(mageTexture);
+				mageSprite.setOrigin(mageSprite.getGlobalBounds().width / 2.0f, mageSprite.getGlobalBounds().height / 2.0f);
+				mageSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f + 250.0f, windowSize.y / 2.0f + 25.0f));
+				mageSprite.setRotation(mageSprite.getRotation() + 100);
+				window.draw(mageSprite);
+			}
 		}
 
 		window.display();

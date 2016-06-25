@@ -12,6 +12,7 @@ static int kills = 0, deaths = 0;
 #define moveDownKey sf::Keyboard::S // down
 #define moveLeftKey sf::Keyboard::A // left
 #define moveRightKey sf::Keyboard::D // right
+#define classSelectionDisplayKey sf::Keyboard::H // class selection
 // character
 #define PI 3.14159265f
 #define playerSize 20.0f // size of the character
@@ -27,13 +28,11 @@ enum screenTypes {
 	createServer = 1, // create a server screen
 	joinServer = 2, // join a server screen
 	ingame = 3, // in game screen
-	classSelect = 4 // class selection screen
 };
 enum classTypes {
 	knight = 0,
 	ranger = 1,
 	mage = 2
-
 };
 
 #endif // !DEFINES_H
