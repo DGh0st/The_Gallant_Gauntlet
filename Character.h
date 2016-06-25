@@ -27,13 +27,24 @@ public:
 	inline void setIsPlayer(bool isPlayer) { this->isPlayer = isPlayer; }
 	// get position
 	sf::Vector2f getCenter();
+	// check if dead
+	bool getIsDead();
+	// get time as dead
+	float getTimeAsDead();
+	// get collision circle
+	sf::CircleShape getCollisionCircle();
+	// take damage
+	void takeDamage(sf::Int16 damage);
+	// get damage
+	sf::Int16 getDamage();
 protected:
 	sf::Sprite playerSprite; //sprite of character
 	float charSpeed; // normal character movement speed
 	sf::Int16 maxHealth, health, damage; // health and damage
 	bool isPlayer = false; // is the current Character the player or someone over the internet
-	sf::CircleShape playerCircle; //circle used for player collisions
+	bool isDead = false; // is player dead
 private:
+	sf::CircleShape playerCircle; //circle used for player collisions
 	sf::Clock diveResetTimer; // reset timer for diving in specific direction
 	sf::Vector2f divingMovement; // movement of the character when diving
 	sf::Keyboard::Key lastKey; // last key released (W, A, S, D) required for diving
@@ -41,6 +52,7 @@ private:
 	float diveSpeed; // character dive speed
 	float diveResetTime; // time required to reset the dive key (cooldown on diving)
 	float diveResistance; // resistance when diving (simply to not make it jump in one frame)
+	sf::Clock respawnTimer = sf::Clock(); // respawn timer
 };
 
 #endif // !CHARACTER_H

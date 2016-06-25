@@ -32,6 +32,8 @@ public:
 	void stopReceivingPackets();
 	// draw other players
 	void draw(sf::RenderWindow & window);
+	// check collisions
+	void checkCollisions(Character *player);
 	// get client id
 	std::string getClientId();
 

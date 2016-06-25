@@ -146,6 +146,23 @@ void Client::stopReceivingPackets() {
 	running = false;
 }
 
+void Client::checkCollisions(Character * player) {
+	for (int i = 0; i < otherPlayers.size(); i++) {
+		if (otherPlayers[i].fighterClass == "Knight") {
+			if (((Knight *)(otherPlayers[i].userCharacter))->collisionSP(player->getCollisionCircle())) {
+				printf("[Client] Colliding\n");
+				player->takeDamage(((Knight *)(otherPlayers[i].userCharacter))->getDamage());
+			}
+		}
+		else if (otherPlayers[i].fighterClass == "Mage") {
+
+		}
+		else if (otherPlayers[i].fighterClass == "Ranger") {
+
+		}
+	}
+}
+
 void Client::draw(sf::RenderWindow & window) {
 	for (int i = 0; i < otherPlayers.size(); i++) {
 		if (otherPlayers[i].fighterClass == "Knight") {

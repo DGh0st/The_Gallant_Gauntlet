@@ -38,8 +38,23 @@ sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, 
 classTypes respawnClass = knight; //default knight class to start
 classTypes currentClass = knight;
 
+// player
+Character* player;
+
+// kill and death counter
+static int kills = 0, deaths = 0; // kill and deaths
+
 void runClient() {
 	runningClient.receivePackets(clientSocket, rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture);
+	if (currentClass == knight) {
+		delete (Knight *)player;
+	}
+	else if (currentClass == ranger) {
+		delete (Ranger *)player;
+	}
+	else if (currentClass == mage) {
+		delete (Mage *)player;
+	}
 	currentScreenDisplayed = title;
 	screenReseted = true;
 }
@@ -132,7 +147,8 @@ int main() {
 	swordTexture.loadFromFile("textures/sword.png");
 	bowTexture.loadFromFile("textures/bow.png");
 	staffTexture.loadFromFile("textures/staff.png");
-	Character* player = (Character*)(new Knight(knightTexture, swordTexture, 0.2f)); //default knight class to start
+
+	player = (Character*)(new Knight(knightTexture, swordTexture, 0.2f)); //default knight class to start
 	player->setIsPlayer(true);
 
 	sf::View playerView = sf::View(player->getCenter(), (sf::Vector2f)windowSize);
@@ -254,19 +270,6 @@ int main() {
 			window.draw(ipText);
 		}
 		else if (currentScreenDisplayed == ingame) {
-			//code to add to respawn --
-			/*if (classVar == knight) {
-				player = (Character*)new Knight(knightTexture, swordTexture, 0.2f);
-				currentClass = knight;
-			}
-			else if (classVar == ranger) {
-				player = (Character*)new Ranger(rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
-				currentClass = ranger;
-			}
-			else if (classVar == mage) {
-				player = (Character*)new Mage(mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
-				currentClass = mage;
-			}*/ //--
 			playerView.setCenter(player->getCenter());
 			window.setView(playerView);
 			std::ostringstream killsDeathString;
@@ -279,7 +282,9 @@ int main() {
 			sf::Text gameTimeText(gameTimeString, font, 30U);
 			gameTimeText.setOrigin(gameTimeText.getGlobalBounds().width / 2.0f, 0.0f);
 			gameTimeText.setPosition(sf::Vector2f(player->getCenter().x, player->getCenter().y - windowSize.y / 2.0f));
-			if (window.hasFocus()) {
+			if (window.hasFocus() && !isSelectionScreenDisplayed && !player->getIsDead()) {
+				// check collision
+				runningClient.checkCollisions(player, currentClass);
 				// player movement and send that data to server	
 				sf::Packet packet;
 				packet.clear();
@@ -317,6 +322,52 @@ int main() {
 			}
 			window.draw(playerStats);
 			window.draw(gameTimeText);
+			//printf("Respawn timer = %f\n", respawnTimer.getElapsedTime().asSeconds());
+			if (player->getIsDead()) {
+				window.setView(normalView);
+				// backdrop
+				sf::RectangleShape backdrop((sf::Vector2f) windowSize);
+				backdrop.setFillColor(sf::Color(255, 0, 0, 150));
+				window.draw(backdrop);
+				// respawn text
+				std::ostringstream respawnTimeString;
+				respawnTimeString << "Respawning in " << respawnTime - player->getTimeAsDead() << " seconds";
+				sf::Text respawnText(respawnTimeString.str(), font, 32U);
+				respawnText.setOrigin(respawnText.getGlobalBounds().width / 2.0f, respawnText.getGlobalBounds().height / 2.0f);
+				respawnText.setPosition(windowSize.x / 2.0f, windowSize.y / 2.0f);
+				window.draw(respawnText);
+				// class selection text
+				sf::Text classSelectionText("Press 'H' to select class", font, 15U);
+				classSelectionText.setOrigin(classSelectionText.getGlobalBounds().width / 2.0f, classSelectionText.getGlobalBounds().height / 2.0f);
+				classSelectionText.setPosition(windowSize.x / 2.0f, windowSize.y / 2.0f + respawnText.getGlobalBounds().height);
+				window.draw(classSelectionText);
+				// respawn when respawnTime spent as dead
+				if (player->getTimeAsDead() > respawnTime) {
+					if (currentClass == knight) {
+						delete (Knight *)player;
+					}
+					else if (currentClass == ranger) {
+						delete (Ranger *)player;
+					}
+					else if (currentClass == mage) {
+						delete (Mage *)player;
+					}
+					if (respawnClass == knight) {
+						player = (Character*)(new Knight(knightTexture, swordTexture, 0.2f));
+						currentClass = knight;
+					}
+					else if (respawnClass == ranger) {
+						player = (Character*)(new Ranger(rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f));
+						currentClass = ranger;
+					}
+					else if (respawnClass == mage) {
+						player = (Character*)(new Mage(mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f));
+						currentClass = mage;
+					}
+					player->setIsPlayer(true);
+					deaths++;
+				}
+			}
 			if (isSelectionScreenDisplayed) {
 				window.setView(normalView);
 				//backdrop

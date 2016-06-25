@@ -37,9 +37,9 @@ void Character::draw(sf::RenderWindow & window) const {
 }
 
 void Character::move(const sf::RenderWindow & window, const sf::Keyboard::Key releasedKey) {
-	// increase death counter if needed
-	if (isPlayer && health <= 0) {
-		deaths++;
+	// stop movement if player is dead
+	if (getIsDead()) {
+		return;
 	}
 	// player rotation
 	sf::Vector2i mousePos = (sf::Vector2i)window.mapPixelToCoords(sf::Mouse::getPosition(window));
@@ -111,4 +111,33 @@ sf::Packet Character::extractPacketToData(sf::Packet & packet) {
 	playerSprite.setPosition(pos);
 	playerSprite.setRotation(rotation);
 	return packet;
+}
+
+bool Character::getIsDead() {
+	if (isPlayer && isDead) {
+		return true;
+	}
+	// increase death counter if needed
+	if (isPlayer && health <= 0 && !isDead) {
+		isDead = true;
+		respawnTimer.restart();
+		return true;
+	}
+	return false;
+}
+
+float Character::getTimeAsDead() {
+	return respawnTimer.getElapsedTime().asSeconds();
+}
+
+sf::CircleShape Character::getCollisionCircle() {
+	return playerCircle;
+}
+
+void Character::takeDamage(sf::Int16 damage) {
+	health -= damage;
+}
+
+sf::Int16 Character::getDamage() {
+	return damage;
 }

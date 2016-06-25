@@ -1,11 +1,12 @@
 #ifndef DEFINES_H
 #define DEFINES_H
+#include "Character.h"
 #include <SFML/Network.hpp>
 
 // all
 #define windowDesignSize sf::Vector2u(1920, 1080) // UI designed for these resolutions
 static sf::Vector2u windowSize(1920, 1080); // current window size
-static int kills = 0, deaths = 0;
+#define respawnTime 5.0f // time to respawn in seconds
 #define totalMatchTime 1800 // time in seconds per match/game
 // main and character
 #define moveUpKey sf::Keyboard::W // up
