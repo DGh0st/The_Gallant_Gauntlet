@@ -293,16 +293,14 @@ int main() {
 				gameTimeString << "0";
 			}
 			gameTimeString << seconds;
-			//char gameTimeString[] = "00:00";
-			//sprintf_s(gameTimeString, sizeof(gameTimeString), "%.2d:%.2d", (int)runningClient.timeLeftInGame / 60, (int)runningClient.timeLeftInGame % 60);
 			sf::Text gameTimeText(gameTimeString.str(), font, 30U);
 			gameTimeText.setOrigin(gameTimeText.getGlobalBounds().width / 2.0f, 0.0f);
 			gameTimeText.setPosition(sf::Vector2f(player->getCenter().x, player->getCenter().y - windowSize.y / 2.0f));
+			if (runningClient.isGameInProgress()) {
+				// check collision
+				runningClient.checkCollisions(player, currentClass);
+			}
 			if (window.hasFocus() && !isSelectionScreenDisplayed && !player->getIsDead()) {
-				if (runningClient.isGameInProgress()) {
-					// check collision
-					runningClient.checkCollisions(player, currentClass);
-				}
 				// player movement and send that data to server	
 				sf::Packet packet;
 				packet.clear();

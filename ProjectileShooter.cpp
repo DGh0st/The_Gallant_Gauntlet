@@ -156,7 +156,7 @@ ProjectileShooter::Projectile::Projectile(sf::RenderWindow & window, sf::Texture
 
 	// setup collision circle
 	projectileCircle = sf::CircleShape(projectileSprite.getGlobalBounds().height / 2.0f);
-	projectileCircle.setOrigin(projectileCircle.getGlobalBounds().width / 2.0f, projectileCircle.getGlobalBounds().height / 2.0f);
+	projectileCircle.setOrigin(-projectileCircle.getGlobalBounds().width / 2.0f, projectileCircle.getGlobalBounds().height / 2.0f);
 
 	//set startPos forward by dx,dy (makes projectile come from front of startSprite, rather than middle)
 	startPos = startSprite.getPosition();
@@ -174,6 +174,7 @@ ProjectileShooter::Projectile::Projectile(sf::RenderWindow & window, sf::Texture
 	sf::Vector2i diff = mousePos - projectilePos;
 	float angle = (float)atan2(diff.y, diff.x) * (180 / PI);
 	projectileSprite.setRotation(angle);
+	projectileCircle.setRotation(angle);
 }
 
 ProjectileShooter::Projectile::Projectile(sf::Vector2i mousePos, sf::Texture & projectileTexture, sf::Sprite startSprite) {
@@ -183,7 +184,7 @@ ProjectileShooter::Projectile::Projectile(sf::Vector2i mousePos, sf::Texture & p
 	
 	// setup collision circle
 	projectileCircle = sf::CircleShape(projectileSprite.getGlobalBounds().height / 2.0f);
-	projectileCircle.setOrigin(projectileCircle.getGlobalBounds().width / 2.0f, projectileCircle.getGlobalBounds().height / 2.0f);
+	projectileCircle.setOrigin(-projectileCircle.getGlobalBounds().width / 2.0f, projectileCircle.getGlobalBounds().height / 2.0f);
 
 	//set startPos forward by dx,dy (makes projectile come from front of startSprite, rather than middle)
 	startPos = startSprite.getPosition();
@@ -201,4 +202,5 @@ ProjectileShooter::Projectile::Projectile(sf::Vector2i mousePos, sf::Texture & p
 	sf::Vector2i diff = mousePos - projectilePos;
 	float angle = (float)atan2(diff.y, diff.x) * (180 / PI);
 	projectileSprite.setRotation(angle);
+	projectileCircle.setRotation(angle);
 }
