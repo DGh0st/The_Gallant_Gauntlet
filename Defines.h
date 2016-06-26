@@ -8,7 +8,7 @@
 static sf::Vector2u windowSize(1920, 1080); // current window size
 #define respawnTime 5.0f // time to respawn in seconds
 #define totalMatchTime 1800 // time in seconds per match/game
-#define preMatchTime 180 // time in seconds before restarting match/game
+#define preMatchTime 120 // time in seconds before restarting match/game
 // main and character
 #define moveUpKey sf::Keyboard::W // up
 #define moveDownKey sf::Keyboard::S // down

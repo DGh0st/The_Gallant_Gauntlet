@@ -30,6 +30,7 @@ private:
 	sf::Clock clockSwingTime; //used for timing how long before you can swing again, timing how long swing lasts, and rotating sword based on times
 	sf::RectangleShape swordRect; //bounding box for sword
 	bool swordIntersected = false; //whether or not sword already hit something this swing
+	sf::Uint16 uniqueSwingCounter = 0; // number of swings so far by player
 };
 
 #endif

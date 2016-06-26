@@ -31,7 +31,7 @@ sf::Packet Ranger::extractPacketToData(sf::Packet & packet) {
 	float rotation;
 	float angle;
 	sf::Vector2i mousePos;
-	sf::Uint64 projectilesCounter;
+	sf::Uint16 projectilesCounter;
 	packet >> maxHealth >> health >> damage >> pos.x >> pos.y >> rotation >> isShooting >> fromWeapon >> angle >> mousePos.x >> mousePos.y >> projectilesCounter;
 	playerSprite.setPosition(pos);
 	playerSprite.setRotation(rotation);

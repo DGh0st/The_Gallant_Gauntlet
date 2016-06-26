@@ -110,15 +110,38 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 						}
 					}
 					else if (fighterName != otherPlayers[i].fighterClass) {
-						otherPlayers[i].isViable = false;
-						goto createNewPlayer;
+						if (otherPlayers[i].fighterClass == "Knight") {
+							delete (Knight *)(otherPlayers[i].userCharacter);
+						}
+						else if (otherPlayers[i].fighterClass == "Mage") {
+							delete (Mage *)(otherPlayers[i].userCharacter);
+						}
+						else if (otherPlayers[i].fighterClass == "Ranger") {
+							delete (Ranger *)(otherPlayers[i].userCharacter);
+						}
+						otherPlayers.erase(otherPlayers.begin() + i);
+						PlayerData userData;
+						userData.userID = senderId;
+						userData.fighterClass = fighterName;
+						userData.isViable = false;
+						if (fighterName == "Knight") {
+							userData.userCharacter = (Character *)new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f);
+						}
+						else if (fighterName == "Mage") {
+							userData.userCharacter = (Character *)new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
+						}
+						else if (fighterName == "Ranger") {
+							userData.userCharacter = (Character *)new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
+						}
+						userData.userCharacter->extractPacketToData(packet);
+						packet >> timeLeftInGame >> gameNotInProgress;
+						otherPlayers.emplace(otherPlayers.begin() + i, userData);
 					}
 					packet >> timeLeftInGame >> gameNotInProgress;
 					break;
 				}
 			}
 			if (i == otherPlayers.size() && senderId != "") {
-createNewPlayer:
 				PlayerData userData;
 				userData.userID = senderId;
 				userData.fighterClass = fighterName;
@@ -153,7 +176,7 @@ void Client::stopReceivingPackets() {
 	running = false;
 }
 
-void Client::checkCollisions(Character * player) {
+void Client::checkCollisions(Character * player, classTypes currentClass) {
 	for (int i = 0; i < otherPlayers.size(); i++) {
 		if (otherPlayers[i].fighterClass == "Knight") {
 			if (((Knight *)(otherPlayers[i].userCharacter))->collisionSP(player->getCollisionCircle())) {
@@ -161,16 +184,33 @@ void Client::checkCollisions(Character * player) {
 			}
 		}
 		else if (otherPlayers[i].fighterClass == "Mage") {
-
+			if (((Mage  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
+				player->takeDamage(((Knight *)(otherPlayers[i].userCharacter))->getDamage());
+			}
 		}
 		else if (otherPlayers[i].fighterClass == "Ranger") {
-
+			if (((Ranger  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
+				player->takeDamage(((Knight *)(otherPlayers[i].userCharacter))->getDamage());
+			}
+		}
+		if (currentClass == knight) {
+			((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle());
+		}
+		else if (currentClass == mage) {
+			((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle());
+		}
+		else if (currentClass == ranger) {
+			((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle());
 		}
 	}
 }
 
 void Client::draw(sf::RenderWindow & window) {
 	for (int i = 0; i < otherPlayers.size(); i++) {
+		if (!otherPlayers[i].isViable) {
+			otherPlayers[i].isViable = true;
+			continue;
+		}
 		if (otherPlayers[i].fighterClass == "Knight") {
 			((Knight *)(otherPlayers[i].userCharacter))->swingSword();
 			((Knight *)(otherPlayers[i].userCharacter))->draw(window);
@@ -186,18 +226,6 @@ void Client::draw(sf::RenderWindow & window) {
 			((Ranger *)(otherPlayers[i].userCharacter))->setWeapon(window);
 			((Ranger *)(otherPlayers[i].userCharacter))->drawProjectiles(window);
 			((Ranger *)(otherPlayers[i].userCharacter))->draw(window);
-		}
-		if (!otherPlayers[i].isViable) {
-			if (otherPlayers[i].fighterClass == "Knight") {
-				delete (Knight *)(otherPlayers[i].userCharacter);
-			}
-			else if (otherPlayers[i].fighterClass == "Mage") {
-				delete (Mage *)(otherPlayers[i].userCharacter);
-			}
-			else if (otherPlayers[i].fighterClass == "Ranger") {
-				delete (Ranger *)(otherPlayers[i].userCharacter);
-			}
-			otherPlayers.erase(otherPlayers.begin() + i);
 		}
 	}
 }

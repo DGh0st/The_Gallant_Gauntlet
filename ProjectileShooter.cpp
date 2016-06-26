@@ -44,6 +44,51 @@ void ProjectileShooter::shoot(sf::RenderWindow & window) {
 	}
 }
 
+bool ProjectileShooter::collisionPP(sf::CircleShape & player) {
+	for (int i = 0; i < projectiles.size(); i++) {
+		sf::FloatRect projectileBox = projectiles[i]->projectileSprite.getGlobalBounds();
+		//if not swinging, we don't want collision to register so return false
+		//if sword already intersected, return false to prevent multiple intersections on one swing
+		//if swordBox and rectangle encompassing player circle don't intersect, no collision possible (light, quick check)
+		if (!projectileBox.intersects(player.getGlobalBounds())) {
+			return false;
+		}
+		//full collision check between sword and circle of player
+		float circleX = player.getPosition().x;
+		float closestX;
+		if (circleX < projectileBox.left) { //circle to left of rect
+			closestX = projectileBox.left;
+		}
+		else if (circleX > projectileBox.left + projectileBox.width) { //circle to right of rect
+			closestX = projectileBox.left + projectileBox.width;
+		}
+		else {
+			closestX = circleX;
+		}
+
+		float circleY = player.getPosition().y;
+		float closestY;
+		if (circleY < projectileBox.top) { //circle above rect
+			closestY = projectileBox.top;
+		}
+		else if (circleY > projectileBox.top + projectileBox.height) { //circle below rect
+			closestY = projectileBox.top + projectileBox.height;
+		}
+		else {
+			closestY = circleY;
+		}
+
+		float dx = (circleX - closestX) * (circleX - closestX);
+		float dy = (circleY - closestY) * (circleY - closestY);
+		bool ret = sqrt(dx + dy) < player.getRadius();
+		if (ret) {
+			projectiles.erase(projectiles.begin() + i);
+			return true;
+		}
+	}
+	return false;
+}
+
 void ProjectileShooter::drawProjectiles(sf::RenderWindow & window) {
 	for (int i = 0; i < projectiles.size(); i++) {
 		//if projectile exists and on screen

@@ -40,6 +40,10 @@ public:
 	void draw(sf::RenderWindow & window);
 	//shoots projectile on left click, and updates "isShooting" based on "timeAfterShot"
 	void shoot(sf::RenderWindow & window);
+	//collision between projectile and player
+	//@param player: circle to test if intersecting with projectile
+	//@return: true if sword and player are intersecting, false otherwise
+	bool collisionPP(sf::CircleShape & player);
 	//draws and moves all projectiles
 	void drawProjectiles(sf::RenderWindow & window);
 	//sets weapon of projectileShooter based on "fromWeapon"
@@ -55,7 +59,7 @@ protected:
 	std::vector<Projectile*> projectiles; //stores all projectiles
 	sf::Clock clockProjectile; //used for checking time since projectile was fired
 	sf::Clock clockReload; //used for projectile shooting
-	sf::Uint64 uniqueProjectilesCounter = 0; // number of projectiles shot so far by player
+	sf::Uint16 uniqueProjectilesCounter = 0; // number of projectiles shot so far by player
 private:
 	float projectileSpeed; //speed of projectiles shot
 	float projectileReloadTime; //time before you can shoot another projectile

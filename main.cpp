@@ -282,14 +282,27 @@ int main() {
 			playerStats.setOrigin(playerStats.getGlobalBounds().width, 0.0f);
 			playerStats.setPosition(sf::Vector2f(player->getCenter().x + windowSize.x / 2.0f - 10.0f, player->getCenter().y - windowSize.y / 2.0f));
 			// game time displayed in the center text
-			char gameTimeString[] = "00:00";
-			sprintf_s(gameTimeString, sizeof(gameTimeString), "%.2d:%.2d", (int)runningClient.timeLeftInGame / 60, (int)runningClient.timeLeftInGame % 60);
-			sf::Text gameTimeText(gameTimeString, font, 30U);
+			std::ostringstream gameTimeString;
+			int mins = (int)runningClient.timeLeftInGame / 60;
+			int seconds = (int)runningClient.timeLeftInGame % 60;
+			if (mins < 10) {
+				gameTimeString << "0";
+			}
+			gameTimeString << mins << ":";
+			if (seconds < 10) {
+				gameTimeString << "0";
+			}
+			gameTimeString << seconds;
+			//char gameTimeString[] = "00:00";
+			//sprintf_s(gameTimeString, sizeof(gameTimeString), "%.2d:%.2d", (int)runningClient.timeLeftInGame / 60, (int)runningClient.timeLeftInGame % 60);
+			sf::Text gameTimeText(gameTimeString.str(), font, 30U);
 			gameTimeText.setOrigin(gameTimeText.getGlobalBounds().width / 2.0f, 0.0f);
 			gameTimeText.setPosition(sf::Vector2f(player->getCenter().x, player->getCenter().y - windowSize.y / 2.0f));
 			if (window.hasFocus() && !isSelectionScreenDisplayed && !player->getIsDead()) {
-				// check collision
-				runningClient.checkCollisions(player);
+				if (runningClient.isGameInProgress()) {
+					// check collision
+					runningClient.checkCollisions(player, currentClass);
+				}
 				// player movement and send that data to server	
 				sf::Packet packet;
 				packet.clear();

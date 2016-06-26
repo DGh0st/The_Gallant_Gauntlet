@@ -5,10 +5,10 @@
 #include "Character.h"
 
 struct PlayerData {
+	bool isViable = true;
 	std::string userID;
 	std::string fighterClass;
 	Character *userCharacter;
-	bool isViable = true;
 };
 
 class Client {
@@ -34,7 +34,7 @@ public:
 	// draw other players
 	void draw(sf::RenderWindow & window);
 	// check collisions
-	void checkCollisions(Character *player);
+	void checkCollisions(Character *player, classTypes currentClass);
 	// get client id
 	std::string getClientId();
 	// get is game in progress or not
