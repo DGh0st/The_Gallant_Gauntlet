@@ -3,6 +3,8 @@
 #include "Ranger.h"
 #include "Knight.h"
 
+sf::Mutex m;
+
 Client::Client(sf::UdpSocket & socket, userInfo server) : server(server) {
 	otherPlayers = std::vector<PlayerData>(0);
 	if (server.ip != sf::IpAddress::None) {
@@ -97,38 +99,65 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 			}
 			int i;
 			for (i = 0; i < otherPlayers.size(); i++) {
+				m.lock();
 				if (senderId == otherPlayers[i].userID) {
-					if (fighterName == "Knight") {
-						((Knight *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
+					if (fighterName == otherPlayers[i].fighterClass) {
+						if (fighterName == "Knight") {
+							((Knight *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
+						}
+						else if (fighterName == "Mage") {
+							((Mage *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
+						}
+						else if (fighterName == "Ranger") {
+							((Ranger *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
+						}
 					}
-					else if (fighterName == "Mage") {
-						((Mage *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
-					}
-					else if (fighterName == "Ranger") {
-						((Ranger *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
+					else if (fighterName != otherPlayers[i].fighterClass) {
+						if (otherPlayers[i].fighterClass == "Knight") {
+							delete (Knight *)(otherPlayers[i].userCharacter);
+						}
+						else if (otherPlayers[i].fighterClass == "Mage") {
+							delete (Mage *)(otherPlayers[i].userCharacter);
+						}
+						else if (otherPlayers[i].fighterClass == "Ranger") {
+							delete (Ranger *)(otherPlayers[i].userCharacter);
+						}
+						if (fighterName == "Knight") {
+							otherPlayers[i].userCharacter = (Character *)new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f);
+						}
+						else if (fighterName == "Mage") {
+							otherPlayers[i].userCharacter = (Character *)new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
+						}
+						else if (fighterName == "Ranger") {
+							otherPlayers[i].userCharacter = (Character *)new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
+						}
+						otherPlayers[i].fighterClass = fighterName;
 					}
 					packet >> timeLeftInGame >> gameNotInProgress;
 					break;
 				}
+				m.unlock();
 			}
+			m.lock();
 			if (i == otherPlayers.size() && senderId != "") {
 				PlayerData userData;
 				userData.userID = senderId;
 				userData.fighterClass = fighterName;
 				if (fighterName == "Knight") {
-					userData.userCharacter = new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f);
+					userData.userCharacter = (Character *)new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f);
 				}
 				else if (fighterName == "Mage") {
-					userData.userCharacter = new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
+					userData.userCharacter = (Character *)new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
 				}
 				else if (fighterName == "Ranger") {
-					userData.userCharacter = new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
+					userData.userCharacter = (Character *)new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
 				}
 				userData.userCharacter->extractPacketToData(packet);
 				packet >> timeLeftInGame >> gameNotInProgress;
 				otherPlayers.push_back(userData);
 				printf("[Client] %s joined game\n", userData.userID.c_str());
 			}
+			m.unlock();
 		}
 	}
 	// send "left game" packet to the server if needed
@@ -150,7 +179,6 @@ void Client::checkCollisions(Character * player) {
 	for (int i = 0; i < otherPlayers.size(); i++) {
 		if (otherPlayers[i].fighterClass == "Knight") {
 			if (((Knight *)(otherPlayers[i].userCharacter))->collisionSP(player->getCollisionCircle())) {
-				printf("[Client] Colliding\n");
 				player->takeDamage(((Knight *)(otherPlayers[i].userCharacter))->getDamage());
 			}
 		}
@@ -165,6 +193,7 @@ void Client::checkCollisions(Character * player) {
 
 void Client::draw(sf::RenderWindow & window) {
 	for (int i = 0; i < otherPlayers.size(); i++) {
+		m.lock();
 		if (otherPlayers[i].fighterClass == "Knight") {
 			((Knight *)(otherPlayers[i].userCharacter))->swingSword();
 			((Knight *)(otherPlayers[i].userCharacter))->draw(window);
@@ -181,6 +210,7 @@ void Client::draw(sf::RenderWindow & window) {
 			((Ranger *)(otherPlayers[i].userCharacter))->drawProjectiles(window);
 			((Ranger *)(otherPlayers[i].userCharacter))->draw(window);
 		}
+		m.unlock();
 	}
 }
 
