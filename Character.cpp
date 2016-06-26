@@ -38,10 +38,10 @@ void Character::operator=(const Character & other) {
 void Character::draw(sf::RenderWindow & window) {
 	if (!isPlayer) {
 		healthBarBackgroundSprite.setPosition(getCenter() - sf::Vector2f(0.0f, healthBarBackgroundSprite.getGlobalBounds().height * 2.0f));
-		window.draw(healthBarBackgroundSprite);
 		healthBarForegroundSprite.setScale(health / (float)maxHealth, 1.0f);
 		healthBarForegroundSprite.setPosition(healthBarBackgroundSprite.getGlobalBounds().left, healthBarBackgroundSprite.getGlobalBounds().top);
 		window.draw(healthBarForegroundSprite);
+		window.draw(healthBarBackgroundSprite);
 	}
 	window.draw(playerSprite);
 }
