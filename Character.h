@@ -34,7 +34,7 @@ public:
 	// get collision circle
 	sf::CircleShape getCollisionCircle();
 	// take damage
-	void takeDamage(sf::Int16 damage);
+	sf::Int16 takeDamage(sf::Int16 damage);
 	// get damage
 	sf::Int16 getDamage();
 protected:
@@ -44,7 +44,7 @@ protected:
 	bool isPlayer = false; // is the current Character the player or someone over the internet
 	bool isDead = false; // is player dead
 private:
-	sf::CircleShape playerCircle; //circle used for player collisions
+	sf::CircleShape playerCircle = sf::CircleShape(); //circle used for player collisions
 	sf::Clock diveResetTimer; // reset timer for diving in specific direction
 	sf::Vector2f divingMovement; // movement of the character when diving
 	sf::Keyboard::Key lastKey; // last key released (W, A, S, D) required for diving

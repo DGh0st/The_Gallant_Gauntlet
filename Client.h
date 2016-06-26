@@ -28,13 +28,13 @@ public:
 	void sendPacket(sf::UdpSocket & socket, sf::Packet & packet);
 	// receive packets if any
 	// @param socket: the client's socket to receive packets on
-	void receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture, sf::Texture & mageTexture, sf::Texture & knightTexture, sf::Texture & arrowTexture, sf::Texture & fireballA, sf::Texture & fireballB, sf::Texture & swordTexture, sf::Texture & bowTexture, sf::Texture & staffTexture, sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture);
+	void receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & rangerTexture, sf::Texture & mageTexture, sf::Texture & knightTexture, sf::Texture & arrowTexture, sf::Texture & fireballA, sf::Texture & fireballB, sf::Texture & swordTexture, sf::Texture & bowTexture, sf::Texture & staffTexture, sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture);
 	// stop receiving packets
 	void stopReceivingPackets();
 	// draw other players
 	void draw(sf::RenderWindow & window);
-	// check collisions
-	void checkCollisions(Character *player, classTypes currentClass);
+	// check collisions and send data over server if needed
+	void checkCollisions(Character *player, classTypes currentClass, sf::UdpSocket & socket);
 	// get client id
 	std::string getClientId();
 	// get is game in progress or not

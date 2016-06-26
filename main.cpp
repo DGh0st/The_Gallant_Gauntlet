@@ -40,21 +40,24 @@ classTypes currentClass = knight;
 sf::Clock classChangeCooldown;
 
 // player
-Character* player;
+Character *player = NULL;
 
-// kill and death counter
-static int kills = 0, deaths = 0; // kill and deaths
+// counters
+int kills = 0, deaths = 0; // kill and deaths
 
 void runClient() {
-	runningClient.receivePackets(clientSocket, rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture, healthBarForegroundTexture, healthBarBackgroundTexture);
+	runningClient.receivePackets(clientSocket, kills, rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture, healthBarForegroundTexture, healthBarBackgroundTexture);
 	if (currentClass == knight) {
 		delete (Knight *)player;
+		player = NULL;
 	}
 	else if (currentClass == ranger) {
 		delete (Ranger *)player;
+		player = NULL;
 	}
 	else if (currentClass == mage) {
 		delete (Mage *)player;
+		player = NULL;
 	}
 	currentScreenDisplayed = title;
 	screenReseted = true;
@@ -163,11 +166,15 @@ int main() {
 	healthBarForegroundTexture.loadFromFile("textures/healthBarForeground.png");
 	healthBarBackgroundTexture.loadFromFile("textures/healthBarBackground.png");
 
-	player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f)); //default knight class to start
-	player->setIsPlayer(true);
-
-	sf::View playerView = sf::View(player->getCenter(), (sf::Vector2f)windowSize);
+	sf::View playerView;
 	sf::View normalView = window.getView();
+
+	player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f)); //default knight class to start
+	if (player != NULL) {
+		player->setIsPlayer(true);
+		playerView = sf::View(player->getCenter(), (sf::Vector2f)windowSize);
+	}
+
 
 	sf::Keyboard::Key releasedKey = sf::Keyboard::Unknown;
 
@@ -284,7 +291,7 @@ int main() {
 			joinButton.draw(window);
 			window.draw(ipText);
 		}
-		else if (currentScreenDisplayed == ingame) {
+		else if (currentScreenDisplayed == ingame && player != NULL) {
 			// center the view on player
 			playerView.setCenter(player->getCenter());
 			window.setView(playerView);
@@ -311,7 +318,7 @@ int main() {
 			gameTimeText.setPosition(sf::Vector2f(player->getCenter().x, player->getCenter().y - windowSize.y / 2.0f));
 			if (runningClient.isGameInProgress()) {
 				// check collision
-				runningClient.checkCollisions(player, currentClass);
+				runningClient.checkCollisions(player, currentClass, clientSocket);
 			}
 			if (window.hasFocus() && !isSelectionScreenDisplayed && !player->getIsDead()) {
 				// player movement and send that data to server
@@ -363,6 +370,11 @@ int main() {
 				// draw
 				window.draw(waitingText);
 				window.draw(classSelectionText);
+				// reset kills and deaths and 5 seconds left in peace mode
+				if (runningClient.timeLeftInGame <= 5.0f) {
+					kills = 0;
+					deaths = 0;
+				}
 			}
 			if (player->getIsDead() || (!runningClient.isGameInProgress() && currentClass != respawnClass && runningClient.timeLeftInGame > 5.0f)) {
 				if (runningClient.isGameInProgress()) {
@@ -388,12 +400,15 @@ int main() {
 				if (player->getTimeAsDead() > respawnTime || !runningClient.isGameInProgress()) {
 					if (currentClass == knight) {
 						delete (Knight *)player;
+						player = NULL;
 					}
 					else if (currentClass == ranger) {
 						delete (Ranger *)player;
+						player = NULL;
 					}
 					else if (currentClass == mage) {
 						delete (Mage *)player;
+						player = NULL;
 					}
 					if (respawnClass == knight) {
 						player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f));

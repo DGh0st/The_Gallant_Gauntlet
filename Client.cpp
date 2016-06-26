@@ -31,7 +31,7 @@ void Client::sendPacket(sf::UdpSocket & socket, sf::Packet & packet) {
 	}
 }
 
-void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture, sf::Texture & mageTexture, sf::Texture & knightTexture, sf::Texture & arrowTexture, sf::Texture & fireballA, sf::Texture & fireballB, sf::Texture & swordTexture, sf::Texture & bowTexture, sf::Texture & staffTexture, sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture) {
+void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & rangerTexture, sf::Texture & mageTexture, sf::Texture & knightTexture, sf::Texture & arrowTexture, sf::Texture & fireballA, sf::Texture & fireballB, sf::Texture & swordTexture, sf::Texture & bowTexture, sf::Texture & staffTexture, sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture) {
 	// send "join game" packet to the server
 	sf::Packet joinServerPacket;
 	joinServerPacket.clear();
@@ -53,10 +53,18 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 			char *data = (char *)copyPacket.getData();
 			copyPacket >> data;
 			if (strcmp(data, "success") == 0) {
-				copyPacket >> clientIDfromServer;
-				copyPacket >> timeLeftInGame >> gameNotInProgress;
+				copyPacket >> clientIDfromServer >> timeLeftInGame >> gameNotInProgress;
 				printf("[Client] joined server as %s\n", clientIDfromServer.c_str());
 				continue; // connected to server successfully
+			}
+			else if (strcmp(data, "kill") == 0) {
+				std::string killerId;
+				copyPacket >> killerId >> timeLeftInGame >> gameNotInProgress;
+				if (killerId == clientIDfromServer) {
+					kills++;
+					printf("[Client] Got a kill!\n");
+				}
+				continue;
 			}
 			else if (strcmp(data, "left game") == 0) {
 				// remove the player (that left) from the list of players
@@ -99,31 +107,21 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 			for (i = 0; i < otherPlayers.size(); i++) {
 				if (senderId == otherPlayers[i].userID) {
 					if (fighterName == otherPlayers[i].fighterClass) {
-						if (fighterName == "Knight") {
+						if (fighterName == "Knight" && otherPlayers[i].userCharacter != NULL) {
 							((Knight *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
 						}
-						else if (fighterName == "Mage") {
+						else if (fighterName == "Mage" && otherPlayers[i].userCharacter != NULL) {
 							((Mage *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
 						}
-						else if (fighterName == "Ranger") {
+						else if (fighterName == "Ranger" && otherPlayers[i].userCharacter != NULL) {
 							((Ranger *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
 						}
 					}
 					else if (fighterName != otherPlayers[i].fighterClass) {
-						if (otherPlayers[i].fighterClass == "Knight") {
-							delete (Knight *)(otherPlayers[i].userCharacter);
-						}
-						else if (otherPlayers[i].fighterClass == "Mage") {
-							delete (Mage *)(otherPlayers[i].userCharacter);
-						}
-						else if (otherPlayers[i].fighterClass == "Ranger") {
-							delete (Ranger *)(otherPlayers[i].userCharacter);
-						}
-						otherPlayers.erase(otherPlayers.begin() + i);
+						otherPlayers[i].isViable = false;
 						PlayerData userData;
 						userData.userID = senderId;
 						userData.fighterClass = fighterName;
-						userData.isViable = false;
 						if (fighterName == "Knight") {
 							userData.userCharacter = (Character *)new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f);
 						}
@@ -135,7 +133,7 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 						}
 						userData.userCharacter->extractPacketToData(packet);
 						packet >> timeLeftInGame >> gameNotInProgress;
-						otherPlayers.emplace(otherPlayers.begin() + i, userData);
+						otherPlayers.push_back(userData);
 					}
 					packet >> timeLeftInGame >> gameNotInProgress;
 					break;
@@ -176,36 +174,65 @@ void Client::stopReceivingPackets() {
 	running = false;
 }
 
-void Client::checkCollisions(Character * player, classTypes currentClass) {
+void Client::checkCollisions(Character * player, classTypes currentClass, sf::UdpSocket & socket) {
 	for (int i = 0; i < otherPlayers.size(); i++) {
 		if (otherPlayers[i].fighterClass == "Knight") {
-			if (((Knight *)(otherPlayers[i].userCharacter))->collisionSP(player->getCollisionCircle())) {
-				player->takeDamage(((Knight *)(otherPlayers[i].userCharacter))->getDamage());
+			if (otherPlayers[i].userCharacter != NULL && player != NULL) {
+				if (((Knight *)(otherPlayers[i].userCharacter))->collisionSP(player->getCollisionCircle())) {
+					if (player->takeDamage(((Knight *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
+						sf::Packet killPacket;
+						killPacket.clear();
+						killPacket << "kill" << otherPlayers[i].userID;
+						sendPacket(socket, killPacket);
+					}
+				}
+				else if (currentClass == knight && (((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
+					otherPlayers[i].userCharacter->takeDamage(((Knight *)player)->getDamage());
+				}
+				else if (currentClass == mage && (((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
+					otherPlayers[i].userCharacter->takeDamage(((Mage *)player)->getDamage());
+				}
+				else if (currentClass == ranger && (((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
+					otherPlayers[i].userCharacter->takeDamage(((Ranger *)player)->getDamage());
+				}
 			}
 		}
 		else if (otherPlayers[i].fighterClass == "Mage") {
-			if (((Mage  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
-				player->takeDamage(((Mage *)(otherPlayers[i].userCharacter))->getDamage());
+			if (otherPlayers[i].userCharacter != NULL && player != NULL && ((Mage  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
+				if (player->takeDamage(((Mage *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
+					sf::Packet killPacket;
+					killPacket.clear();
+					killPacket << "kill" << otherPlayers[i].userID;
+					sendPacket(socket, killPacket);
+				}
+				else if (currentClass == knight && (((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
+					otherPlayers[i].userCharacter->takeDamage(((Knight *)player)->getDamage());
+				}
+				else if (currentClass == mage && (((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
+					otherPlayers[i].userCharacter->takeDamage(((Mage *)player)->getDamage());
+				}
+				else if (currentClass == ranger && (((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
+					otherPlayers[i].userCharacter->takeDamage(((Ranger *)player)->getDamage());
+				}
 			}
 		}
 		else if (otherPlayers[i].fighterClass == "Ranger") {
-			if (((Ranger  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
-				player->takeDamage(((Ranger *)(otherPlayers[i].userCharacter))->getDamage());
-			}
-		}
-		if (currentClass == knight) {
-			if (((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle())) {
-				otherPlayers[i].userCharacter->takeDamage(player->getDamage());
-			}
-		}
-		else if (currentClass == mage) {
-			if (((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle())) {
-				otherPlayers[i].userCharacter->takeDamage(player->getDamage());
-			}
-		}
-		else if (currentClass == ranger) {
-			if (((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle())) {
-				otherPlayers[i].userCharacter->takeDamage(player->getDamage());
+			if (otherPlayers[i].userCharacter != NULL && player != NULL && ((Ranger  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
+				if (player->takeDamage(((Ranger *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
+					sf::Packet killPacket;
+					killPacket.clear();
+					killPacket << "kill" << otherPlayers[i].userID;
+					sendPacket(socket, killPacket);
+				}
+				else if (currentClass == knight && (((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
+					otherPlayers[i].userCharacter->takeDamage(((Knight *)player)->getDamage());
+				}
+				else if (currentClass == mage && (((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
+					otherPlayers[i].userCharacter->takeDamage(((Mage *)player)->getDamage());
+				}
+				else if (currentClass == ranger && (((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
+					otherPlayers[i].userCharacter->takeDamage(((Ranger *)player)->getDamage());
+				}
 			}
 		}
 	}
@@ -213,25 +240,36 @@ void Client::checkCollisions(Character * player, classTypes currentClass) {
 
 void Client::draw(sf::RenderWindow & window) {
 	for (int i = 0; i < otherPlayers.size(); i++) {
-		if (!otherPlayers[i].isViable) {
-			otherPlayers[i].isViable = true;
-			continue;
-		}
-		if (otherPlayers[i].fighterClass == "Knight") {
+		if (otherPlayers[i].fighterClass == "Knight" && otherPlayers[i].userCharacter != NULL) {
 			((Knight *)(otherPlayers[i].userCharacter))->swingSword();
 			((Knight *)(otherPlayers[i].userCharacter))->draw(window);
 		}
-		else if (otherPlayers[i].fighterClass == "Mage") {
+		else if (otherPlayers[i].fighterClass == "Mage" && otherPlayers[i].userCharacter != NULL) {
 			((Mage *)(otherPlayers[i].userCharacter))->shoot(window);
 			((Mage *)(otherPlayers[i].userCharacter))->setWeapon(window);
 			((Mage *)(otherPlayers[i].userCharacter))->drawProjectiles(window);
 			((Mage *)(otherPlayers[i].userCharacter))->draw(window);
 		}
-		else if (otherPlayers[i].fighterClass == "Ranger") {
+		else if (otherPlayers[i].fighterClass == "Ranger" && otherPlayers[i].userCharacter != NULL) {
 			((Ranger *)(otherPlayers[i].userCharacter))->shoot(window);
 			((Ranger *)(otherPlayers[i].userCharacter))->setWeapon(window);
 			((Ranger *)(otherPlayers[i].userCharacter))->drawProjectiles(window);
 			((Ranger *)(otherPlayers[i].userCharacter))->draw(window);
+		}
+		if (!otherPlayers[i].isViable) {
+			if (otherPlayers[i].fighterClass == "Knight" && otherPlayers[i].userCharacter != NULL) {
+				delete (Knight *)(otherPlayers[i].userCharacter);
+				otherPlayers[i].userCharacter = NULL;
+			}
+			else if (otherPlayers[i].fighterClass == "Mage" && otherPlayers[i].userCharacter != NULL) {
+				delete (Mage *)(otherPlayers[i].userCharacter);
+				otherPlayers[i].userCharacter = NULL;
+			}
+			else if (otherPlayers[i].fighterClass == "Ranger" && otherPlayers[i].userCharacter != NULL) {
+				delete (Ranger *)(otherPlayers[i].userCharacter);
+				otherPlayers[i].userCharacter = NULL;
+			}
+			otherPlayers.erase(otherPlayers.begin() + i);
 		}
 	}
 }

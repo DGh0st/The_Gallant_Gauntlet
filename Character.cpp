@@ -144,8 +144,12 @@ sf::CircleShape Character::getCollisionCircle() {
 	return playerCircle;
 }
 
-void Character::takeDamage(sf::Int16 damage) {
+sf::Int16 Character::takeDamage(sf::Int16 damage) {
 	health -= damage;
+	if (health < 0) {
+		health = 0;
+	}
+	return health;
 }
 
 sf::Int16 Character::getDamage() {
