@@ -3,8 +3,6 @@
 #include "Ranger.h"
 #include "Knight.h"
 
-sf::Mutex m;
-
 Client::Client(sf::UdpSocket & socket, userInfo server) : server(server) {
 	otherPlayers = std::vector<PlayerData>(0);
 	if (server.ip != sf::IpAddress::None) {
@@ -99,7 +97,6 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 			}
 			int i;
 			for (i = 0; i < otherPlayers.size(); i++) {
-				m.lock();
 				if (senderId == otherPlayers[i].userID) {
 					if (fighterName == otherPlayers[i].fighterClass) {
 						if (fighterName == "Knight") {
@@ -113,33 +110,15 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 						}
 					}
 					else if (fighterName != otherPlayers[i].fighterClass) {
-						if (otherPlayers[i].fighterClass == "Knight") {
-							delete (Knight *)(otherPlayers[i].userCharacter);
-						}
-						else if (otherPlayers[i].fighterClass == "Mage") {
-							delete (Mage *)(otherPlayers[i].userCharacter);
-						}
-						else if (otherPlayers[i].fighterClass == "Ranger") {
-							delete (Ranger *)(otherPlayers[i].userCharacter);
-						}
-						if (fighterName == "Knight") {
-							otherPlayers[i].userCharacter = (Character *)new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f);
-						}
-						else if (fighterName == "Mage") {
-							otherPlayers[i].userCharacter = (Character *)new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
-						}
-						else if (fighterName == "Ranger") {
-							otherPlayers[i].userCharacter = (Character *)new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
-						}
-						otherPlayers[i].fighterClass = fighterName;
+						otherPlayers[i].isViable = false;
+						goto createNewPlayer;
 					}
 					packet >> timeLeftInGame >> gameNotInProgress;
 					break;
 				}
-				m.unlock();
 			}
-			m.lock();
 			if (i == otherPlayers.size() && senderId != "") {
+createNewPlayer:
 				PlayerData userData;
 				userData.userID = senderId;
 				userData.fighterClass = fighterName;
@@ -157,7 +136,6 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 				otherPlayers.push_back(userData);
 				printf("[Client] %s joined game\n", userData.userID.c_str());
 			}
-			m.unlock();
 		}
 	}
 	// send "left game" packet to the server if needed
@@ -193,7 +171,6 @@ void Client::checkCollisions(Character * player) {
 
 void Client::draw(sf::RenderWindow & window) {
 	for (int i = 0; i < otherPlayers.size(); i++) {
-		m.lock();
 		if (otherPlayers[i].fighterClass == "Knight") {
 			((Knight *)(otherPlayers[i].userCharacter))->swingSword();
 			((Knight *)(otherPlayers[i].userCharacter))->draw(window);
@@ -210,7 +187,18 @@ void Client::draw(sf::RenderWindow & window) {
 			((Ranger *)(otherPlayers[i].userCharacter))->drawProjectiles(window);
 			((Ranger *)(otherPlayers[i].userCharacter))->draw(window);
 		}
-		m.unlock();
+		if (!otherPlayers[i].isViable) {
+			if (otherPlayers[i].fighterClass == "Knight") {
+				delete (Knight *)(otherPlayers[i].userCharacter);
+			}
+			else if (otherPlayers[i].fighterClass == "Mage") {
+				delete (Mage *)(otherPlayers[i].userCharacter);
+			}
+			else if (otherPlayers[i].fighterClass == "Ranger") {
+				delete (Ranger *)(otherPlayers[i].userCharacter);
+			}
+			otherPlayers.erase(otherPlayers.begin() + i);
+		}
 	}
 }
 

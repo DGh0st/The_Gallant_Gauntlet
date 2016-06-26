@@ -8,6 +8,7 @@ struct PlayerData {
 	std::string userID;
 	std::string fighterClass;
 	Character *userCharacter;
+	bool isViable = true;
 };
 
 class Client {
