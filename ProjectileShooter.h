@@ -33,9 +33,9 @@ public:
 	//@param projectileReloadTime: time before you can shoot another projectile
 	//@param timeAfterShot: amount of time you want slow to last
 	//@param fromWeapon: whether projectile should come from weapon (otherwise comes from player)
-	ProjectileShooter(sf::Texture & projectileShooterTexture, sf::Texture & weaponTexture, sf::Texture & projectileTextureA,
-		sf::Texture & projectileTextureB, float projectileSpeed = 0.25f, float projectileReloadTime = 0.3f, float timeAfterShot = 1.0f,
-		bool fromWeapon = false);
+	ProjectileShooter(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & projectileShooterTexture, 
+		sf::Texture & weaponTexture, sf::Texture & projectileTextureA, sf::Texture & projectileTextureB, float projectileSpeed = 0.25f,
+		float projectileReloadTime = 0.3f, float timeAfterShot = 1.0f, bool fromWeapon = false);
 	//draws projectileShooter
 	void draw(sf::RenderWindow & window);
 	//shoots projectile on left click, and updates "isShooting" based on "timeAfterShot"

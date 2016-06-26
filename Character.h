@@ -8,7 +8,7 @@ public:
 	// constructor that creates the player
 	// @param maxHealth: health that character starts with
 	// @param damage: damage that the character can do to enemy
-	Character(int maxHealth = 100, int damage = 10, float divingAccuracy = 0.05f, float charSpeed = 1.5f, float diveSpeed = 25.0f, float diveResetTime = 0.5f, float diveResistance = 0.8f);
+	Character(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, int maxHealth = 100, int damage = 10, float divingAccuracy = 0.05f, float charSpeed = 1.5f, float diveSpeed = 25.0f, float diveResetTime = 0.5f, float diveResistance = 0.8f);
 	// destructor
 	~Character();
 	// equal operator
@@ -16,7 +16,7 @@ public:
 	void operator=(const Character & other);
 	// draw the character using sfml
 	// @param window: the window to draw into
-	void draw(sf::RenderWindow & window) const;
+	void draw(sf::RenderWindow & window);
 	// character movement
 	void move(const sf::RenderWindow & window, const sf::Keyboard::Key releasedKey);
 	// chain packets of type character
@@ -53,6 +53,7 @@ private:
 	float diveResetTime; // time required to reset the dive key (cooldown on diving)
 	float diveResistance; // resistance when diving (simply to not make it jump in one frame)
 	sf::Clock respawnTimer = sf::Clock(); // respawn timer
+	sf::Sprite healthBarForegroundSprite, healthBarBackgroundSprite; // health bar
 };
 
 #endif // !CHARACTER_H

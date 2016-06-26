@@ -31,7 +31,7 @@ void Client::sendPacket(sf::UdpSocket & socket, sf::Packet & packet) {
 	}
 }
 
-void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture, sf::Texture & mageTexture, sf::Texture & knightTexture, sf::Texture & arrowTexture, sf::Texture & fireballA, sf::Texture & fireballB, sf::Texture & swordTexture, sf::Texture & bowTexture, sf::Texture & staffTexture) {
+void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture, sf::Texture & mageTexture, sf::Texture & knightTexture, sf::Texture & arrowTexture, sf::Texture & fireballA, sf::Texture & fireballB, sf::Texture & swordTexture, sf::Texture & bowTexture, sf::Texture & staffTexture, sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture) {
 	// send "join game" packet to the server
 	sf::Packet joinServerPacket;
 	joinServerPacket.clear();
@@ -84,13 +84,13 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 			packet >> fighterName;
 			if (senderId == clientIDfromServer) {
 				if (fighterName == "Knight") {
-					Knight(knightTexture, swordTexture).extractPacketToData(packet);
+					Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture).extractPacketToData(packet);
 				}
 				else if (fighterName == "Mage") {
-					Mage(mageTexture, staffTexture, fireballA, fireballB).extractPacketToData(packet);
+					Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB).extractPacketToData(packet);
 				}
 				else if (fighterName == "Ranger") {
-					Ranger(rangerTexture, bowTexture, arrowTexture, arrowTexture).extractPacketToData(packet);
+					Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture).extractPacketToData(packet);
 				}
 				packet >> timeLeftInGame >> gameNotInProgress;
 				continue;
@@ -116,13 +116,13 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 				userData.userID = senderId;
 				userData.fighterClass = fighterName;
 				if (fighterName == "Knight") {
-					userData.userCharacter = new Knight(knightTexture, swordTexture, 0.2f);
+					userData.userCharacter = new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f);
 				}
 				else if (fighterName == "Mage") {
-					userData.userCharacter = new Mage(mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
+					userData.userCharacter = new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
 				}
 				else if (fighterName == "Ranger") {
-					userData.userCharacter = new Ranger(rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
+					userData.userCharacter = new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
 				}
 				userData.userCharacter->extractPacketToData(packet);
 				packet >> timeLeftInGame >> gameNotInProgress;

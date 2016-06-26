@@ -1,10 +1,12 @@
 #include "ProjectileShooter.h"
 #include "Defines.h" 
 
-ProjectileShooter::ProjectileShooter(sf::Texture & projectileShooterTexture, sf::Texture & weaponTexture, sf::Texture & projectileTextureA,
-	sf::Texture & projectileTextureB, float projectileSpeed, float projectileReloadTime, float timeAfterShot, bool fromWeapon) :
-	projectileTextureA(projectileTextureA), projectileTextureB(projectileTextureB), projectileSpeed(projectileSpeed),
-	projectileReloadTime(projectileReloadTime), timeAfterShot(timeAfterShot), fromWeapon(fromWeapon) {
+ProjectileShooter::ProjectileShooter(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, 
+	sf::Texture & projectileShooterTexture, sf::Texture & weaponTexture, sf::Texture & projectileTextureA, sf::Texture & projectileTextureB,
+	float projectileSpeed, float projectileReloadTime, float timeAfterShot, bool fromWeapon) : 
+	Character(healthBarForegroundTexture, healthBarBackgroundTexture), projectileTextureA(projectileTextureA),
+	projectileTextureB(projectileTextureB), projectileSpeed(projectileSpeed), projectileReloadTime(projectileReloadTime),
+	timeAfterShot(timeAfterShot), fromWeapon(fromWeapon) {
 	playerSprite = sf::Sprite(projectileShooterTexture);
 	playerSprite.setOrigin(playerSprite.getGlobalBounds().width / 2, playerSprite.getGlobalBounds().height / 2);
 	weaponSprite = sf::Sprite(weaponTexture);
@@ -16,7 +18,7 @@ ProjectileShooter::ProjectileShooter(sf::Texture & projectileShooterTexture, sf:
 
 void ProjectileShooter::draw(sf::RenderWindow & window) {
 	window.draw(weaponSprite);
-	window.draw(playerSprite);
+	Character::draw(window);
 }
 
 void ProjectileShooter::shoot(sf::RenderWindow & window) {

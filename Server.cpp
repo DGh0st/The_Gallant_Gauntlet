@@ -75,8 +75,8 @@ void Server::runServer() {
 				printf("[Server] %s joined game\n", user.name.c_str());
 				// time left in game
 				float timeLeft = preMatchTime;
-				if (uniqueConnectionCount == 2) {
-					gameTimer.restart(); // game doesn't start till two players join game
+				if (uniqueConnectionCount == 1) {
+					gameTimer.restart();
 				}
 				if (connections.size() >= 2 && !isInPeaceMode) {
 					timeLeft = (totalMatchTime - gameTimer.getElapsedTime().asSeconds());

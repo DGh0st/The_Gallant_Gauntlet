@@ -32,7 +32,7 @@ std::thread clientThread; // thread client is running on
 static std::string connectToIPandPort = "";
 
 // textures
-sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture;
+sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture, healthBarForegroundTexture, healthBarBackgroundTexture;
 
 // holds class of player (current and next respawn). 0 = knight, 1 = ranger, 2 = mage
 classTypes respawnClass = knight; //default knight class to start
@@ -45,7 +45,7 @@ Character* player;
 static int kills = 0, deaths = 0; // kill and deaths
 
 void runClient() {
-	runningClient.receivePackets(clientSocket, rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture);
+	runningClient.receivePackets(clientSocket, rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture, healthBarForegroundTexture, healthBarBackgroundTexture);
 	if (currentClass == knight) {
 		delete (Knight *)player;
 	}
@@ -147,8 +147,10 @@ int main() {
 	swordTexture.loadFromFile("textures/sword.png");
 	bowTexture.loadFromFile("textures/bow.png");
 	staffTexture.loadFromFile("textures/staff.png");
+	healthBarForegroundTexture.loadFromFile("textures/healthBarForeground.png");
+	healthBarBackgroundTexture.loadFromFile("textures/healthBarBackground.png");
 
-	player = (Character*)(new Knight(knightTexture, swordTexture, 0.2f)); //default knight class to start
+	player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f)); //default knight class to start
 	player->setIsPlayer(true);
 
 	sf::View playerView = sf::View(player->getCenter(), (sf::Vector2f)windowSize);
@@ -273,26 +275,18 @@ int main() {
 			// center the view on player
 			playerView.setCenter(player->getCenter());
 			window.setView(playerView);
-			// kills and deaths at top right corner
+			// kills and deaths at top right corner text
 			std::ostringstream killsDeathString;
 			killsDeathString << "Kills: " << kills << " Deaths: " << deaths;
 			sf::Text playerStats(killsDeathString.str(), font, 15U);
 			playerStats.setOrigin(playerStats.getGlobalBounds().width, 0.0f);
 			playerStats.setPosition(sf::Vector2f(player->getCenter().x + windowSize.x / 2.0f - 10.0f, player->getCenter().y - windowSize.y / 2.0f));
-			// game time displayed in the center
+			// game time displayed in the center text
 			char gameTimeString[] = "00:00";
 			sprintf_s(gameTimeString, sizeof(gameTimeString), "%.2d:%.2d", (int)runningClient.timeLeftInGame / 60, (int)runningClient.timeLeftInGame % 60);
 			sf::Text gameTimeText(gameTimeString, font, 30U);
 			gameTimeText.setOrigin(gameTimeText.getGlobalBounds().width / 2.0f, 0.0f);
 			gameTimeText.setPosition(sf::Vector2f(player->getCenter().x, player->getCenter().y - windowSize.y / 2.0f));
-			// Waiting for game to start
-			sf::Text waitingText("Waiting for game to being...", font, 15U);
-			waitingText.setOrigin(waitingText.getGlobalBounds().width / 2.0f, 0.0f);
-			waitingText.setPosition(sf::Vector2f(player->getCenter().x, gameTimeText.getGlobalBounds().top + gameTimeText.getGlobalBounds().height + waitingText.getGlobalBounds().height / 2.0f));
-			// instructions to change class
-			sf::Text classSelectionText("Press 'H' to change class", font, 18U);
-			classSelectionText.setOrigin(classSelectionText.getGlobalBounds().width / 2.0f, 0.0f);
-			classSelectionText.setPosition(sf::Vector2f(player->getCenter().x, waitingText.getGlobalBounds().top + waitingText.getGlobalBounds().height + classSelectionText.getGlobalBounds().height / 2.0f));
 			if (window.hasFocus() && !isSelectionScreenDisplayed && !player->getIsDead()) {
 				// check collision
 				runningClient.checkCollisions(player);
@@ -334,6 +328,15 @@ int main() {
 			window.draw(playerStats);
 			window.draw(gameTimeText);
 			if (!runningClient.isGameInProgress()) {
+				// Waiting for game to start text
+				sf::Text waitingText("Waiting for game to being...", font, 15U);
+				waitingText.setOrigin(waitingText.getGlobalBounds().width / 2.0f, 0.0f);
+				waitingText.setPosition(sf::Vector2f(player->getCenter().x, gameTimeText.getGlobalBounds().top + gameTimeText.getGlobalBounds().height + waitingText.getGlobalBounds().height / 2.0f));
+				// instructions to change class text
+				sf::Text classSelectionText("Press 'H' to change class", font, 18U);
+				classSelectionText.setOrigin(classSelectionText.getGlobalBounds().width / 2.0f, 0.0f);
+				classSelectionText.setPosition(sf::Vector2f(player->getCenter().x, waitingText.getGlobalBounds().top + waitingText.getGlobalBounds().height + classSelectionText.getGlobalBounds().height / 2.0f));
+				// draw
 				window.draw(waitingText);
 				window.draw(classSelectionText);
 			}
@@ -369,15 +372,15 @@ int main() {
 						delete (Mage *)player;
 					}
 					if (respawnClass == knight) {
-						player = (Character*)(new Knight(knightTexture, swordTexture, 0.2f));
+						player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f));
 						currentClass = knight;
 					}
 					else if (respawnClass == ranger) {
-						player = (Character*)(new Ranger(rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f));
+						player = (Character*)(new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f));
 						currentClass = ranger;
 					}
 					else if (respawnClass == mage) {
-						player = (Character*)(new Mage(mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f));
+						player = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f));
 						currentClass = mage;
 					}
 					player->setIsPlayer(true);

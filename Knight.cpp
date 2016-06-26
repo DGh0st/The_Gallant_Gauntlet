@@ -1,7 +1,7 @@
 #include "Defines.h"
 #include "Knight.h"
 
-Knight::Knight(sf::Texture & knightTexture, sf::Texture & swordTexture,float moveSpeed, int maxHealth, int damage) : Character(maxHealth, damage) {
+Knight::Knight(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & knightTexture, sf::Texture & swordTexture,float moveSpeed, int maxHealth, int damage) : Character(healthBarForegroundTexture, healthBarBackgroundTexture,maxHealth, damage) {
 	playerSprite = sf::Sprite(knightTexture);
 	playerSprite.setOrigin(playerSprite.getGlobalBounds().width / 2, playerSprite.getGlobalBounds().height / 2);
 	swordSprite = sf::Sprite(swordTexture);
@@ -19,7 +19,7 @@ void Knight::draw(sf::RenderWindow & window) {
 	swordRect.setRotation(swordSprite.getRotation());
 	window.draw(swordRect);
 	window.draw(swordSprite);
-	window.draw(playerSprite);
+	Character::draw(window);
 }
 
 void Knight::swingSword() {

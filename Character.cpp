@@ -6,7 +6,10 @@
 #include "Character.h"
 #include "Defines.h"
 
-Character::Character(int maxHealth, int damage, float divingAccuracy, float charSpeed, float diveSpeed, float diveResetTime, float diveResistance) : maxHealth(maxHealth), health(maxHealth), damage(damage), divingAccuracy(divingAccuracy), charSpeed(charSpeed), diveSpeed(diveSpeed), diveResetTime(diveResetTime), diveResistance(diveResistance) {
+Character::Character(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, int maxHealth, int damage, float divingAccuracy, float charSpeed, float diveSpeed, float diveResetTime, float diveResistance) : maxHealth(maxHealth), health(maxHealth), damage(damage), divingAccuracy(divingAccuracy), charSpeed(charSpeed), diveSpeed(diveSpeed), diveResetTime(diveResetTime), diveResistance(diveResistance) {
+	healthBarBackgroundSprite = sf::Sprite(healthBarBackgroundTexture);
+	healthBarBackgroundSprite.setOrigin(healthBarBackgroundSprite.getGlobalBounds().width / 2.0f, healthBarBackgroundSprite.getGlobalBounds().height);
+	healthBarForegroundSprite = sf::Sprite(healthBarForegroundTexture);
 	divingMovement = sf::Vector2f(0.0f, 0.0f);
 	lastKey = sf::Keyboard::Unknown;
 	diveResetTimer.restart();
@@ -32,8 +35,15 @@ void Character::operator=(const Character & other) {
 	diveResistance = other.diveResistance;
 }
 
-void Character::draw(sf::RenderWindow & window) const {
-	window.draw(playerSprite);	
+void Character::draw(sf::RenderWindow & window) {
+	if (!isPlayer) {
+		healthBarBackgroundSprite.setPosition(getCenter() - sf::Vector2f(0.0f, healthBarBackgroundSprite.getGlobalBounds().height * 2.0f));
+		window.draw(healthBarBackgroundSprite);
+		healthBarForegroundSprite.setScale(health / (float)maxHealth, 1.0f);
+		healthBarForegroundSprite.setPosition(healthBarBackgroundSprite.getGlobalBounds().left, healthBarBackgroundSprite.getGlobalBounds().top);
+		window.draw(healthBarForegroundSprite);
+	}
+	window.draw(playerSprite);
 }
 
 void Character::move(const sf::RenderWindow & window, const sf::Keyboard::Key releasedKey) {
