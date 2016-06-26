@@ -87,7 +87,7 @@ bool Knight::collisionSP(sf::CircleShape & player) {
 
 	float dx = (circleX - closestX) * (circleX - closestX);
 	float dy = (circleY - closestY) * (circleY - closestY);
-	bool ret = sqrt(dx + dy) < player.getRadius();
+	bool ret = dx + dy < std::pow(player.getRadius(), 2);
 	if (ret) {
 		swordIntersected = true;
 	}

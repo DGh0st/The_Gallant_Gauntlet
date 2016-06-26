@@ -46,41 +46,18 @@ void ProjectileShooter::shoot(sf::RenderWindow & window) {
 
 bool ProjectileShooter::collisionPP(sf::CircleShape & player) {
 	for (int i = 0; i < projectiles.size(); i++) {
-		sf::FloatRect projectileBox = projectiles[i]->projectileSprite.getGlobalBounds();
-		//if not swinging, we don't want collision to register so return false
-		//if sword already intersected, return false to prevent multiple intersections on one swing
-		//if swordBox and rectangle encompassing player circle don't intersect, no collision possible (light, quick check)
+		// projectile's bounding box
+		sf::FloatRect projectileBox = projectiles[i]->projectileCircle.getGlobalBounds();
+		//if projectile and rectangle encompassing player circle don't intersect, no collision possible (light, quick check)
 		if (!projectileBox.intersects(player.getGlobalBounds())) {
 			return false;
 		}
-		//full collision check between sword and circle of player
-		float circleX = player.getPosition().x;
-		float closestX;
-		if (circleX < projectileBox.left) { //circle to left of rect
-			closestX = projectileBox.left;
-		}
-		else if (circleX > projectileBox.left + projectileBox.width) { //circle to right of rect
-			closestX = projectileBox.left + projectileBox.width;
-		}
-		else {
-			closestX = circleX;
-		}
-
-		float circleY = player.getPosition().y;
-		float closestY;
-		if (circleY < projectileBox.top) { //circle above rect
-			closestY = projectileBox.top;
-		}
-		else if (circleY > projectileBox.top + projectileBox.height) { //circle below rect
-			closestY = projectileBox.top + projectileBox.height;
-		}
-		else {
-			closestY = circleY;
-		}
-
-		float dx = (circleX - closestX) * (circleX - closestX);
-		float dy = (circleY - closestY) * (circleY - closestY);
-		bool ret = sqrt(dx + dy) < player.getRadius();
+		//full collision check between projectile and circle of player
+		sf::Vector2f playerCenter = sf::Vector2f(player.getGlobalBounds().left + player.getGlobalBounds().width / 2.0f, player.getGlobalBounds().top + player.getGlobalBounds().height / 2.0f);
+		sf::Vector2f projectileCenter = sf::Vector2f(projectileBox.left + projectileBox.width / 2.0f, projectileBox.top + projectileBox.height / 2.0f);
+		float dx = (playerCenter.x - projectileCenter.x) * (playerCenter.x - projectileCenter.x);
+		float dy = (playerCenter.y - projectileCenter.y) * (playerCenter.y - projectileCenter.y);
+		bool ret = dx + dy < std::pow(player.getRadius() + projectiles[i]->projectileCircle.getRadius(), 2);
 		if (ret) {
 			projectiles.erase(projectiles.begin() + i);
 			return true;
@@ -105,6 +82,7 @@ void ProjectileShooter::drawProjectiles(sf::RenderWindow & window) {
 				projectiles[i]->clockAnim.restart();
 			}
 			window.draw(projectiles[i]->projectileSprite);
+			window.draw(projectiles[i]->projectileCircle);
 			moveProjectile(projectiles[i]);
 		}
 		else { //otherwise off screen, so delete projectile
@@ -130,6 +108,7 @@ void ProjectileShooter::moveProjectile(Projectile * projectile) {
 	dx = projectileSpeed * dx / norm;
 	dy = projectileSpeed * dy / norm;
 	projectile->projectileSprite.move(dx, dy);
+	projectile->projectileCircle.setPosition(projectile->projectileSprite.getPosition());
 }
 
 void ProjectileShooter::setWeapon(sf::RenderWindow & window) {
@@ -175,6 +154,10 @@ ProjectileShooter::Projectile::Projectile(sf::RenderWindow & window, sf::Texture
 	projectileSprite = sf::Sprite(projectileTexture);
 	projectileSprite.setOrigin(projectileSprite.getGlobalBounds().width / 2, projectileSprite.getGlobalBounds().height / 2); //set origin to center
 
+	// setup collision circle
+	projectileCircle = sf::CircleShape(projectileSprite.getGlobalBounds().height / 2.0f);
+	projectileCircle.setOrigin(projectileCircle.getGlobalBounds().width / 2.0f, projectileCircle.getGlobalBounds().height / 2.0f);
+
 	//set startPos forward by dx,dy (makes projectile come from front of startSprite, rather than middle)
 	startPos = startSprite.getPosition();
 	float dx = mousePos.x - startPos.x;
@@ -184,6 +167,7 @@ ProjectileShooter::Projectile::Projectile(sf::RenderWindow & window, sf::Texture
 	dy = 50 * dy / norm;
 	startPos = sf::Vector2f(startPos.x + dx, startPos.y + dy);
 	projectileSprite.setPosition(startPos);
+	projectileCircle.setPosition(startPos);
 
 	//rotate projectile to face mouse
 	sf::Vector2i projectilePos = (sf::Vector2i)projectileSprite.getPosition();
@@ -196,6 +180,10 @@ ProjectileShooter::Projectile::Projectile(sf::Vector2i mousePos, sf::Texture & p
 	this->mousePos = mousePos;
 	projectileSprite = sf::Sprite(projectileTexture);
 	projectileSprite.setOrigin(projectileSprite.getGlobalBounds().width / 2, projectileSprite.getGlobalBounds().height / 2); //set origin to center
+	
+	// setup collision circle
+	projectileCircle = sf::CircleShape(projectileSprite.getGlobalBounds().height / 2.0f);
+	projectileCircle.setOrigin(projectileCircle.getGlobalBounds().width / 2.0f, projectileCircle.getGlobalBounds().height / 2.0f);
 
 	//set startPos forward by dx,dy (makes projectile come from front of startSprite, rather than middle)
 	startPos = startSprite.getPosition();
@@ -206,6 +194,7 @@ ProjectileShooter::Projectile::Projectile(sf::Vector2i mousePos, sf::Texture & p
 	dy = 50 * dy / norm;
 	startPos = sf::Vector2f(startPos.x + dx, startPos.y + dy);
 	projectileSprite.setPosition(startPos);
+	projectileCircle.setPosition(startPos);
 
 	//rotate projectile to face mouse
 	sf::Vector2i projectilePos = (sf::Vector2i)projectileSprite.getPosition();

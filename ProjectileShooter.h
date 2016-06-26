@@ -22,7 +22,7 @@ public:
 		sf::Vector2i mousePos;
 		bool trigger; //used for animation of projectile (switch between frames)
 		sf::Clock clockAnim; //used for animation of projectile
-
+		sf::CircleShape projectileCircle; // collision circle for projectile
 	};
 	//constructor that creates the projectileShooter
 	//@param projectileShooterTexture: texture for projectileShooter
