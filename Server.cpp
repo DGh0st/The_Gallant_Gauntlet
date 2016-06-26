@@ -62,6 +62,10 @@ void Server::runServer() {
 					}
 					// erase from connections
 					connections.erase(connections.begin() + i);
+					if (!isInPeaceMode && connections.size() < 2) {
+						isInPeaceMode = true;
+						gameTimer.restart();
+					}
 				}
 				continue;
 			}

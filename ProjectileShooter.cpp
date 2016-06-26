@@ -9,6 +9,7 @@ ProjectileShooter::ProjectileShooter(sf::Texture & healthBarForegroundTexture, s
 	timeAfterShot(timeAfterShot), fromWeapon(fromWeapon) {
 	playerSprite = sf::Sprite(projectileShooterTexture);
 	playerSprite.setOrigin(playerSprite.getGlobalBounds().width / 2, playerSprite.getGlobalBounds().height / 2);
+	playerSprite.setPosition(sf::Vector2f((float)(std::rand() % windowSize.x), (float)(std::rand() % windowSize.y)));
 	weaponSprite = sf::Sprite(weaponTexture);
 	weaponSprite.setOrigin(weaponSprite.getGlobalBounds().width / 2, weaponSprite.getGlobalBounds().height / 2);
 	weaponCircle = sf::CircleShape(50.0f);

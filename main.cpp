@@ -37,6 +37,7 @@ sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, 
 // holds class of player (current and next respawn). 0 = knight, 1 = ranger, 2 = mage
 classTypes respawnClass = knight; //default knight class to start
 classTypes currentClass = knight;
+sf::Clock classChangeCooldown;
 
 // player
 Character* player;
@@ -118,18 +119,30 @@ void onJoinGameClickFromServer() {
 }
 
 void onKnightClick() {
+	if (classChangeCooldown.getElapsedTime().asSeconds() < classChangeCooldownTime) {
+		return;
+	}
 	respawnClass = knight;
 	isSelectionScreenDisplayed = false;
+	classChangeCooldown.restart();
 }
 
 void onRangerClick() {
+	if (classChangeCooldown.getElapsedTime().asSeconds() < classChangeCooldownTime) {
+		return;
+	}
 	respawnClass = ranger;
 	isSelectionScreenDisplayed = false;
+	classChangeCooldown.restart();
 }
 
 void onMageClick() {
+	if (classChangeCooldown.getElapsedTime().asSeconds() < classChangeCooldownTime) {
+		return;
+	}
 	respawnClass = mage;
 	isSelectionScreenDisplayed = false;
+	classChangeCooldown.restart();
 }
 
 int main() {
@@ -301,41 +314,41 @@ int main() {
 				runningClient.checkCollisions(player, currentClass);
 			}
 			if (window.hasFocus() && !isSelectionScreenDisplayed && !player->getIsDead()) {
-				// player movement and send that data to server	
-				sf::Packet packet;
-				packet.clear();
+				// player movement and send that data to server
 				if (currentClass == knight) {
 					((Knight*)player)->swingSword();
 					((Knight*)player)->move(window, releasedKey);
-					packet = ((Knight*)player)->chainDataToPacket(packet, runningClient.getClientId());
 				}
 				else if (currentClass == ranger) {
 					((Ranger*)player)->move(window, releasedKey);
 					((Ranger*)player)->shoot(window);
 					((Ranger*)player)->setWeapon(window);
-					packet = ((Ranger*)player)->chainDataToPacket(packet, runningClient.getClientId());
 			    }
 				else if (currentClass == mage) {
 					((Mage*)player)->move(window, releasedKey);
 					((Mage*)player)->shoot(window);
 					((Mage*)player)->setWeapon(window);
-					packet = ((Mage*)player)->chainDataToPacket(packet, runningClient.getClientId());
 				}
-				runningClient.sendPacket(clientSocket, packet);
 			}
+			sf::Packet packet;
+			packet.clear();
 			// draw
 			runningClient.draw(window);	
 			if (currentClass == knight) {
+				packet = ((Knight*)player)->chainDataToPacket(packet, runningClient.getClientId());
 				((Knight*)player)->draw(window);
 			}
 			else if (currentClass == ranger) {
+				packet = ((Ranger*)player)->chainDataToPacket(packet, runningClient.getClientId());
 				((Ranger*)player)->drawProjectiles(window);
 				((Ranger*)player)->draw(window);
 			}
 			else if (currentClass == mage) {
+				packet = ((Mage*)player)->chainDataToPacket(packet, runningClient.getClientId());
 				((Mage*)player)->drawProjectiles(window);
 				((Mage*)player)->draw(window);
 			}
+			runningClient.sendPacket(clientSocket, packet);
 			window.draw(playerStats);
 			window.draw(gameTimeText);
 			if (!runningClient.isGameInProgress()) {
@@ -411,6 +424,15 @@ int main() {
 				titleText.setOrigin(titleText.getGlobalBounds().width / 2, titleText.getGlobalBounds().height / 2);
 				titleText.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f - 200.0f));
 				window.draw(titleText);
+				// cooldown timer
+				if (classChangeCooldown.getElapsedTime().asSeconds() < classChangeCooldownTime) {
+					std::ostringstream cooldownString;
+					cooldownString << "must wait " << classChangeCooldownTime - classChangeCooldown.getElapsedTime().asSeconds() << " seconds before changing class again";
+					sf::Text classChangeCooldownText(cooldownString.str(), font, 15U);
+					classChangeCooldownText.setOrigin(classChangeCooldownText.getGlobalBounds().width / 2.0f, classChangeCooldownText.getGlobalBounds().height / 2.0f);
+					classChangeCooldownText.setPosition(titleText.getPosition() + sf::Vector2f(0.0f, titleText.getGlobalBounds().height + classChangeCooldownText.getGlobalBounds().height / 2.0f));
+					window.draw(classChangeCooldownText);
+				}
 				//knight button
 				sf::Text knightText("Knight", font, 32U);
 				knightText.setColor(sf::Color::Black);

@@ -185,22 +185,28 @@ void Client::checkCollisions(Character * player, classTypes currentClass) {
 		}
 		else if (otherPlayers[i].fighterClass == "Mage") {
 			if (((Mage  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
-				player->takeDamage(((Knight *)(otherPlayers[i].userCharacter))->getDamage());
+				player->takeDamage(((Mage *)(otherPlayers[i].userCharacter))->getDamage());
 			}
 		}
 		else if (otherPlayers[i].fighterClass == "Ranger") {
 			if (((Ranger  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
-				player->takeDamage(((Knight *)(otherPlayers[i].userCharacter))->getDamage());
+				player->takeDamage(((Ranger *)(otherPlayers[i].userCharacter))->getDamage());
 			}
 		}
 		if (currentClass == knight) {
-			((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle());
+			if (((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle())) {
+				otherPlayers[i].userCharacter->takeDamage(player->getDamage());
+			}
 		}
 		else if (currentClass == mage) {
-			((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle());
+			if (((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle())) {
+				otherPlayers[i].userCharacter->takeDamage(player->getDamage());
+			}
 		}
 		else if (currentClass == ranger) {
-			((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle());
+			if (((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle())) {
+				otherPlayers[i].userCharacter->takeDamage(player->getDamage());
+			}
 		}
 	}
 }

@@ -8,13 +8,12 @@
 static sf::Vector2u windowSize(1920, 1080); // current window size
 #define respawnTime 5.0f // time to respawn in seconds
 #define totalMatchTime 1800 // time in seconds per match/game
-#define preMatchTime 120 // time in seconds before restarting match/game
+#define preMatchTime 60 // time in seconds before restarting match/game
 // main and character
 #define moveUpKey sf::Keyboard::W // up
 #define moveDownKey sf::Keyboard::S // down
 #define moveLeftKey sf::Keyboard::A // left
 #define moveRightKey sf::Keyboard::D // right
-#define classSelectionDisplayKey sf::Keyboard::H // class selection
 // character
 #define PI 3.14159265f
 #define playerSize 20.0f // size of the character
@@ -36,5 +35,7 @@ enum classTypes {
 	ranger = 1,
 	mage = 2
 };
+#define classSelectionDisplayKey sf::Keyboard::H // class selection
+#define classChangeCooldownTime 1.0f // time in seconds before can change class again
 
 #endif // !DEFINES_H
