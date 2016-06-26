@@ -54,7 +54,7 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 			copyPacket >> data;
 			if (strcmp(data, "success") == 0) {
 				copyPacket >> clientIDfromServer;
-				copyPacket >> timeLeftInGame;
+				copyPacket >> timeLeftInGame >> gameNotInProgress;
 				printf("[Client] joined server as %s\n", clientIDfromServer.c_str());
 				continue; // connected to server successfully
 			}
@@ -92,7 +92,7 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 				else if (fighterName == "Ranger") {
 					Ranger(rangerTexture, bowTexture, arrowTexture, arrowTexture).extractPacketToData(packet);
 				}
-				packet >> timeLeftInGame;
+				packet >> timeLeftInGame >> gameNotInProgress;
 				continue;
 			}
 			int i;
@@ -107,7 +107,7 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 					else if (fighterName == "Ranger") {
 						((Ranger *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
 					}
-					packet >> timeLeftInGame;
+					packet >> timeLeftInGame >> gameNotInProgress;
 					break;
 				}
 			}
@@ -125,7 +125,7 @@ void Client::receivePackets(sf::UdpSocket & socket, sf::Texture & rangerTexture,
 					userData.userCharacter = new Ranger(rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
 				}
 				userData.userCharacter->extractPacketToData(packet);
-				packet >> timeLeftInGame;
+				packet >> timeLeftInGame >> gameNotInProgress;
 				otherPlayers.push_back(userData);
 				printf("[Client] %s joined game\n", userData.userID.c_str());
 			}
@@ -186,4 +186,8 @@ void Client::draw(sf::RenderWindow & window) {
 
 std::string Client::getClientId() {
 	return clientIDfromServer;
+}
+
+bool Client::isGameInProgress() {
+	return !gameNotInProgress;
 }

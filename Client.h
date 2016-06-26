@@ -36,6 +36,8 @@ public:
 	void checkCollisions(Character *player);
 	// get client id
 	std::string getClientId();
+	// get is game in progress or not
+	bool isGameInProgress();
 
 	float timeLeftInGame; // time left in game (in seconds)
 private:
@@ -44,6 +46,7 @@ private:
 	userInfo server; // server ip and port
 	std::vector<PlayerData> otherPlayers;
 	std::string clientIDfromServer; // id of the client gotten from the server
+	bool gameNotInProgress; // is game currently in progress
 };
 
 #endif // !CLIENT_H

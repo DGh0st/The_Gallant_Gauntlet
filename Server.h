@@ -24,6 +24,7 @@ private:
 	std::vector<userInfo> connections; // list of connections (users)
 	int uniqueConnectionCount = 0; // number of unique connections
 	sf::Clock gameTimer; // timer for the game (30 min per game)
+	bool isInPeaceMode = true; // true when one game finished and another one is about to begin
 };
 
 #endif // !SERVER_H

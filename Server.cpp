@@ -67,34 +67,60 @@ void Server::runServer() {
 			}
 			else if (strcmp(data, "join game") == 0) {
 				uniqueConnectionCount++;
-				float timeLeft = totalMatchTime;
-				if (uniqueConnectionCount == 2) {
-					gameTimer.restart(); // game doesn't start till two players join game
-					timeLeft = (totalMatchTime - gameTimer.getElapsedTime().asSeconds());
-				}
-				else if (uniqueConnectionCount > 2) {
-					timeLeft = (totalMatchTime - gameTimer.getElapsedTime().asSeconds());
-				}
 				userInfo user;
 				user.name = "Player" + std::to_string(uniqueConnectionCount);
 				user.ip = senderIp;
 				user.port = senderPort;
 				connections.push_back(user);
 				printf("[Server] %s joined game\n", user.name.c_str());
+				// time left in game
+				float timeLeft = preMatchTime;
+				if (uniqueConnectionCount == 2) {
+					gameTimer.restart(); // game doesn't start till two players join game
+				}
+				if (connections.size() >= 2 && !isInPeaceMode) {
+					timeLeft = (totalMatchTime - gameTimer.getElapsedTime().asSeconds());
+					if (timeLeft <= 0) {
+						isInPeaceMode = true; // go into peace mode once game ended
+						gameTimer.restart();
+					}
+				}
+				else if (isInPeaceMode) {
+					timeLeft = (preMatchTime - gameTimer.getElapsedTime().asSeconds());
+					if (timeLeft <= 0) {
+						if (connections.size() >= 2) {
+							isInPeaceMode = false; // go into fight mode once peace time ended
+						}
+						gameTimer.restart();
+					}
+				}
 				// send "success" with user.name and time left in game
 				sf::Packet successPacket;
 				successPacket.clear();
-				successPacket << "success" << user.name << timeLeft;
+				successPacket << "success" << user.name << timeLeft << isInPeaceMode;
 				if (serverSocket.send(successPacket, senderIp, senderPort)) {
 					// failed sending "success"
 				}
 				continue;
 			}
-			float timeLeft = totalMatchTime;
-			if (uniqueConnectionCount >= 2) {
+			float timeLeft = preMatchTime;
+			if (connections.size() >= 2 && !isInPeaceMode) {
 				timeLeft = (totalMatchTime - gameTimer.getElapsedTime().asSeconds());
+				if (timeLeft <= 0) {
+					isInPeaceMode = true; // go into peace mode once game ended
+					gameTimer.restart();
+				}
 			}
-			dataPacket << timeLeft;
+			else if (isInPeaceMode) {
+				timeLeft = (preMatchTime - gameTimer.getElapsedTime().asSeconds());
+				if (timeLeft <= 0) {
+					if (connections.size() >= 2) {
+						isInPeaceMode = false; // go into fight mode once peace time ended
+					}
+					gameTimer.restart();
+				}
+			}
+			dataPacket << timeLeft << isInPeaceMode; 
 			// send data to every connection
 			for (int i = 0; i < connections.size(); i++) {
 				if (serverSocket.send(dataPacket, connections[i].ip, connections[i].port) != sf::Socket::Done) {

@@ -270,21 +270,32 @@ int main() {
 			window.draw(ipText);
 		}
 		else if (currentScreenDisplayed == ingame) {
+			// center the view on player
 			playerView.setCenter(player->getCenter());
 			window.setView(playerView);
+			// kills and deaths at top right corner
 			std::ostringstream killsDeathString;
 			killsDeathString << "Kills: " << kills << " Deaths: " << deaths;
 			sf::Text playerStats(killsDeathString.str(), font, 15U);
 			playerStats.setOrigin(playerStats.getGlobalBounds().width, 0.0f);
 			playerStats.setPosition(sf::Vector2f(player->getCenter().x + windowSize.x / 2.0f - 10.0f, player->getCenter().y - windowSize.y / 2.0f));
+			// game time displayed in the center
 			char gameTimeString[] = "00:00";
 			sprintf_s(gameTimeString, sizeof(gameTimeString), "%.2d:%.2d", (int)runningClient.timeLeftInGame / 60, (int)runningClient.timeLeftInGame % 60);
 			sf::Text gameTimeText(gameTimeString, font, 30U);
 			gameTimeText.setOrigin(gameTimeText.getGlobalBounds().width / 2.0f, 0.0f);
 			gameTimeText.setPosition(sf::Vector2f(player->getCenter().x, player->getCenter().y - windowSize.y / 2.0f));
+			// Waiting for game to start
+			sf::Text waitingText("Waiting for game to being...", font, 15U);
+			waitingText.setOrigin(waitingText.getGlobalBounds().width / 2.0f, 0.0f);
+			waitingText.setPosition(sf::Vector2f(player->getCenter().x, gameTimeText.getGlobalBounds().top + gameTimeText.getGlobalBounds().height + waitingText.getGlobalBounds().height / 2.0f));
+			// instructions to change class
+			sf::Text classSelectionText("Press 'H' to change class", font, 18U);
+			classSelectionText.setOrigin(classSelectionText.getGlobalBounds().width / 2.0f, 0.0f);
+			classSelectionText.setPosition(sf::Vector2f(player->getCenter().x, waitingText.getGlobalBounds().top + waitingText.getGlobalBounds().height + classSelectionText.getGlobalBounds().height / 2.0f));
 			if (window.hasFocus() && !isSelectionScreenDisplayed && !player->getIsDead()) {
 				// check collision
-				runningClient.checkCollisions(player, currentClass);
+				runningClient.checkCollisions(player);
 				// player movement and send that data to server	
 				sf::Packet packet;
 				packet.clear();
@@ -322,27 +333,32 @@ int main() {
 			}
 			window.draw(playerStats);
 			window.draw(gameTimeText);
-			//printf("Respawn timer = %f\n", respawnTimer.getElapsedTime().asSeconds());
-			if (player->getIsDead()) {
-				window.setView(normalView);
-				// backdrop
-				sf::RectangleShape backdrop((sf::Vector2f) windowSize);
-				backdrop.setFillColor(sf::Color(255, 0, 0, 150));
-				window.draw(backdrop);
-				// respawn text
-				std::ostringstream respawnTimeString;
-				respawnTimeString << "Respawning in " << respawnTime - player->getTimeAsDead() << " seconds";
-				sf::Text respawnText(respawnTimeString.str(), font, 32U);
-				respawnText.setOrigin(respawnText.getGlobalBounds().width / 2.0f, respawnText.getGlobalBounds().height / 2.0f);
-				respawnText.setPosition(windowSize.x / 2.0f, windowSize.y / 2.0f);
-				window.draw(respawnText);
-				// class selection text
-				sf::Text classSelectionText("Press 'H' to select class", font, 15U);
-				classSelectionText.setOrigin(classSelectionText.getGlobalBounds().width / 2.0f, classSelectionText.getGlobalBounds().height / 2.0f);
-				classSelectionText.setPosition(windowSize.x / 2.0f, windowSize.y / 2.0f + respawnText.getGlobalBounds().height);
+			if (!runningClient.isGameInProgress()) {
+				window.draw(waitingText);
 				window.draw(classSelectionText);
-				// respawn when respawnTime spent as dead
-				if (player->getTimeAsDead() > respawnTime) {
+			}
+			if (player->getIsDead() || (!runningClient.isGameInProgress() && currentClass != respawnClass && runningClient.timeLeftInGame > 5.0f)) {
+				if (runningClient.isGameInProgress()) {
+					window.setView(normalView);
+					// backdrop
+					sf::RectangleShape backdrop((sf::Vector2f) windowSize);
+					backdrop.setFillColor(sf::Color(255, 0, 0, 150));
+					window.draw(backdrop);
+					// respawn text
+					std::ostringstream respawnTimeString;
+					respawnTimeString << "Respawning in " << respawnTime - player->getTimeAsDead() << " seconds";
+					sf::Text respawnText(respawnTimeString.str(), font, 32U);
+					respawnText.setOrigin(respawnText.getGlobalBounds().width / 2.0f, respawnText.getGlobalBounds().height / 2.0f);
+					respawnText.setPosition(windowSize.x / 2.0f, windowSize.y / 2.0f);
+					window.draw(respawnText);
+					// class selection text
+					sf::Text classSelectionText("Press 'H' to select class", font, 15U);
+					classSelectionText.setOrigin(classSelectionText.getGlobalBounds().width / 2.0f, classSelectionText.getGlobalBounds().height / 2.0f);
+					classSelectionText.setPosition(windowSize.x / 2.0f, windowSize.y / 2.0f + respawnText.getGlobalBounds().height);
+					window.draw(classSelectionText);
+				}
+				// respawn when respawnTime spent as dead or in peace time
+				if (player->getTimeAsDead() > respawnTime || !runningClient.isGameInProgress()) {
 					if (currentClass == knight) {
 						delete (Knight *)player;
 					}
@@ -365,7 +381,9 @@ int main() {
 						currentClass = mage;
 					}
 					player->setIsPlayer(true);
-					deaths++;
+					if (runningClient.isGameInProgress()) {
+						deaths++;
+					}
 				}
 			}
 			if (isSelectionScreenDisplayed) {
