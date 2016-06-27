@@ -144,6 +144,7 @@ void Server::runServer() {
 	}
 	// unbind port
 	serverSocket.unbind();
+	printf("[Server] closed\n");
 }
 
 void Server::stopServer() {

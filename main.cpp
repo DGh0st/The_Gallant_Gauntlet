@@ -18,6 +18,8 @@
 static screenTypes currentScreenDisplayed = title; // current displayed screen
 bool screenReseted = false; // did leave game or server closed and screen returned to title
 bool isSelectionScreenDisplayed = false; // is class selection overlay displayed currently
+bool isEscapeScreenDisplayed = false; // is escape overlay displayed currently
+bool shouldCloseWindow = false; // should close window because exit was clicked or not
 
 // info about server (from server side)
 static Server runningServer; // holds the server itself, if running server on your pc
@@ -47,6 +49,7 @@ Character *player = NULL;
 
 // counters
 int kills = 0, deaths = 0; // kill and deaths
+
 
 // map
 Map* map;
@@ -138,6 +141,8 @@ void onBackClickFromServer() {
 	leavingPacket << "left game";
 	runningClient.sendPacket(clientSocket, leavingPacket);
 	runningServer.stopServer();
+	isServerInitializedAndRunning = false;
+	serverThread.join();
 	currentScreenDisplayed = title;
 }
 
@@ -168,9 +173,43 @@ void onMageClick() {
 	classChangeCooldown.restart();
 }
 
+void onExitClickFromTitle() {
+	runningClient.stopReceivingPackets();
+	sf::Packet leavingPacket;
+	leavingPacket.clear();
+	leavingPacket << "left game";
+	runningClient.sendPacket(clientSocket, leavingPacket);
+	runningServer.stopServer();
+	if (isServerInitializedAndRunning) {
+		isServerInitializedAndRunning = false;
+		serverThread.join();
+	}
+	if (serverInfo.name == "Server") {
+		clientThread.join();
+		serverInfo = userInfo();
+	}
+	shouldCloseWindow = true;
+}
+
+void onExitClickFromGame() {
+	runningClient.stopReceivingPackets();
+	sf::Packet leavingPacket;
+	leavingPacket.clear();
+	leavingPacket << "left game";
+	runningClient.sendPacket(clientSocket, leavingPacket);
+	runningServer.stopServer();
+	if (isServerInitializedAndRunning) {
+		isServerInitializedAndRunning = false;
+		serverThread.join();
+	}
+
+	currentScreenDisplayed = title;
+}
+
 int main() {
-	sf::RenderWindow window(sf::VideoMode(800, 500), "Game 2");
+	sf::RenderWindow window(sf::VideoMode(800, 500), "Game 2", sf::Style::Fullscreen);
 	windowSize = window.getSize();
+	graphicsScaleFactor = sf::Vector2f(windowSize.x / (float) windowDesignSize.x, windowSize.y / (float) windowDesignSize.y);
 
 	sf::Font font;
 	font.loadFromFile("fonts/times.ttf");
@@ -207,32 +246,40 @@ int main() {
 	sf::Keyboard::Key releasedKey = sf::Keyboard::Unknown;
 
 	Textfield joinTF(font, sf::Vector2f(310.0f, 50.0f));
-	Button playButton, createButton, joinButton, knightButton, rangerButton, mageButton, backButton;
+	Button playButton, createButton, joinButton, knightButton, rangerButton, mageButton, backButton, exitButton, leaveButton;
 
 	while (window.isOpen()) {
 		releasedKey = sf::Keyboard::Unknown; // reset released
 
 		sf::Event event;
 		while (window.pollEvent(event)) {
-			if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)) {
-				runningClient.stopReceivingPackets();
-				sf::Packet leavingPacket;
-				leavingPacket.clear();
-				leavingPacket << "left game";
-				runningClient.sendPacket(clientSocket, leavingPacket);
-				runningServer.stopServer();
+			if (event.type == sf::Event::Closed) {
+				onExitClickFromTitle();
 				window.close();
+			}
+			else if (event.type == sf::Event::KeyPressed) {
+				if (event.key.alt && event.key.code == sf::Keyboard::F4) {
+					onExitClickFromTitle();
+					window.close();
+				}
 			}
 			else if (currentScreenDisplayed == ingame && event.type == sf::Event::KeyReleased) {
 				sf::Keyboard::Key tempKey = event.key.code;
 				if (tempKey == moveUpKey || tempKey == moveDownKey || tempKey == moveLeftKey || tempKey == moveRightKey) {
 					releasedKey = tempKey;
 				}
+				else if (tempKey == sf::Keyboard::Escape) {
+					isEscapeScreenDisplayed = !isEscapeScreenDisplayed;
+				}
 			}
 
 			if (currentScreenDisplayed == title) {
 				playButton.handleEvent(event);
 				createButton.handleEvent(event);
+				exitButton.handleEvent(event);
+				if (shouldCloseWindow) { // set to true when exitButton's handleEvent callback_function is called
+					window.close();
+				}
 			}
 			else if (currentScreenDisplayed == joinServer) {
 				joinTF.handleEvent(event);
@@ -249,6 +296,9 @@ int main() {
 					rangerButton.handleEvent(event);
 					mageButton.handleEvent(event);
 				}
+				if (isEscapeScreenDisplayed) {
+					leaveButton.handleEvent(event);
+				}
 				if (event.type == sf::Event::KeyReleased && event.key.code == classSelectionDisplayKey) {
 					isSelectionScreenDisplayed = !isSelectionScreenDisplayed; // toogles
 				}
@@ -263,22 +313,29 @@ int main() {
 			//title text
 			sf::Text titleText("Title", font, 64U);
 			titleText.setOrigin(titleText.getGlobalBounds().width / 2, titleText.getGlobalBounds().height / 2);
-			titleText.setPosition(sf::Vector2f(windowSize.x / 4.0f, windowSize.y / 2.0f - 128.0f));
+			titleText.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f - titleText.getCharacterSize() * 3.0f));
 			window.draw(titleText);
 			//play button
 			sf::Text playText("Play", font, 32U);
 			playText.setColor(sf::Color::Black);
 			playButton = Button(playText, sf::Vector2f(100.0f, 70.0f), onPlayClick);
 			playButton.setOrigin(playButton.getGlobalBounds().width / 2.0f, playButton.getGlobalBounds().height / 2.0f);
-			playButton.setPosition(sf::Vector2f(windowSize.x / 4.0f, windowSize.y / 2.0f));
+			playButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f - playButton.getGlobalBounds().height));
 			playButton.draw(window);
 			//create game button
 			sf::Text createText("Create Game", font, 32U);
 			createText.setColor(sf::Color::Black);
 			createButton = Button(createText, sf::Vector2f(200.0f, 70.0f), onCreateGameClick);
 			createButton.setOrigin(createButton.getGlobalBounds().width / 2.0f, createButton.getGlobalBounds().height / 2.0f);
-			createButton.setPosition(sf::Vector2f(windowSize.x / 4.0f, windowSize.y / 2.0f + 128.0f));
+			createButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, playButton.getPosition().y + playButton.getGlobalBounds().height * 1.5f));
 			createButton.draw(window);
+			// exit button
+			sf::Text exitText("Exit", font, 32U);
+			exitText.setColor(sf::Color::Black);
+			exitButton = Button(exitText, sf::Vector2f(100.0f, 70.0f), onExitClickFromTitle);
+			exitButton.setOrigin(exitButton.getGlobalBounds().width / 2.0f, exitButton.getGlobalBounds().height / 2.0f);
+			exitButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, createButton.getPosition().y + createButton.getGlobalBounds().height * 1.5f));
+			exitButton.draw(window);
 		}
 		else if (currentScreenDisplayed == joinServer) {
 			window.setView(normalView);
@@ -292,10 +349,10 @@ int main() {
 			backButton.setOrigin(0.0f, 0.0f);
 			backButton.setPosition(10.0f, 10.0f);
 			//server address text
-			sf::Text serverText("Server Address", font, 16);
+			sf::Text serverText("Server Address", font, 24U);
 			serverText.setOrigin(serverText.getGlobalBounds().width / 2.0f, serverText.getGlobalBounds().height / 2.0f);
 			serverText.setPosition(windowSize.x / 2.0f, windowSize.y / 2.0f - serverText.getGlobalBounds().height * 4.0f);
-			serverText.setColor(sf::Color::Cyan);
+			serverText.setColor(sf::Color::White);
 			//join text field
 			joinTF.setOrigin(joinTF.getGlobalBounds().width / 2.0f, joinTF.getGlobalBounds().height / 2.0f);
 			joinTF.setPosition(windowSize.x / 2.0f, windowSize.y / 2.0f);
@@ -326,7 +383,7 @@ int main() {
 			sf::Text ipText(ipString.str(), font, 20);
 			ipText.setOrigin(ipText.getGlobalBounds().width / 2.0f, ipText.getGlobalBounds().height / 2.0f);
 			ipText.setPosition(window.getSize().x / 2.0f, window.getSize().y / 2.0f - ipText.getGlobalBounds().height * 10.0f);
-			ipText.setColor(sf::Color::Cyan);
+			ipText.setColor(sf::Color::White);
 			//join game button
 			sf::Text joinText("Join Game", font);
 			joinText.setColor(sf::Color::Black);
@@ -368,8 +425,8 @@ int main() {
 				// check collision
 				runningClient.checkCollisions(player, currentClass, clientSocket, takeDamageSoundBuffer, doDamageSoundBuffer);
 			}
-			if (window.hasFocus() && !isSelectionScreenDisplayed && !player->getIsDead()) {
-				// player movement and send that data to server
+			if (window.hasFocus() && !isSelectionScreenDisplayed && !player->getIsDead() && !isEscapeScreenDisplayed) {
+				// player movement
 				if (currentClass == knight) {
 					((Knight*)player)->swingSword();
 					((Knight*)player)->move(window, releasedKey);
@@ -385,6 +442,7 @@ int main() {
 					((Mage*)player)->setWeapon(window);
 				}
 			}
+			// send that data to server
 			sf::Packet packet;
 			packet.clear();
 			// draw
@@ -486,7 +544,7 @@ int main() {
 				//title text
 				sf::Text titleText("Class Selection", font, 64U);
 				titleText.setOrigin(titleText.getGlobalBounds().width / 2, titleText.getGlobalBounds().height / 2);
-				titleText.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f - 200.0f));
+				titleText.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f - titleText.getGlobalBounds().height * 4.0f));
 				window.draw(titleText);
 				// cooldown timer
 				if (classChangeCooldown.getElapsedTime().asSeconds() < classChangeCooldownTime) {
@@ -502,7 +560,7 @@ int main() {
 				knightText.setColor(sf::Color::Black);
 				knightButton = Button(knightText, sf::Vector2f(150.0f, 75.0f), onKnightClick);
 				knightButton.setOrigin(knightButton.getGlobalBounds().width / 2.0f, knightButton.getGlobalBounds().height / 2.0f);
-				knightButton.setPosition(sf::Vector2f(windowSize.x / 2.0f - 250.0f, windowSize.y / 2.0f + 150.0f));
+				knightButton.setPosition(sf::Vector2f(windowSize.x / 2.0f - knightButton.getGlobalBounds().width * 2.0f, windowSize.y / 2.0f + knightButton.getGlobalBounds().height * 2.0f));
 				window.draw(knightText);
 				knightButton.draw(window);
 				//ranger button
@@ -510,7 +568,7 @@ int main() {
 				rangerText.setColor(sf::Color::Black);
 				rangerButton = Button(rangerText, sf::Vector2f(150.0f, 75.0f), onRangerClick);
 				rangerButton.setOrigin(rangerButton.getGlobalBounds().width / 2.0f, rangerButton.getGlobalBounds().height / 2.0f);
-				rangerButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f + 150.0f));
+				rangerButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f + rangerButton.getGlobalBounds().height * 2.0f));
 				window.draw(rangerText);
 				rangerButton.draw(window);
 				//mage button
@@ -518,44 +576,54 @@ int main() {
 				mageText.setColor(sf::Color::Black);
 				mageButton = Button(mageText, sf::Vector2f(150.0f, 75.0f), onMageClick);
 				mageButton.setOrigin(mageButton.getGlobalBounds().width / 2.0f, mageButton.getGlobalBounds().height / 2.0f);
-				mageButton.setPosition(sf::Vector2f(windowSize.x / 2.0f + 250.0f, windowSize.y / 2.0f + 150.0f));
+				mageButton.setPosition(sf::Vector2f(windowSize.x / 2.0f + mageButton.getGlobalBounds().width * 2.0f, windowSize.y / 2.0f + mageButton.getGlobalBounds().height * 2.0f));
 				window.draw(mageText);
 				mageButton.draw(window);
 				//knight sprite
 				sf::Sprite knightSprite(knightTexture);
 				knightSprite.setOrigin(knightSprite.getGlobalBounds().width / 2.0f, knightSprite.getGlobalBounds().height / 2.0f);
-				knightSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f - 250.0f, windowSize.y / 2.0f + 25.0f));
+				knightSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f - knightButton.getGlobalBounds().width * 2.0f, windowSize.y / 2.0f + knightSprite.getGlobalBounds().height / 4.0f));
 				knightSprite.setRotation(knightSprite.getRotation() + 90);
 				window.draw(knightSprite);
 				//ranger sprite
 				sf::Sprite rangerSprite(rangerTexture);
 				rangerSprite.setOrigin(rangerSprite.getGlobalBounds().width / 2.0f, rangerSprite.getGlobalBounds().height / 2.0f);
-				rangerSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f + 25.0f));
+				rangerSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f + rangerSprite.getGlobalBounds().height / 4.0f));
 				rangerSprite.setRotation(rangerSprite.getRotation() + 91);
 				window.draw(rangerSprite);
 				//mage sprite
 				sf::Sprite mageSprite(mageTexture);
 				mageSprite.setOrigin(mageSprite.getGlobalBounds().width / 2.0f, mageSprite.getGlobalBounds().height / 2.0f);
-				mageSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f + 250.0f, windowSize.y / 2.0f + 25.0f));
+				mageSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f + mageButton.getGlobalBounds().width * 2.0f, windowSize.y / 2.0f + mageSprite.getGlobalBounds().height / 4.0f));
 				mageSprite.setRotation(mageSprite.getRotation() + 100);
 				window.draw(mageSprite);
+			}
+			if (isEscapeScreenDisplayed) {
+				window.setView(normalView);
+				// backdrop
+				sf::RectangleShape backdrop(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f));
+				backdrop.setFillColor(sf::Color(0, 0, 0, 150));
+				backdrop.setPosition(windowSize.x / 4.0f, windowSize.y / 4.0f);
+				window.draw(backdrop);
+				//title text
+				sf::Text titleText("Title", font, 64U);
+				titleText.setOrigin(titleText.getGlobalBounds().width / 2, titleText.getGlobalBounds().height / 2);
+				titleText.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f - titleText.getCharacterSize()));
+				window.draw(titleText);
+				// exit button
+				sf::Text leaveText("Leave Game", font, 32U);
+				leaveText.setColor(sf::Color::Black);
+				leaveButton = Button(leaveText, sf::Vector2f(200.0f, 70.0f), onExitClickFromGame);
+				leaveButton.setOrigin(leaveButton.getGlobalBounds().width / 2.0f, leaveButton.getGlobalBounds().height / 2.0f);
+				leaveButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, titleText.getPosition().y + titleText.getGlobalBounds().height * 2.5f));
+				leaveButton.draw(window);
 			}
 		}
 
 		window.display();
 	}
 
-	if (isServerInitializedAndRunning) {
-		runningServer.stopServer();
-		isServerInitializedAndRunning = false;
-		serverThread.join();
-	}
+	delete map;
 
-	if (serverInfo.name == "Server") {
-		runningClient.stopReceivingPackets();
-		clientThread.join();
-		serverInfo = userInfo();
-	}
-
-	return 0;
+	return EXIT_SUCCESS;
 }

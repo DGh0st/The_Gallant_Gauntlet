@@ -6,6 +6,7 @@
 // all
 #define windowDesignSize sf::Vector2u(1920, 1080) // UI designed for these resolutions
 static sf::Vector2u windowSize(1920, 1080); // current window size
+static sf::Vector2f graphicsScaleFactor(1.0f, 1.0f); // UI scale factor if windowSize is not design Size
 #define respawnTime 5.0f // time to respawn in seconds
 #define totalMatchTime 1800 // time in seconds per match/game
 #define preMatchTime 60 // time in seconds before restarting match/game
