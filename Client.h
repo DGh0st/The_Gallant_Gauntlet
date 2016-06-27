@@ -42,6 +42,7 @@ public:
 	bool isGameInProgress();
 
 	float timeLeftInGame; // time left in game (in seconds)
+	int serverConnectionStatus = 0; // 0 if haven't gotten response, 1 if failed, 2 if successfully connected
 private:
 	bool running;
 	unsigned short port; // port for the client

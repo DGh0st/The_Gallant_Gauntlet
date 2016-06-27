@@ -16,12 +16,6 @@ void Button::operator=(const Button & other) {
 	this->setScale(other.getScale());
 	this->setPosition(other.getPosition());
 	buttonText = sf::Text(other.buttonText);
-	normalColor = other.normalColor;
-	hoverColor = other.hoverColor;
-	clickedColor = other.clickedColor;
-	normalTexture = other.normalTexture;
-	hoverTexture = other.hoverTexture;
-	clickedTexture = other.clickedTexture;
 	callback_function = other.callback_function;
 }
 
@@ -35,20 +29,14 @@ void Button::handleEvent(sf::Event event) {
 	if (event.type == sf::Event::MouseButtonPressed) {
 		if (this->getGlobalBounds().contains((float) event.mouseButton.x, (float) event.mouseButton.y)) {
 			if (event.mouseButton.button == sf::Mouse::Left) {
-				this->setFillColor(clickedColor);
-				this->setTexture(&clickedTexture);
 				hasFocus = true;
 				// call the on click function that they provided
 			}
 			else {
-				this->setFillColor(hoverColor);
-				this->setTexture(&hoverTexture);
 				hasFocus = false;
 			}
 		}
 		else {
-			this->setFillColor(normalColor);
-			this->setTexture(&normalTexture);
 			hasFocus = false;
 		}
 	}

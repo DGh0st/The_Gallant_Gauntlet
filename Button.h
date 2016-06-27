@@ -21,23 +21,11 @@ public:
 	// handle button click event (optional method as it will otherwise make use of draw)
 	// @param event: the event to handle
 	void handleEvent(sf::Event event);
-	// set normal/hover/clicked color/texture
-	inline void setNormalColor(sf::Color color) { normalColor = color; }
-	inline void setHoverColor(sf::Color color) { hoverColor = color; }
-	inline void setClickedColor(sf::Color color) { clickedColor = color; }
-	inline void setNormalTexture(sf::Texture texture) { normalTexture = texture; }
-	inline void setHoverTexture(sf::Texture texture) { hoverTexture = texture; }
-	inline void setClickedTexture(sf::Texture texture) { clickedTexture = texture; }
+	// set on click callback function
 	inline void setOnClickFunction(void (*func)()) { callback_function = func; }
 
 private:
 	sf::Text buttonText;
-	sf::Color normalColor;
-	sf::Color hoverColor;
-	sf::Color clickedColor;
-	sf::Texture normalTexture;
-	sf::Texture hoverTexture;
-	sf::Texture clickedTexture;
 	void (*callback_function)() = NULL;
 	bool hasFocus = false;
 };

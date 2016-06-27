@@ -32,6 +32,7 @@ void Client::sendPacket(sf::UdpSocket & socket, sf::Packet & packet) {
 }
 
 void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & rangerTexture, sf::Texture & mageTexture, sf::Texture & knightTexture, sf::Texture & arrowTexture, sf::Texture & fireballA, sf::Texture & fireballB, sf::Texture & swordTexture, sf::Texture & bowTexture, sf::Texture & staffTexture, sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture) {
+	socket.setBlocking(false);
 	// send "join game" packet to the server
 	sf::Packet joinServerPacket;
 	joinServerPacket.clear();
@@ -54,8 +55,13 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 			copyPacket >> data;
 			if (strcmp(data, "success") == 0) {
 				copyPacket >> clientIDfromServer >> timeLeftInGame >> gameNotInProgress;
+				serverConnectionStatus = 2;
 				printf("[Client] joined server as %s\n", clientIDfromServer.c_str());
 				continue; // connected to server successfully
+			}
+			else if (serverConnectionStatus <= 1) {
+				serverConnectionStatus = 1;
+				continue;
 			}
 			else if (strcmp(data, "kill") == 0) {
 				std::string killerId;
