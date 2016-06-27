@@ -4,7 +4,7 @@
 Knight::Knight(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & knightTexture, sf::Texture & swordTexture,float moveSpeed, int maxHealth, int damage) : Character(healthBarForegroundTexture, healthBarBackgroundTexture,maxHealth, damage) {
 	playerSprite = sf::Sprite(knightTexture);
 	playerSprite.setOrigin(playerSprite.getGlobalBounds().width / 2, playerSprite.getGlobalBounds().height / 2);
-	playerSprite.setPosition(sf::Vector2f((float)(std::rand() % windowSize.x) - windowSize.x / 2.0f, (float)(std::rand() % windowSize.y) - windowSize.y / 2.0f));
+	playerSprite.setPosition(sf::Vector2f((float)(rand() % (550 + 550 + 1) - 550), (float)(rand() % (550 + 550 + 1) - 550)));
 	swordSprite = sf::Sprite(swordTexture);
 	swordSprite.setOrigin((swordSprite.getGlobalBounds().width / 2)-30, swordSprite.getGlobalBounds().height / 2);
 	charSpeed = moveSpeed;
