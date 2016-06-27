@@ -51,7 +51,7 @@ bool ProjectileShooter::collisionPP(sf::CircleShape & player) {
 		sf::FloatRect projectileBox = projectiles[i]->projectileCircle.getGlobalBounds();
 		//if projectile and rectangle encompassing player circle don't intersect, no collision possible (light, quick check)
 		if (!projectileBox.intersects(player.getGlobalBounds())) {
-			return false;
+			continue;
 		}
 		//full collision check between projectile and circle of player
 		sf::Vector2f playerCenter = sf::Vector2f(player.getGlobalBounds().left + player.getGlobalBounds().width / 2.0f, player.getGlobalBounds().top + player.getGlobalBounds().height / 2.0f);
