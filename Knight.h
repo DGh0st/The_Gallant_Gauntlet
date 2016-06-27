@@ -28,7 +28,7 @@ private:
 	float reloadTime = 0.1f; //how long before you can swing again
 	float swingTime = 0.75; //how long the swing lasts
 	sf::Clock clockSwingTime; //used for timing how long before you can swing again, timing how long swing lasts, and rotating sword based on times
-	sf::RectangleShape swordRect; //bounding box for sword
+	sf::CircleShape swordCircles[3]; //bounding circles for sword
 	bool swordIntersected = false; //whether or not sword already hit something this swing
 	sf::Uint16 uniqueSwingCounter = 0; // number of swings so far by player
 };

@@ -62,7 +62,6 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 				copyPacket >> killerId >> timeLeftInGame >> gameNotInProgress;
 				if (killerId == clientIDfromServer) {
 					kills++;
-					printf("[Client] Got a kill!\n");
 				}
 				continue;
 			}
