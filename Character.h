@@ -37,6 +37,10 @@ public:
 	sf::Int16 takeDamage(sf::Int16 damage);
 	// get damage
 	sf::Int16 getDamage();
+	// get playerSprite
+	sf::Sprite* getPlayerSprite();
+	// get charSpeed
+	float getCharSpeed();
 protected:
 	sf::Sprite playerSprite; //sprite of character
 	float charSpeed; // normal character movement speed

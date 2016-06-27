@@ -155,3 +155,11 @@ sf::Int16 Character::takeDamage(sf::Int16 damage) {
 sf::Int16 Character::getDamage() {
 	return damage;
 }
+
+sf::Sprite* Character::getPlayerSprite() {
+	return &playerSprite;
+}
+
+float Character::getCharSpeed() {
+	return charSpeed;
+}

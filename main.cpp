@@ -13,6 +13,7 @@
 #include "Ranger.h"
 #include "Mage.h"
 #include "Knight.h"
+#include "Map.h"
 
 static screenTypes currentScreenDisplayed = title; // current displayed screen
 bool screenReseted = false; // did leave game or server closed and screen returned to title
@@ -33,7 +34,7 @@ std::thread clientThread; // thread client is running on
 static std::string connectToIPandPort = "";
 
 // textures
-sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture, healthBarForegroundTexture, healthBarBackgroundTexture, backgroundTexture;
+sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture, healthBarForegroundTexture, healthBarBackgroundTexture, backgroundTexture, mapTexture;
 sf::SoundBuffer takeDamageSoundBuffer, doDamageSoundBuffer;
 
 // holds class of player (current and next respawn). 0 = knight, 1 = ranger, 2 = mage
@@ -46,6 +47,9 @@ Character *player = NULL;
 
 // counters
 int kills = 0, deaths = 0; // kill and deaths
+
+// map
+Map* map;
 
 void runClient() {
 	runningClient.receivePackets(clientSocket, kills, rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture, healthBarForegroundTexture, healthBarBackgroundTexture);
@@ -182,6 +186,7 @@ int main() {
 	healthBarForegroundTexture.loadFromFile("textures/healthBarForeground.png");
 	healthBarBackgroundTexture.loadFromFile("textures/healthBarBackground.png");
 	backgroundTexture.loadFromFile("textures/titleBackground.png");
+	mapTexture.loadFromFile("textures/map.png");
 	takeDamageSoundBuffer.loadFromFile("");
 	doDamageSoundBuffer.loadFromFile("");
 	sf::RectangleShape backgroundRect((sf::Vector2f)windowSize);
@@ -189,6 +194,8 @@ int main() {
 
 	sf::View playerView;
 	sf::View normalView = window.getView();
+
+	map = new Map(mapTexture, sf::Vector2f(0, 0));
 
 	player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f)); //default knight class to start
 	if (player != NULL) {
@@ -356,6 +363,7 @@ int main() {
 			sf::Text gameTimeText(gameTimeString.str(), font, 30U);
 			gameTimeText.setOrigin(gameTimeText.getGlobalBounds().width / 2.0f, 0.0f);
 			gameTimeText.setPosition(sf::Vector2f(player->getCenter().x, player->getCenter().y - windowSize.y / 2.0f));
+			map->collisionMP(*player);
 			if (runningClient.isGameInProgress()) {
 				// check collision
 				runningClient.checkCollisions(player, currentClass, clientSocket, takeDamageSoundBuffer, doDamageSoundBuffer);
@@ -380,6 +388,7 @@ int main() {
 			sf::Packet packet;
 			packet.clear();
 			// draw
+			map->draw(window);
 			runningClient.draw(window, player->getCenter());
 			if (currentClass == knight) {
 				packet = ((Knight*)player)->chainDataToPacket(packet, runningClient.getClientId());
