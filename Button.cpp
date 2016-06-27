@@ -1,9 +1,8 @@
 #include "Button.h"
 
-Button::Button(sf::Text & text, sf::Vector2f & padding, void (*function)()) : sf::RectangleShape(), callback_function(function) {
-	this->setSize(sf::Vector2f(buttonText.getGlobalBounds().width + padding.x, buttonText.getGlobalBounds().height + padding.y));
+Button::Button(sf::Text & text, sf::Vector2f & size, void (*function)()) : sf::RectangleShape(size), callback_function(function) {
 	buttonText = sf::Text(text);
-	buttonText.setOrigin(buttonText.getGlobalBounds().width / 2.0f, buttonText.getGlobalBounds().height / 2.0f);
+	buttonText.setOrigin(buttonText.getGlobalBounds().width / 2.0f, buttonText.getGlobalBounds().height * 2.0f / 3.0f);
 }
 
 Button::~Button() {

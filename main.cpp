@@ -32,7 +32,7 @@ std::thread clientThread; // thread client is running on
 static std::string connectToIPandPort = "";
 
 // textures
-sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture, healthBarForegroundTexture, healthBarBackgroundTexture;
+sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture, healthBarForegroundTexture, healthBarBackgroundTexture, backgroundTexture;
 
 // holds class of player (current and next respawn). 0 = knight, 1 = ranger, 2 = mage
 classTypes respawnClass = knight; //default knight class to start
@@ -121,6 +121,20 @@ void onJoinGameClickFromServer() {
 	currentScreenDisplayed = ingame;
 }
 
+void onBackClickFromClient() {
+	currentScreenDisplayed = title;
+}
+
+void onBackClickFromServer() {
+	runningClient.stopReceivingPackets();
+	sf::Packet leavingPacket;
+	leavingPacket.clear();
+	leavingPacket << "left game";
+	runningClient.sendPacket(clientSocket, leavingPacket);
+	runningServer.stopServer();
+	currentScreenDisplayed = title;
+}
+
 void onKnightClick() {
 	if (classChangeCooldown.getElapsedTime().asSeconds() < classChangeCooldownTime) {
 		return;
@@ -165,6 +179,9 @@ int main() {
 	staffTexture.loadFromFile("textures/staff.png");
 	healthBarForegroundTexture.loadFromFile("textures/healthBarForeground.png");
 	healthBarBackgroundTexture.loadFromFile("textures/healthBarBackground.png");
+	backgroundTexture.loadFromFile("textures/titleBackground.png");
+	sf::RectangleShape backgroundRect((sf::Vector2f)windowSize);
+	backgroundRect.setTexture(&backgroundTexture);
 
 	sf::View playerView;
 	sf::View normalView = window.getView();
@@ -178,8 +195,8 @@ int main() {
 
 	sf::Keyboard::Key releasedKey = sf::Keyboard::Unknown;
 
-	Textfield joinTF(font, sf::Vector2f(650.0f, 50.0f));
-	Button playButton, createButton, joinButton, knightButton, rangerButton, mageButton;
+	Textfield joinTF(font, sf::Vector2f(310.0f, 50.0f));
+	Button playButton, createButton, joinButton, knightButton, rangerButton, mageButton, backButton;
 
 	while (window.isOpen()) {
 		releasedKey = sf::Keyboard::Unknown; // reset released
@@ -209,9 +226,11 @@ int main() {
 			else if (currentScreenDisplayed == joinServer) {
 				joinTF.handleEvent(event);
 				joinButton.handleEvent(event);
+				backButton.handleEvent(event);
 			} 
 			else if (currentScreenDisplayed == createServer) {
 				joinButton.handleEvent(event);
+				backButton.handleEvent(event);
 			}
 			else if (currentScreenDisplayed == ingame) {
 				if (isSelectionScreenDisplayed) {
@@ -229,30 +248,38 @@ int main() {
 
 		if (currentScreenDisplayed == title) {
 			window.setView(normalView);
+			window.draw(backgroundRect);
 			//title text
 			sf::Text titleText("Title", font, 64U);
 			titleText.setOrigin(titleText.getGlobalBounds().width / 2, titleText.getGlobalBounds().height / 2);
-			titleText.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f - 128.0f));
+			titleText.setPosition(sf::Vector2f(windowSize.x / 4.0f, windowSize.y / 2.0f - 128.0f));
 			window.draw(titleText);
 			//play button
 			sf::Text playText("Play", font, 32U);
 			playText.setColor(sf::Color::Black);
-			playButton = Button(playText, sf::Vector2f(100.0f, 75.0f), onPlayClick);
+			playButton = Button(playText, sf::Vector2f(100.0f, 70.0f), onPlayClick);
 			playButton.setOrigin(playButton.getGlobalBounds().width / 2.0f, playButton.getGlobalBounds().height / 2.0f);
-			playButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f));
+			playButton.setPosition(sf::Vector2f(windowSize.x / 4.0f, windowSize.y / 2.0f));
 			playButton.draw(window);
 			//create game button
 			sf::Text createText("Create Game", font, 32U);
 			createText.setColor(sf::Color::Black);
-			createButton = Button(createText, sf::Vector2f(200.0f, 75.0f), onCreateGameClick);
+			createButton = Button(createText, sf::Vector2f(200.0f, 70.0f), onCreateGameClick);
 			createButton.setOrigin(createButton.getGlobalBounds().width / 2.0f, createButton.getGlobalBounds().height / 2.0f);
-			createButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f + 128.0f));
+			createButton.setPosition(sf::Vector2f(windowSize.x / 4.0f, windowSize.y / 2.0f + 128.0f));
 			createButton.draw(window);
 		}
 		else if (currentScreenDisplayed == joinServer) {
 			window.setView(normalView);
+			window.draw(backgroundRect);
 			// set joinTF's string to connectToIPandPort
 			connectToIPandPort = joinTF.getString();
+			// back button
+			sf::Text backText("< Back", font, 16U);
+			backText.setColor(sf::Color::Black);
+			backButton = Button(backText, sf::Vector2f(80.0f, 30.0f), onBackClickFromClient);
+			backButton.setOrigin(0.0f, 0.0f);
+			backButton.setPosition(10.0f, 10.0f);
 			//server address text
 			sf::Text serverText("Server Address", font, 16);
 			serverText.setOrigin(serverText.getGlobalBounds().width / 2.0f, serverText.getGlobalBounds().height / 2.0f);
@@ -262,7 +289,7 @@ int main() {
 			joinTF.setOrigin(joinTF.getGlobalBounds().width / 2.0f, joinTF.getGlobalBounds().height / 2.0f);
 			joinTF.setPosition(windowSize.x / 2.0f, windowSize.y / 2.0f);
 			//join game button
-			sf::Text joinText("Join Game", font);
+			sf::Text joinText("Join Game", font, 32U);
 			joinText.setColor(sf::Color::Black);
 			joinButton = Button(joinText, sf::Vector2f(200.0f, 75.0f), onJoinGameClickFromClient);
 			joinButton.setOrigin(joinButton.getGlobalBounds().width / 2.0f, joinButton.getGlobalBounds().height / 2.0f);
@@ -271,9 +298,17 @@ int main() {
 			window.draw(serverText);
 			joinTF.draw(window);
 			joinButton.draw(window);
+			backButton.draw(window);
 		}
 		else if (currentScreenDisplayed == createServer) {
 			window.setView(normalView);
+			window.draw(backgroundRect);
+			// back button
+			sf::Text backText("< Stop Server", font, 16U);
+			backText.setColor(sf::Color::Black);
+			backButton = Button(backText, sf::Vector2f(120.0f, 32.0f), onBackClickFromServer);
+			backButton.setOrigin(0.0f, 0.0f);
+			backButton.setPosition(10.0f, 10.0f);
 			//ip and instructions on joining a server text
 			std::ostringstream ipString;
 			ipString << "Please use " << sf::IpAddress::getPublicAddress().toString() << ":" << runningServer.getPort() << " to connect to the server.";
@@ -290,6 +325,7 @@ int main() {
 			//draw
 			joinButton.draw(window);
 			window.draw(ipText);
+			backButton.draw(window);
 		}
 		else if (currentScreenDisplayed == ingame && player != NULL) {
 			// center the view on player
