@@ -23,6 +23,8 @@ struct userInfo {
 	sf::IpAddress ip = sf::IpAddress::None; // ip used to connect to server
 	unsigned short port = 1000; // port used to connect to server
 };
+// client
+#define damageTakenVisualTime 1.0f // time to display that u are taking damage (in seconds)
 // main
 enum screenTypes {
 	title = 0, // title screen

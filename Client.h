@@ -1,6 +1,7 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 #include <SFML/Network.hpp>
+#include <SFML/Audio.hpp>
 #include "Defines.h"
 #include "Character.h"
 
@@ -32,9 +33,9 @@ public:
 	// stop receiving packets
 	void stopReceivingPackets();
 	// draw other players
-	void draw(sf::RenderWindow & window);
+	void draw(sf::RenderWindow & window, sf::Vector2f playerPosition);
 	// check collisions and send data over server if needed
-	void checkCollisions(Character *player, classTypes currentClass, sf::UdpSocket & socket);
+	void checkCollisions(Character *player, classTypes currentClass, sf::UdpSocket & socket, sf::SoundBuffer & takeDamageSoundBuffer, sf::SoundBuffer & doDamageSoundBuffer);
 	// get client id
 	std::string getClientId();
 	// get is game in progress or not
@@ -48,6 +49,7 @@ private:
 	std::vector<PlayerData> otherPlayers;
 	std::string clientIDfromServer; // id of the client gotten from the server
 	bool gameNotInProgress; // is game currently in progress
+	sf::Clock damageTakenVisualEffectTimer; // timer for damage taken visuals
 };
 
 #endif // !CLIENT_H
