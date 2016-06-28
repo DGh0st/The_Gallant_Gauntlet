@@ -38,7 +38,7 @@ sf::Clock timeoutTimer; // timer for stopping connection look up once it reaches
 static std::string connectToIPandPort = "";
 
 // textures
-sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture, healthBarForegroundTexture, healthBarBackgroundTexture, backgroundTexture, mapTexture;
+sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture, healthBarForegroundTexture, healthBarBackgroundTexture, backgroundTexture, mapTexture, titleTexture;
 sf::SoundBuffer takeDamageSoundBuffer, doDamageSoundBuffer;
 
 // holds class of player (current and next respawn). 0 = knight, 1 = ranger, 2 = mage
@@ -220,6 +220,7 @@ int main() {
 	healthBarBackgroundTexture.loadFromFile("textures/healthBarBackground.png");
 	backgroundTexture.loadFromFile("textures/titleBackground.png");
 	mapTexture.loadFromFile("textures/map.png");
+	titleTexture.loadFromFile("textures/title2.png");
 	takeDamageSoundBuffer.loadFromFile("");
 	doDamageSoundBuffer.loadFromFile("");
 	sf::RectangleShape backgroundRect((sf::Vector2f)windowSize);
@@ -244,8 +245,8 @@ int main() {
 	
 	// -- title screen --
 	//title text
-	sf::Text titleText("Title", font, 64U);
-	titleText.setOrigin(titleText.getGlobalBounds().width / 2, titleText.getGlobalBounds().height / 2);
+	sf::Sprite titleSprite(titleTexture);
+	titleSprite.setOrigin(titleSprite.getGlobalBounds().width / 2.0f, titleSprite.getGlobalBounds().height / 2.0f);
 	//play button
 	sf::Text playText("Play", font, 32U);
 	playText.setColor(sf::Color::Black);
@@ -429,13 +430,13 @@ int main() {
 		if (currentScreenDisplayed == title) {
 			window.setView(normalView);
 			// set positions
-			titleText.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f - titleText.getCharacterSize() * 3.0f));
+			titleSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 4.7f));
 			playButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f - playButton.getGlobalBounds().height));
 			createButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, playButton.getPosition().y + playButton.getGlobalBounds().height * 1.5f));
 			exitButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, createButton.getPosition().y + createButton.getGlobalBounds().height * 1.5f));
 			// draw
 			window.draw(backgroundRect);
-			window.draw(titleText);
+			window.draw(titleSprite);
 			playButton.draw(window);
 			createButton.draw(window);
 			exitButton.draw(window);
