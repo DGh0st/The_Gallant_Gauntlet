@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "Character.h"
+#include "ProjectileShooter.h"
 
 class Map {
 public:
@@ -15,6 +16,8 @@ public:
 	void collisionMP(Character & player);
 	//draw map
 	void draw(sf::RenderWindow & window);
+	//collision between map and projectiles
+	void collisionMProj(ProjectileShooter ps);
 private:
 	//set position of pillar walls based on start position
 	void setPosPillars(sf::Vector2f startPos);

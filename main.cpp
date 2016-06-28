@@ -533,11 +533,13 @@ int main() {
 					((Ranger*)player)->move(window, releasedKey);
 					((Ranger*)player)->shoot(window);
 					((Ranger*)player)->setWeapon(window);
+					map->collisionMProj(*(ProjectileShooter*)player);
 			    }
 				else if (currentClass == mage) {
 					((Mage*)player)->move(window, releasedKey);
 					((Mage*)player)->shoot(window);
 					((Mage*)player)->setWeapon(window);
+					map->collisionMProj(*(ProjectileShooter*)player);
 				}
 			}
 			// send that data to server

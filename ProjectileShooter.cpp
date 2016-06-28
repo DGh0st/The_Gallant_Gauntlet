@@ -40,6 +40,7 @@ void ProjectileShooter::shoot(sf::RenderWindow & window) {
 			projectile = new Projectile(window, projectileTextureA, weaponSprite);
 		}
 		projectiles.insert(projectiles.begin(), projectile); //store projectile
+		projectileCircles.insert(projectileCircles.begin(), &projectile->projectileCircle);
 		clockReload.restart();
 		clockProjectile.restart();
 	}
@@ -70,7 +71,7 @@ bool ProjectileShooter::collisionPP(sf::CircleShape & player) {
 void ProjectileShooter::drawProjectiles(sf::RenderWindow & window) {
 	for (int i = 0; i < projectiles.size(); i++) {
 		//if projectile exists and on screen
-		if (projectiles[i] != NULL && projectileOnScreen(projectiles[i])) {
+		if (projectiles[i] != NULL && !projectiles[i]->hitWall && projectileOnScreen(projectiles[i])) {
 			//animation for projectile
 			if (projectiles[i]->clockAnim.getElapsedTime().asSeconds() > 0.2f) { //change frames every 0.2 seconds
 				if (projectiles[i]->trigger) {
@@ -87,9 +88,12 @@ void ProjectileShooter::drawProjectiles(sf::RenderWindow & window) {
 			moveProjectile(projectiles[i]);
 		}
 		else { //otherwise off screen, so delete projectile
-			delete projectiles[i];
-			projectiles[i] = NULL;
-			projectiles.erase(projectiles.begin() + i);  //remove NULL from vector
+				projectileCircles[i] = NULL;
+				projectileCircles.erase(projectileCircles.begin() + i);  //remove NULL from vector
+
+				delete projectiles[i];
+				projectiles[i] = NULL;
+				projectiles.erase(projectiles.begin() + i);  //remove NULL from vector
 		}
 	}
 }
@@ -142,6 +146,19 @@ void ProjectileShooter::setWeapon(sf::RenderWindow & window) {
 
 		weaponSprite.setRotation(weaponCircle.getRotation() - 75);
 	}
+}
+
+std::vector<sf::CircleShape*> ProjectileShooter::getProjectileCircles() {
+	/*std::vector<sf::CircleShape*>* retVect = new std::vector<sf::CircleShape*>;
+	for (int i = 0; i < projectiles.size(); i++) {
+		retVect->insert(retVect->begin(), &(projectiles[i]->projectileCircle));
+		//retVect->push_back(projectiles[i]->projectileCircle);
+	}*/
+	return projectileCircles;
+}
+
+void ProjectileShooter::setHitWall(int i) {
+	projectiles[i]->hitWall = true;
 }
 
 //--PROJECTILE--

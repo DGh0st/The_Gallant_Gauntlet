@@ -23,6 +23,7 @@ public:
 		bool trigger; //used for animation of projectile (switch between frames)
 		sf::Clock clockAnim; //used for animation of projectile
 		sf::CircleShape projectileCircle; // collision circle for projectile
+		bool hitWall = false;
 	};
 	//constructor that creates the projectileShooter
 	//@param projectileShooterTexture: texture for projectileShooter
@@ -48,6 +49,10 @@ public:
 	void drawProjectiles(sf::RenderWindow & window);
 	//sets weapon of projectileShooter based on "fromWeapon"
 	void setWeapon(sf::RenderWindow & window);
+	//
+	std::vector<sf::CircleShape*> getProjectileCircles();
+	//
+	void setHitWall(int i);
 protected:
 	bool isShooting = false; //true if shot and time within "timeAfterShot" seconds
 	float timeAfterShot; //amount of time you want slow to last
@@ -57,6 +62,7 @@ protected:
 	sf::Texture projectileTextureA; //texture for first animation frame of projectile
 	sf::Texture projectileTextureB; //texture for second animation frame of projectile
 	std::vector<Projectile*> projectiles; //stores all projectiles
+	std::vector<sf::CircleShape*> projectileCircles; //stores all projectiles
 	sf::Clock clockProjectile; //used for checking time since projectile was fired
 	sf::Clock clockReload; //used for projectile shooting
 	sf::Uint16 uniqueProjectilesCounter = 0; // number of projectiles shot so far by player

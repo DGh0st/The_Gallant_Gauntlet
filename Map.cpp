@@ -1,5 +1,6 @@
 #include "Map.h"
 #include "Character.h"
+#include "ProjectileShooter.h"
 
 Map::Map(sf::Texture & mapTexture, sf::Vector2f startPos) {
 	//set up map sprite
@@ -9,22 +10,22 @@ Map::Map(sf::Texture & mapTexture, sf::Vector2f startPos) {
 
 	//set up four main walls of map
 	//leftRect
-	leftRect = sf::RectangleShape(sf::Vector2f(25.0f, 1300.0f));
+	leftRect = sf::RectangleShape(sf::Vector2f(40.0f, 1300.0f));
 	leftRect.setOrigin(leftRect.getGlobalBounds().width / 2.0f, leftRect.getGlobalBounds().height / 2.0f);
 	leftRect.setFillColor(sf::Color::White);
 	leftRect.setPosition(sf::Vector2f(startPos.x - mapSprite.getGlobalBounds().width / 2.0f + 90.0f, startPos.y));
 	//rightRect
-	rightRect = sf::RectangleShape(sf::Vector2f(25.0f, 1300.0f));
+	rightRect = sf::RectangleShape(sf::Vector2f(40.0f, 1300.0f));
 	rightRect.setOrigin(rightRect.getGlobalBounds().width / 2.0f, rightRect.getGlobalBounds().height / 2.0f);
 	rightRect.setFillColor(sf::Color::White);
 	rightRect.setPosition(sf::Vector2f(startPos.x + mapSprite.getGlobalBounds().width / 2.0f - 90.0f, startPos.y));
 	//topRect
-	topRect = sf::RectangleShape(sf::Vector2f(1300.0f, 25.0f));
+	topRect = sf::RectangleShape(sf::Vector2f(1300.0f, 40.0f));
 	topRect.setOrigin(topRect.getGlobalBounds().width / 2.0f, topRect.getGlobalBounds().height / 2.0f);
 	topRect.setFillColor(sf::Color::White);
 	topRect.setPosition(sf::Vector2f(startPos.x, startPos.y - mapSprite.getGlobalBounds().height / 2.0f + 90.0f));
 	//bottomRect
-	bottomRect = sf::RectangleShape(sf::Vector2f(1300.0f, 25.0f));
+	bottomRect = sf::RectangleShape(sf::Vector2f(1300.0f, 40.0f));
 	bottomRect.setOrigin(bottomRect.getGlobalBounds().width / 2.0f, bottomRect.getGlobalBounds().height / 2.0f);
 	bottomRect.setFillColor(sf::Color::White);
 	bottomRect.setPosition(sf::Vector2f(startPos.x, startPos.y + mapSprite.getGlobalBounds().height / 2.0f - 90.0f));
@@ -67,22 +68,22 @@ void Map::setPosPillars(sf::Vector2f startPos) {
 			sf::RectangleShape & curRect = pillarRects[i * 4 + j];
 			//curRect.setFillColor(sf::Color::White); add for drawing
 			if (j == 0) { //left rect
-				curRect = sf::RectangleShape(sf::Vector2f(2.0f, 137.5f));
+				curRect = sf::RectangleShape(sf::Vector2f(15.0f, 137.5f));
 				curRect.setOrigin(curRect.getGlobalBounds().width / 2.0f, curRect.getGlobalBounds().height / 2.0f);
 				curRect.setPosition(sf::Vector2f(startPos.x - pillarStartL.x, startPos.y - pillarStartL.y));
 			}
 			else if (j == 1) { //right rect
-				curRect = sf::RectangleShape(sf::Vector2f(2.0f, 137.5f));
+				curRect = sf::RectangleShape(sf::Vector2f(15.0f, 137.5f));
 				curRect.setOrigin(curRect.getGlobalBounds().width / 2.0f, curRect.getGlobalBounds().height / 2.0f);
 				curRect.setPosition(sf::Vector2f(startPos.x - pillarStartR.x, startPos.y - pillarStartR.y));
 			}
 			else if (j == 2) { //top rect
-				curRect = sf::RectangleShape(sf::Vector2f(138.0f, 2.0f));
+				curRect = sf::RectangleShape(sf::Vector2f(138.0f, 15.0f));
 				curRect.setOrigin(curRect.getGlobalBounds().width / 2.0f, curRect.getGlobalBounds().height / 2.0f);
 				curRect.setPosition(sf::Vector2f(startPos.x - pillarStartT.x, startPos.y - pillarStartT.y));
 			}
 			else if (j == 3) { //bottom rect
-				curRect = sf::RectangleShape(sf::Vector2f(138.0f, 2.0f));
+				curRect = sf::RectangleShape(sf::Vector2f(138.0f, 15.0f));
 				curRect.setOrigin(curRect.getGlobalBounds().width / 2.0f, curRect.getGlobalBounds().height / 2.0f);
 				curRect.setPosition(sf::Vector2f(startPos.x - pillarStartB.x, startPos.y - pillarStartB.y));
 			}
@@ -92,6 +93,36 @@ void Map::setPosPillars(sf::Vector2f startPos) {
 
 void Map::draw(sf::RenderWindow & window) {
 	window.draw(mapSprite);
+}
+
+void Map::collisionMProj(ProjectileShooter ps) {
+
+	std::vector<sf::CircleShape*> projectiles = ps.getProjectileCircles();
+	for (int i = 0; i < projectiles.size(); i++) {
+		sf::CircleShape & curProjectile = *(projectiles[i]);
+		if (collisionMPHelper(curProjectile, leftRect)) {
+			ps.setHitWall(i);
+			continue;
+		}
+		else if (collisionMPHelper(curProjectile, rightRect)) {
+			ps.setHitWall(i);
+			continue;
+		}
+		else if (collisionMPHelper(curProjectile, topRect)) {
+			ps.setHitWall(i);
+			continue;
+		}
+		else if (collisionMPHelper(curProjectile, bottomRect)) {
+			ps.setHitWall(i);
+			continue;
+		}
+		for (int j = 0; j < 16; j++) {
+			if (collisionMPHelper(curProjectile, pillarRects[j])) {
+				ps.setHitWall(i);
+				break;
+			}
+		}
+	}
 }
 
 void Map::collisionMP(Character & player) {
