@@ -88,7 +88,6 @@ void ProjectileShooter::drawProjectiles(sf::RenderWindow & window) {
 			moveProjectile(projectiles[i]);
 		}
 		else { //otherwise off screen, so delete projectile
-				projectileCircles[i] = NULL;
 				projectileCircles.erase(projectileCircles.begin() + i);  //remove NULL from vector
 
 				delete projectiles[i];
@@ -149,11 +148,6 @@ void ProjectileShooter::setWeapon(sf::RenderWindow & window) {
 }
 
 std::vector<sf::CircleShape*> ProjectileShooter::getProjectileCircles() {
-	/*std::vector<sf::CircleShape*>* retVect = new std::vector<sf::CircleShape*>;
-	for (int i = 0; i < projectiles.size(); i++) {
-		retVect->insert(retVect->begin(), &(projectiles[i]->projectileCircle));
-		//retVect->push_back(projectiles[i]->projectileCircle);
-	}*/
 	return projectileCircles;
 }
 

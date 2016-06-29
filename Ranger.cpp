@@ -8,6 +8,15 @@ Ranger::Ranger(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBar
 	charSpeed = moveSpeed;
 }
 
+Ranger::~Ranger() {
+	int i = 0;
+	while (projectiles.size() > 0) {
+		delete projectiles[i];
+		projectiles[i] = NULL;
+		projectiles.erase(projectiles.begin() + i);  //remove NULL from vector
+	}
+}
+
 void Ranger::move(const sf::RenderWindow & window, const sf::Keyboard::Key releasedKey) {
 	if (isShooting) {
 		charSpeed = slowSpeed;

@@ -114,8 +114,6 @@ void onJoinGameClickFromClient() {
 		}
 		runningClient.serverConnectionStatus = 0;
 		clientThread = std::thread(&runClient);
-		titleMusic.stop();
-		ingameMusic.play();
 	}
 	didRestartTimeoutTimer = true;
 	timeoutTimer.restart();
@@ -495,6 +493,8 @@ int main() {
 				kills = 0;
 				deaths = 0;
 				currentScreenDisplayed = ingame;
+				titleMusic.stop();
+				ingameMusic.play();
 			}
 			else if (runningClient.serverConnectionStatus == 0 && didRestartTimeoutTimer) { // waiting to connect
 				if (timeoutTimer.getElapsedTime().asSeconds() < timeout) {

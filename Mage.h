@@ -20,6 +20,8 @@ public:
 	Mage(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & mageTexture, sf::Texture & staffTexture, 
 		sf::Texture & fireballTextureA, sf::Texture & fireballTextureB,	float moveSpeed = 1.5f, float fireballSpeed = 0.5f, float fireballReloadTime = 0.3f,
 		float timeAfterShot = 1.0f, float slowSpeed = 0.0f,	bool fromWeapon = true);
+	//destructor for ranger
+	~Mage();
 	//movement for mage
 	void move(const sf::RenderWindow & window, const sf::Keyboard::Key releasedKey);
 	// chain packets of type Knight
