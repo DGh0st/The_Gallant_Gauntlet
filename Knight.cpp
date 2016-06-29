@@ -22,6 +22,10 @@ Knight::Knight(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBar
 	swordCircles[2].setOrigin(-swordCircles[2].getGlobalBounds().width * 2.0f, swordCircles[2].getRadius());
 }
 
+Knight::~Knight() {
+	// nothing to clean up as of yet...
+}
+
 void Knight::draw(sf::RenderWindow & window) {
 	swordCircles[0].setPosition(swordSprite.getPosition());
 	swordCircles[1].setPosition(swordSprite.getPosition());

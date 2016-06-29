@@ -21,13 +21,15 @@ public:
 	Ranger(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & rangerTexture, 
 		sf::Texture & bowTexture, sf::Texture & arrowTextureA, sf::Texture & arrowTextureB, float moveSpeed = 1.5f,	float arrowSpeed = 1.0f, 
 		float arrowReloadTime = 0.3f, float timeAfterShot = 1.0f, float slowSpeed = 0.1f, bool fromWeapon = false);
+	//destructor for ranger
+	~Ranger();
 	//movement for ranger
 	void move(const sf::RenderWindow & window, const sf::Keyboard::Key releasedKey);
 	// chain packets of type Knight
 	sf::Packet chainDataToPacket(sf::Packet & packet, std::string value);
 	// extract packets of type Knight
 	sf::Packet extractPacketToData(sf::Packet & packet);
-
+	
 private:
 	float moveSpeed; //regular movement speed
 	float slowSpeed; //movement speed when shooting arrows

@@ -9,6 +9,15 @@ Mage::Mage(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBack
 	charSpeed = moveSpeed;
 }
 
+Mage::~Mage() {
+	int i = 0;
+	while (projectiles.size() > 0) {
+		delete projectiles[i];
+		projectiles[i] = NULL;
+		projectiles.erase(projectiles.begin() + i);  //remove NULL from vector
+	}
+}
+
 void Mage::move(const sf::RenderWindow & window, const sf::Keyboard::Key releasedKey) {
 	if (isShooting) {
 		charSpeed = slowSpeed;

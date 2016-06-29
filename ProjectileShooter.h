@@ -49,9 +49,9 @@ public:
 	void drawProjectiles(sf::RenderWindow & window);
 	//sets weapon of projectileShooter based on "fromWeapon"
 	void setWeapon(sf::RenderWindow & window);
-	//
+	//gets projectile collision circles for use in map collisions
 	std::vector<sf::CircleShape*> getProjectileCircles();
-	//
+	//make hitWall for projectiles[i] true so that the projectile is deleted
 	void setHitWall(int i);
 protected:
 	bool isShooting = false; //true if shot and time within "timeAfterShot" seconds
