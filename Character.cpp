@@ -36,6 +36,7 @@ void Character::operator=(const Character & other) {
 }
 
 void Character::draw(sf::RenderWindow & window) {
+	playerCircle.setPosition(playerSprite.getPosition());
 	healthBarBackgroundSprite.setPosition(getCenter() - sf::Vector2f(0.0f, healthBarBackgroundSprite.getGlobalBounds().height * 2.0f));
 	healthBarForegroundSprite.setScale(health / (float)maxHealth, 1.0f);
 	healthBarForegroundSprite.setPosition(healthBarBackgroundSprite.getGlobalBounds().left, healthBarBackgroundSprite.getGlobalBounds().top);
@@ -99,9 +100,6 @@ void Character::move(const sf::RenderWindow & window, const sf::Keyboard::Key re
 	if (sf::Keyboard::isKeyPressed(moveRightKey)) {
 		playerSprite.setPosition(playerSprite.getPosition() + sf::Vector2f(charSpeed, 0.0f)); // right
 	}
-
-	//keep player circle on top of player
-	playerCircle.setPosition(playerSprite.getPosition());
 }
 
 sf::Vector2f Character::getCenter() {
