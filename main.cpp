@@ -38,8 +38,9 @@ sf::Clock timeoutTimer; // timer for stopping connection look up once it reaches
 static std::string connectToIPandPort = "";
 
 // textures
-sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture, healthBarForegroundTexture, healthBarBackgroundTexture, backgroundTexture, mapTexture, titleTexture;
+sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture, healthBarForegroundTexture, healthBarBackgroundTexture, backgroundTexture, mapTexture, titleTexture, buttonTexture;
 sf::SoundBuffer takeDamageSoundBuffer, doDamageSoundBuffer;
+sf::Image icon;
 
 // holds class of player (current and next respawn). 0 = knight, 1 = ranger, 2 = mage
 classTypes respawnClass = knight; //default knight class to start
@@ -204,6 +205,8 @@ void onExitClickFromGame() {
 int main() {
 	sf::RenderWindow window(sf::VideoMode(1600, 900), "Game 2", sf::Style::Close | sf::Style::Titlebar);
 	windowSize = window.getSize();
+	icon.loadFromFile("textures/icon.png");
+	window.setIcon(32, 32, icon.getPixelsPtr());
 
 	sf::Font font;
 	font.loadFromFile("fonts/times.ttf");
@@ -220,7 +223,8 @@ int main() {
 	healthBarBackgroundTexture.loadFromFile("textures/healthBarBackground.png");
 	backgroundTexture.loadFromFile("textures/titleBackground.png");
 	mapTexture.loadFromFile("textures/map.png");
-	titleTexture.loadFromFile("textures/title2.png");
+	titleTexture.loadFromFile("textures/title.png");
+	buttonTexture.loadFromFile("textures/button.png");
 	takeDamageSoundBuffer.loadFromFile("");
 	doDamageSoundBuffer.loadFromFile("");
 	sf::RectangleShape backgroundRect((sf::Vector2f)windowSize);
@@ -252,16 +256,19 @@ int main() {
 	playText.setColor(sf::Color::Black);
 	playButton = Button(playText, sf::Vector2f(100.0f, 70.0f), onPlayClick);
 	playButton.setOrigin(playButton.getGlobalBounds().width / 2.0f, playButton.getGlobalBounds().height / 2.0f);
+	playButton.setTexture(&buttonTexture);
 	//create game button
 	sf::Text createText("Create Game", font, 32U);
 	createText.setColor(sf::Color::Black);
 	createButton = Button(createText, sf::Vector2f(200.0f, 70.0f), onCreateGameClick);
 	createButton.setOrigin(createButton.getGlobalBounds().width / 2.0f, createButton.getGlobalBounds().height / 2.0f);
+	createButton.setTexture(&buttonTexture);
 	// exit button
 	sf::Text exitText("Exit", font, 32U);
 	exitText.setColor(sf::Color::Black);
 	exitButton = Button(exitText, sf::Vector2f(100.0f, 70.0f), onExitClickFromTitle);
 	exitButton.setOrigin(exitButton.getGlobalBounds().width / 2.0f, exitButton.getGlobalBounds().height / 2.0f);
+	exitButton.setTexture(&buttonTexture);
 
 	// -- Join Server Screen --
 	// back button
@@ -269,6 +276,7 @@ int main() {
 	backText.setColor(sf::Color::Black);
 	backButton = Button(backText, sf::Vector2f(80.0f, 30.0f), onBackClickFromClient);
 	backButton.setOrigin(0.0f, 0.0f);
+	backButton.setTexture(&buttonTexture);
 	//server address text
 	sf::Text serverText("Server Address", font, 24U);
 	serverText.setOrigin(serverText.getGlobalBounds().width / 2.0f, serverText.getGlobalBounds().height / 2.0f);
@@ -280,6 +288,7 @@ int main() {
 	joinText.setColor(sf::Color::Black);
 	joinButton = Button(joinText, sf::Vector2f(200.0f, 75.0f), onJoinGameClickFromClient);
 	joinButton.setOrigin(joinButton.getGlobalBounds().width / 2.0f, joinButton.getGlobalBounds().height / 2.0f);
+	joinButton.setTexture(&buttonTexture);
 	// attempting to connect... string
 	sf::Text connecting("Attempting to connect...", font, 16U);
 	connecting.setOrigin(connecting.getGlobalBounds().width / 2.0f, connecting.getGlobalBounds().height / 2.0f);
@@ -295,11 +304,13 @@ int main() {
 	stopServerText.setColor(sf::Color::Black);
 	stopServerButton = Button(stopServerText, sf::Vector2f(120.0f, 32.0f), onBackClickFromServer);
 	stopServerButton.setOrigin(0.0f, 0.0f);
+	stopServerButton.setTexture(&buttonTexture);
 	//join game button
 	sf::Text joinLocalText("Join Game", font);
 	joinLocalText.setColor(sf::Color::Black);
 	joinLocalButton = Button(joinLocalText, sf::Vector2f(200.0f, 75.0f), onJoinGameClickFromServer);
-	joinLocalButton.setOrigin(joinLocalButton.getGlobalBounds().width / 2.0f, joinLocalButton.getGlobalBounds().height / 2.0f);
+	joinLocalButton.setOrigin(joinLocalButton.getGlobalBounds().width / 2.0f, joinLocalButton.getGlobalBounds().height / 3.2f);
+	joinLocalButton.setTexture(&buttonTexture);
 
 	// -- peace mode in game screen --
 	// Waiting for game to start text
@@ -330,29 +341,38 @@ int main() {
 	knightText.setColor(sf::Color::Black);
 	knightButton = Button(knightText, sf::Vector2f(150.0f, 75.0f), onKnightClick);
 	knightButton.setOrigin(knightButton.getGlobalBounds().width / 2.0f, knightButton.getGlobalBounds().height / 2.0f);
+	knightButton.setPosition(sf::Vector2f(windowSize.x / 2.0f - knightButton.getGlobalBounds().width * 2.0f, windowSize.y / 2.0f + knightButton.getGlobalBounds().height * 2.0f));
+	knightButton.setTexture(&buttonTexture);
 	//ranger button
 	sf::Text rangerText("Ranger", font, 32U);
 	rangerText.setColor(sf::Color::Black);
 	rangerButton = Button(rangerText, sf::Vector2f(150.0f, 75.0f), onRangerClick);
 	rangerButton.setOrigin(rangerButton.getGlobalBounds().width / 2.0f, rangerButton.getGlobalBounds().height / 2.0f);
-	knightButton.setPosition(sf::Vector2f(windowSize.x / 2.0f - knightButton.getGlobalBounds().width * 2.0f, windowSize.y / 2.0f + knightButton.getGlobalBounds().height * 2.0f));
+	rangerButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f + rangerButton.getGlobalBounds().height * 2.0f));
+	rangerButton.setTexture(&buttonTexture);
 	//mage button
 	sf::Text mageText("Mage", font, 32U);
 	mageText.setColor(sf::Color::Black);
 	mageButton = Button(mageText, sf::Vector2f(150.0f, 75.0f), onMageClick);
 	mageButton.setOrigin(mageButton.getGlobalBounds().width / 2.0f, mageButton.getGlobalBounds().height / 2.0f);
+	mageButton.setPosition(sf::Vector2f(windowSize.x / 2.0f + mageButton.getGlobalBounds().width * 2.0f, windowSize.y / 2.0f + mageButton.getGlobalBounds().height * 2.0f));
+	mageButton.setTexture(&buttonTexture);
 	//knight sprite
 	sf::Sprite knightSprite(knightTexture);
 	knightSprite.setOrigin(knightSprite.getGlobalBounds().width / 2.0f, knightSprite.getGlobalBounds().height / 2.0f);
 	knightSprite.setRotation(knightSprite.getRotation() + 90);
+	knightSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f - knightButton.getGlobalBounds().width * 2.0f, windowSize.y / 2.0f + knightSprite.getGlobalBounds().height / 4.0f));
 	//ranger sprite
 	sf::Sprite rangerSprite(rangerTexture);
 	rangerSprite.setOrigin(rangerSprite.getGlobalBounds().width / 2.0f, rangerSprite.getGlobalBounds().height / 2.0f);
 	rangerSprite.setRotation(rangerSprite.getRotation() + 91);
+	rangerSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f + rangerSprite.getGlobalBounds().height / 4.0f));
 	//mage sprite
 	sf::Sprite mageSprite(mageTexture);
 	mageSprite.setOrigin(mageSprite.getGlobalBounds().width / 2.0f, mageSprite.getGlobalBounds().height / 2.0f);
 	mageSprite.setRotation(mageSprite.getRotation() + 100);
+	mageSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f + mageButton.getGlobalBounds().width * 2.0f, windowSize.y / 2.0f + mageSprite.getGlobalBounds().height / 4.0f));
+
 
 	// -- exit overlay in game screen --
 	// backdrop
@@ -367,6 +387,7 @@ int main() {
 	leaveText.setColor(sf::Color::Black);
 	leaveButton = Button(leaveText, sf::Vector2f(200.0f, 70.0f), onExitClickFromGame);
 	leaveButton.setOrigin(leaveButton.getGlobalBounds().width / 2.0f, leaveButton.getGlobalBounds().height / 2.0f);
+	leaveButton.setTexture(&buttonTexture);
 
 	while (window.isOpen()) {
 		releasedKey = sf::Keyboard::Unknown; // reset released
@@ -431,7 +452,7 @@ int main() {
 			window.setView(normalView);
 			// set positions
 			titleSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 4.7f));
-			playButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f - playButton.getGlobalBounds().height));
+			playButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 1.7f - playButton.getGlobalBounds().height));
 			createButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, playButton.getPosition().y + playButton.getGlobalBounds().height * 1.5f));
 			exitButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, createButton.getPosition().y + createButton.getGlobalBounds().height * 1.5f));
 			// draw
@@ -483,7 +504,7 @@ int main() {
 			//ip and instructions on joining a server text
 			std::ostringstream ipString;
 			ipString << "Please use " << sf::IpAddress::getPublicAddress().toString() << ":" << runningServer.getPort() << " to connect to the server.";
-			sf::Text ipText(ipString.str(), font, 20);
+			sf::Text ipText(ipString.str(), font, 25);
 			ipText.setOrigin(ipText.getGlobalBounds().width / 2.0f, ipText.getGlobalBounds().height / 2.0f);
 			ipText.setColor(sf::Color::White);
 			ipText.setPosition(window.getSize().x / 2.0f, window.getSize().y / 2.0f - ipText.getGlobalBounds().height * 10.0f);
@@ -640,11 +661,6 @@ int main() {
 					//draw
 					window.draw(classChangeCooldownText);
 				}
-				rangerButton.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f + rangerButton.getGlobalBounds().height * 2.0f));
-				mageButton.setPosition(sf::Vector2f(windowSize.x / 2.0f + mageButton.getGlobalBounds().width * 2.0f, windowSize.y / 2.0f + mageButton.getGlobalBounds().height * 2.0f));
-				knightSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f - knightButton.getGlobalBounds().width * 2.0f, windowSize.y / 2.0f + knightSprite.getGlobalBounds().height / 4.0f));
-				rangerSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f + rangerSprite.getGlobalBounds().height / 4.0f));
-				mageSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f + mageButton.getGlobalBounds().width * 2.0f, windowSize.y / 2.0f + mageSprite.getGlobalBounds().height / 4.0f));
 				//draw
 				knightButton.draw(window);
 				rangerButton.draw(window);
