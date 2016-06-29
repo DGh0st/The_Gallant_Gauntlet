@@ -88,11 +88,16 @@ void ProjectileShooter::drawProjectiles(sf::RenderWindow & window) {
 			moveProjectile(projectiles[i]);
 		}
 		else { //otherwise off screen, so delete projectile
+			if (i < projectileCircles.size()) {
 				projectileCircles.erase(projectileCircles.begin() + i);  //remove NULL from vector
+			}
 
+			if (i < projectiles.size()) {
 				delete projectiles[i];
 				projectiles[i] = NULL;
 				projectiles.erase(projectiles.begin() + i);  //remove NULL from vector
+				i--;
+			}
 		}
 	}
 }

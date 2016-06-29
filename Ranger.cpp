@@ -9,11 +9,10 @@ Ranger::Ranger(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBar
 }
 
 Ranger::~Ranger() {
-	int i = 0;
 	while (projectiles.size() > 0) {
-		delete projectiles[i];
-		projectiles[i] = NULL;
-		projectiles.erase(projectiles.begin() + i);  //remove NULL from vector
+		delete projectiles[0];
+		projectiles[0] = NULL;
+		projectiles.erase(projectiles.begin());  //remove NULL from vector
 	}
 }
 

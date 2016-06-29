@@ -36,13 +36,11 @@ void Character::operator=(const Character & other) {
 }
 
 void Character::draw(sf::RenderWindow & window) {
-	if (!isPlayer) {
-		healthBarBackgroundSprite.setPosition(getCenter() - sf::Vector2f(0.0f, healthBarBackgroundSprite.getGlobalBounds().height * 2.0f));
-		healthBarForegroundSprite.setScale(health / (float)maxHealth, 1.0f);
-		healthBarForegroundSprite.setPosition(healthBarBackgroundSprite.getGlobalBounds().left, healthBarBackgroundSprite.getGlobalBounds().top);
-		window.draw(healthBarForegroundSprite);
-		window.draw(healthBarBackgroundSprite);
-	}
+	healthBarBackgroundSprite.setPosition(getCenter() - sf::Vector2f(0.0f, healthBarBackgroundSprite.getGlobalBounds().height * 2.0f));
+	healthBarForegroundSprite.setScale(health / (float)maxHealth, 1.0f);
+	healthBarForegroundSprite.setPosition(healthBarBackgroundSprite.getGlobalBounds().left, healthBarBackgroundSprite.getGlobalBounds().top);
+	window.draw(healthBarForegroundSprite);
+	window.draw(healthBarBackgroundSprite);
 	window.draw(playerSprite);
 }
 
@@ -162,4 +160,9 @@ sf::Sprite* Character::getPlayerSprite() {
 
 float Character::getCharSpeed() {
 	return charSpeed;
+}
+
+void Character::setPosition(sf::Vector2f position) {
+	playerCircle.setPosition(position);
+	playerSprite.setPosition(position);
 }

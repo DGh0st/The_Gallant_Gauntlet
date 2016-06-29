@@ -557,7 +557,7 @@ int main() {
 			gameTimeText.setOrigin(gameTimeText.getGlobalBounds().width / 2.0f, 0.0f);
 			gameTimeText.setPosition(sf::Vector2f(player->getCenter().x, player->getCenter().y - windowSize.y / 2.0f));
 			map->collisionMP(*player);
-			if (runningClient.isGameInProgress()) {
+			//if (runningClient.isGameInProgress()) {
 				// check collision
 				if (currentClass == knight) {
 					runningClient.checkCollisions(player, currentClass, clientSocket, takeDamageSound, doDamageKSound);
@@ -568,7 +568,7 @@ int main() {
 				else if (currentClass == mage) {
 					runningClient.checkCollisions(player, currentClass, clientSocket, takeDamageSound, doDamageMSound);
 				}
-			}
+			//}
 			if (window.hasFocus() && !isSelectionScreenDisplayed && !player->getIsDead() && !isEscapeScreenDisplayed) {
 				// player movement
 				if (currentClass == knight) {
@@ -579,13 +579,11 @@ int main() {
 					((Ranger*)player)->move(window, releasedKey);
 					((Ranger*)player)->shoot(window);
 					((Ranger*)player)->setWeapon(window);
-					map->collisionMProj(*(ProjectileShooter*)player);
 			    }
 				else if (currentClass == mage) {
 					((Mage*)player)->move(window, releasedKey);
 					((Mage*)player)->shoot(window);
 					((Mage*)player)->setWeapon(window);
-					map->collisionMProj(*(ProjectileShooter*)player);
 				}
 			}
 			// send that data to server
@@ -599,11 +597,13 @@ int main() {
 				((Knight*)player)->draw(window);
 			}
 			else if (currentClass == ranger) {
+				map->collisionMProj(*(ProjectileShooter*)player);
 				packet = ((Ranger*)player)->chainDataToPacket(packet, runningClient.getClientId());
 				((Ranger*)player)->drawProjectiles(window);
 				((Ranger*)player)->draw(window);
 			}
 			else if (currentClass == mage) {
+				map->collisionMProj(*(ProjectileShooter*)player);
 				packet = ((Mage*)player)->chainDataToPacket(packet, runningClient.getClientId());
 				((Mage*)player)->drawProjectiles(window);
 				((Mage*)player)->draw(window);
