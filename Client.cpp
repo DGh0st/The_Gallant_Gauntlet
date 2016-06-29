@@ -50,11 +50,13 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 		int rec = socket.receive(packet, senderIp, senderPort);
 		if (rec == sf::Socket::Done) {
 			// manage packet data
-			sf::Packet copyPacket(packet);
-			char *data = (char *)copyPacket.getData();
-			copyPacket >> data;
-			if (strcmp(data, "success") == 0) {
-				copyPacket >> clientIDfromServer >> timeLeftInGame >> gameNotInProgress;
+			/*sf::Packet copyPacket(packet);
+			char *data = (char *)packet.getData();
+			copyPacket >> data;*/
+			std::string data;
+			packet >> data;
+			if (strcmp(data.c_str(), "success") == 0) {
+				packet >> clientIDfromServer >> timeLeftInGame >> gameNotInProgress;
 				serverConnectionStatus = 2;
 				printf("[Client] joined server as %s\n", clientIDfromServer.c_str());
 				continue; // connected to server successfully
@@ -63,18 +65,18 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 				serverConnectionStatus = 1;
 				continue;
 			}
-			else if (strcmp(data, "kill") == 0) {
+			else if (strcmp(data.c_str(), "kill") == 0) {
 				std::string killerId;
-				copyPacket >> killerId >> timeLeftInGame >> gameNotInProgress;
+				packet >> killerId >> timeLeftInGame >> gameNotInProgress;
 				if (killerId == clientIDfromServer) {
 					kills++;
 				}
 				continue;
 			}
-			else if (strcmp(data, "left game") == 0) {
+			else if (strcmp(data.c_str(), "left game") == 0) {
 				// remove the player (that left) from the list of players
 				std::string leftPlayerId;
-				copyPacket >> leftPlayerId;
+				packet >> leftPlayerId;
 				printf("[Client] %s left game\n", leftPlayerId.c_str());
 				for (int i = 0; i < otherPlayers.size(); i++) {
 					if (leftPlayerId == otherPlayers[i].userID) {
@@ -85,17 +87,15 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 				}
 				continue;
 			}
-			else if (strcmp(data, "closed") == 0) {
+			else if (strcmp(data.c_str(), "closed") == 0) {
 				printf("[Client] server closed so returning to main menu in 3 seconds...\n");
 				sf::sleep(sf::seconds(3));
 				wasServerClosed = true;
 				break;
 			}
-			std::string senderId;
-			packet >> senderId;
 			std::string fighterName;
 			packet >> fighterName;
-			if (senderId == clientIDfromServer) {
+			if (data == clientIDfromServer) {
 				if (fighterName == "Knight") {
 					Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture).extractPacketToData(packet);
 				}
@@ -110,7 +110,7 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 			}
 			int i;
 			for (i = 0; i < otherPlayers.size(); i++) {
-				if (senderId == otherPlayers[i].userID) {
+				if (data == otherPlayers[i].userID) {
 					if (fighterName == otherPlayers[i].fighterClass) {
 						if (fighterName == "Knight" && otherPlayers[i].userCharacter != NULL) {
 							((Knight *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
@@ -125,7 +125,7 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 					else if (fighterName != otherPlayers[i].fighterClass) {
 						otherPlayers[i].isViable = false;
 						PlayerData userData;
-						userData.userID = senderId;
+						userData.userID = data;
 						userData.fighterClass = fighterName;
 						if (fighterName == "Knight") {
 							userData.userCharacter = (Character *)new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f);
@@ -144,9 +144,9 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 					break;
 				}
 			}
-			if (i == otherPlayers.size() && senderId != "") {
+			if (i == otherPlayers.size() && data != "") {
 				PlayerData userData;
-				userData.userID = senderId;
+				userData.userID = data;
 				userData.fighterClass = fighterName;
 				if (fighterName == "Knight") {
 					userData.userCharacter = (Character *)new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f);
