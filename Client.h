@@ -35,7 +35,7 @@ public:
 	// draw other players
 	void draw(sf::RenderWindow & window, sf::Vector2f playerPosition);
 	// check collisions and send data over server if needed
-	void checkCollisions(Character *player, classTypes currentClass, sf::UdpSocket & socket, sf::SoundBuffer & takeDamageSoundBuffer, sf::SoundBuffer & doDamageSoundBuffer);
+	void checkCollisions(Character *player, classTypes currentClass, sf::UdpSocket & socket, sf::Sound & takeDamageSound, sf::Sound & doDamageSound);
 	// get client id
 	std::string getClientId();
 	// get is game in progress or not

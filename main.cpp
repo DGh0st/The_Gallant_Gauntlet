@@ -37,10 +37,11 @@ sf::Clock timeoutTimer; // timer for stopping connection look up once it reaches
 // get IP address and port from the user in joinScreen
 static std::string connectToIPandPort = "";
 
-// textures
+// textures, sound, and music
 sf::Texture rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture, healthBarForegroundTexture, healthBarBackgroundTexture, backgroundTexture, mapTexture, titleTexture, buttonTexture;
-sf::SoundBuffer takeDamageSoundBuffer, doDamageSoundBuffer;
 sf::Image icon;
+sf::SoundBuffer takeDamageSoundBuffer, doDamageKSoundBuffer, doDamageRSoundBuffer, doDamageMSoundBuffer;
+sf::Music titleMusic,ingameMusic;
 
 // holds class of player (current and next respawn). 0 = knight, 1 = ranger, 2 = mage
 classTypes respawnClass = knight; //default knight class to start
@@ -113,6 +114,8 @@ void onJoinGameClickFromClient() {
 		}
 		runningClient.serverConnectionStatus = 0;
 		clientThread = std::thread(&runClient);
+		titleMusic.stop();
+		ingameMusic.play();
 	}
 	didRestartTimeoutTimer = true;
 	timeoutTimer.restart();
@@ -123,6 +126,8 @@ void onJoinGameClickFromServer() {
 	kills = 0;
 	deaths = 0;
 	currentScreenDisplayed = ingame;
+	titleMusic.stop();
+	ingameMusic.play();
 }
 
 void onBackClickFromClient() {
@@ -200,6 +205,7 @@ void onExitClickFromGame() {
 		serverThread.join();
 	}
 	currentScreenDisplayed = title;
+	titleMusic.play();
 }
 
 int main() {
@@ -225,8 +231,18 @@ int main() {
 	mapTexture.loadFromFile("textures/map.png");
 	titleTexture.loadFromFile("textures/title.png");
 	buttonTexture.loadFromFile("textures/button.png");
-	takeDamageSoundBuffer.loadFromFile("");
-	doDamageSoundBuffer.loadFromFile("");
+	takeDamageSoundBuffer.loadFromFile("sounds/takeDamage.wav");
+	doDamageKSoundBuffer.loadFromFile("sounds/swordHit.wav");
+	doDamageRSoundBuffer.loadFromFile("sounds/arrowHit.wav");
+	doDamageMSoundBuffer.loadFromFile("sounds/fireballHit.wav");
+	titleMusic.openFromFile("sounds/titleMusic.ogg");
+	ingameMusic.openFromFile("sounds/ingameMusic.ogg");
+	titleMusic.play();
+	sf::Sound takeDamageSound(takeDamageSoundBuffer);
+	sf::Sound doDamageKSound(doDamageKSoundBuffer);
+	sf::Sound doDamageRSound(doDamageRSoundBuffer);
+	sf::Sound doDamageMSound(doDamageMSoundBuffer);
+
 	sf::RectangleShape backgroundRect((sf::Vector2f)windowSize);
 	backgroundRect.setTexture(&backgroundTexture);
 
@@ -294,7 +310,7 @@ int main() {
 	connecting.setOrigin(connecting.getGlobalBounds().width / 2.0f, connecting.getGlobalBounds().height / 2.0f);
 	connecting.setColor(sf::Color::White);
 	// failed to connect... string
-	sf::Text failedConnection("Failed to connect to the server...", font, 16U);
+	sf::Text failedConnection("Failed to connect to the server", font, 16U);
 	failedConnection.setOrigin(failedConnection.getGlobalBounds().width / 2.0f, connecting.getGlobalBounds().height / 2.0f);
 	failedConnection.setColor(sf::Color::White);
 
@@ -543,7 +559,15 @@ int main() {
 			map->collisionMP(*player);
 			if (runningClient.isGameInProgress()) {
 				// check collision
-				runningClient.checkCollisions(player, currentClass, clientSocket, takeDamageSoundBuffer, doDamageSoundBuffer);
+				if (currentClass == knight) {
+					runningClient.checkCollisions(player, currentClass, clientSocket, takeDamageSound, doDamageKSound);
+				}
+				else if (currentClass == ranger) {
+					runningClient.checkCollisions(player, currentClass, clientSocket, takeDamageSound, doDamageRSound);
+				}
+				else if (currentClass == mage) {
+					runningClient.checkCollisions(player, currentClass, clientSocket, takeDamageSound, doDamageMSound);
+				}
 			}
 			if (window.hasFocus() && !isSelectionScreenDisplayed && !player->getIsDead() && !isEscapeScreenDisplayed) {
 				// player movement

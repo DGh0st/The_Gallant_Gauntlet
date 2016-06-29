@@ -179,7 +179,7 @@ void Client::stopReceivingPackets() {
 	running = false;
 }
 
-void Client::checkCollisions(Character * player, classTypes currentClass, sf::UdpSocket & socket, sf::SoundBuffer & takeDamageSoundBuffer, sf::SoundBuffer & doDamageSoundBuffer) {
+void Client::checkCollisions(Character * player, classTypes currentClass, sf::UdpSocket & socket, sf::Sound & takeDamageSound, sf::Sound & doDamageSound) {
 	for (int i = 0; i < otherPlayers.size(); i++) {
 		if (otherPlayers[i].fighterClass == "Knight") {
 			if (otherPlayers[i].userCharacter != NULL && player != NULL) {
@@ -190,23 +190,23 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 						killPacket << "kill" << otherPlayers[i].userID;
 						sendPacket(socket, killPacket);
 					}
-					sf::Sound takeDamageSound(takeDamageSoundBuffer);
+					//sf::Sound takeDamageSound(takeDamageSoundBuffer);
 					takeDamageSound.play();
 					damageTakenVisualEffectTimer.restart();
 				}
 				else if (currentClass == knight && (((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
 					otherPlayers[i].userCharacter->takeDamage(((Knight *)player)->getDamage());
-					sf::Sound doDamageSound(doDamageSoundBuffer);
+					//sf::Sound doDamageSound(doDamageSoundBuffer);
 					doDamageSound.play();
 				}
 				else if (currentClass == mage && (((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
 					otherPlayers[i].userCharacter->takeDamage(((Mage *)player)->getDamage());
-					sf::Sound doDamageSound(doDamageSoundBuffer);
+					//sf::Sound doDamageSound(doDamageSoundBuffer);
 					doDamageSound.play();
 				}
 				else if (currentClass == ranger && (((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
 					otherPlayers[i].userCharacter->takeDamage(((Ranger *)player)->getDamage());
-					sf::Sound doDamageSound(doDamageSoundBuffer);
+					//sf::Sound doDamageSound(doDamageSoundBuffer);
 					doDamageSound.play();
 				}
 			}
@@ -219,23 +219,23 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 					killPacket << "kill" << otherPlayers[i].userID;
 					sendPacket(socket, killPacket);
 				}
-				sf::Sound takeDamageSound(takeDamageSoundBuffer);
+				//sf::Sound takeDamageSound(takeDamageSoundBuffer);
 				takeDamageSound.play();
 				damageTakenVisualEffectTimer.restart();
 			}
 			else if (currentClass == knight && (((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
 				otherPlayers[i].userCharacter->takeDamage(((Knight *)player)->getDamage());
-				sf::Sound doDamageSound(doDamageSoundBuffer);
+				//sf::Sound doDamageSound(doDamageSoundBuffer);
 				doDamageSound.play();
 			}
 			else if (currentClass == mage && (((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
 				otherPlayers[i].userCharacter->takeDamage(((Mage *)player)->getDamage());
-				sf::Sound doDamageSound(doDamageSoundBuffer);
+				//sf::Sound doDamageSound(doDamageSoundBuffer);
 				doDamageSound.play();
 			}
 			else if (currentClass == ranger && (((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
 				otherPlayers[i].userCharacter->takeDamage(((Ranger *)player)->getDamage());
-				sf::Sound doDamageSound(doDamageSoundBuffer);
+				//sf::Sound doDamageSound(doDamageSoundBuffer);
 				doDamageSound.play();
 			}
 		}
@@ -247,23 +247,23 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 					killPacket << "kill" << otherPlayers[i].userID;
 					sendPacket(socket, killPacket);
 				}
-				sf::Sound takeDamageSound(takeDamageSoundBuffer);
+				//sf::Sound takeDamageSound(takeDamageSoundBuffer);
 				takeDamageSound.play();
 				damageTakenVisualEffectTimer.restart();
 			}
 			else if (currentClass == knight && (((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
 				otherPlayers[i].userCharacter->takeDamage(((Knight *)player)->getDamage());
-				sf::Sound doDamageSound(doDamageSoundBuffer);
+				//sf::Sound doDamageSound(doDamageSoundBuffer);
 				doDamageSound.play();
 			}
 			else if (currentClass == mage && (((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
 				otherPlayers[i].userCharacter->takeDamage(((Mage *)player)->getDamage());
-				sf::Sound doDamageSound(doDamageSoundBuffer);
+				//sf::Sound doDamageSound(doDamageSoundBuffer);
 				doDamageSound.play();
 			}
 			else if (currentClass == ranger && (((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
 				otherPlayers[i].userCharacter->takeDamage(((Ranger *)player)->getDamage());
-				sf::Sound doDamageSound(doDamageSoundBuffer);
+				//sf::Sound doDamageSound(doDamageSoundBuffer);
 				doDamageSound.play();
 			}
 		}
