@@ -98,10 +98,10 @@ void ProjectileShooter::drawProjectiles(sf::RenderWindow & window) {
 }
 
 bool ProjectileShooter::projectileOnScreen(Projectile * projectile) {
-	return ((projectile->projectileSprite.getPosition().y + projectile->projectileSprite.getLocalBounds().height) >= playerSprite.getPosition().y - windowSize.y / 2.0f) //up
-		&& ((projectile->projectileSprite.getPosition().y - projectile->projectileSprite.getLocalBounds().height) <= playerSprite.getPosition().y + windowSize.y / 2.0f) //down
-		&& ((projectile->projectileSprite.getPosition().x + projectile->projectileSprite.getLocalBounds().width) >= playerSprite.getPosition().x - windowSize.x / 2.0f) //left
-		&& ((projectile->projectileSprite.getPosition().x - projectile->projectileSprite.getLocalBounds().width) <= playerSprite.getPosition().x + windowSize.x / 2.0f); //right
+	return ((projectile->projectileSprite.getPosition().y + projectile->projectileSprite.getLocalBounds().height) >= projectile->startPos.y - windowSize.y / 2.0f) //up
+		&& ((projectile->projectileSprite.getPosition().y - projectile->projectileSprite.getLocalBounds().height) <= projectile->startPos.y + windowSize.y / 2.0f) //down
+		&& ((projectile->projectileSprite.getPosition().x + projectile->projectileSprite.getLocalBounds().width) >= projectile->startPos.x - windowSize.x / 2.0f) //left
+		&& ((projectile->projectileSprite.getPosition().x - projectile->projectileSprite.getLocalBounds().width) <= projectile->startPos.x + windowSize.x / 2.0f); //right
 }
 
 void ProjectileShooter::moveProjectile(Projectile * projectile) {
