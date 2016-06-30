@@ -76,11 +76,12 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 				std::string killerId;
 				std::string killedId;
 				packet >> killerId >> killedId >> timeLeftInGame >> gameNotInProgress;
-				if (killerId == clientIDfromServer) {
-					kills++;
+				if (killerId != clientIDfromServer) {
+					continue;
 				}
 				for (int i = 0; i < otherPlayers.size(); i++) {
-					if (killedId == otherPlayers[i].userID) {
+					if (killedId == otherPlayers[i].userID && otherPlayers[i].isViable) {
+						kills++;
 						otherPlayers[i].isViable = false;
 						break;
 					}
@@ -210,7 +211,9 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 						sf::Packet killPacket;
 						killPacket.clear();
 						killPacket << "kill" << otherPlayers[i].userID;
-						sendPacket(socket, killPacket);
+						for (int i = 0; i < 5; i++) {
+							sendPacket(socket, killPacket);
+						}
 					}
 					takeDamageSound.play();
 					damageTakenVisualEffectTimer.restart();
@@ -222,7 +225,9 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 						sf::Packet killPacket;
 						killPacket.clear();
 						killPacket << "kill" << otherPlayers[i].userID << clientIDfromServer;
-						sendPacket(socket, killPacket);
+						for (int i = 0; i < 5; i++) {
+							sendPacket(socket, killPacket);
+						}
 					}
 					takeDamageSound.play();
 					damageTakenVisualEffectTimer.restart();
@@ -234,7 +239,9 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 						sf::Packet killPacket;
 						killPacket.clear();
 						killPacket << "kill" << otherPlayers[i].userID;
-						sendPacket(socket, killPacket);
+						for (int i = 0; i < 5; i++) {
+							sendPacket(socket, killPacket);
+						}
 					}
 					takeDamageSound.play();
 					damageTakenVisualEffectTimer.restart();
