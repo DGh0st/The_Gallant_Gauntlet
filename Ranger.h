@@ -20,7 +20,7 @@ public:
 	//@param fromWeapon: whether fireball shoots from weapon (or from player)
 	Ranger(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & rangerTexture, 
 		sf::Texture & bowTexture, sf::Texture & arrowTextureA, sf::Texture & arrowTextureB, float moveSpeed = 1.5f,	float arrowSpeed = 1.0f, 
-		float arrowReloadTime = 0.3f, float timeAfterShot = 1.0f, float slowSpeed = 0.1f, bool fromWeapon = false);
+		float arrowReloadTime = 0.3f, float timeAfterShot = 1.0f, float slowSpeed = 0.5f, bool fromWeapon = false);
 	//destructor for ranger
 	~Ranger();
 	//movement for ranger

@@ -60,13 +60,9 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 		int rec = socket.receive(packet, senderIp, senderPort);
 		if (rec == sf::Socket::Done) {
 			// manage packet data
-			/*sf::Packet copyPacket(packet);
-			char *data = (char *)copyPacket.getData();
-			copyPacket >> data;*/
 			std::string data;
 			packet >> data;
 			if (strcmp(data.c_str(), "success") == 0) {
-				//copyPacket >> clientIDfromServer >> timeLeftInGame >> gameNotInProgress;
 				packet >> clientIDfromServer >> timeLeftInGame >> gameNotInProgress;
 				serverConnectionStatus = 2;
 				printf("[Client] joined server as %s\n", clientIDfromServer.c_str());
@@ -78,7 +74,6 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 			}
 			else if (strcmp(data.c_str(), "kill") == 0) {
 				std::string killerId;
-				//copyPacket >> killerId >> timeLeftInGame >> gameNotInProgress;
 				packet >> killerId >> timeLeftInGame >> gameNotInProgress;
 				if (killerId == clientIDfromServer) {
 					kills++;
@@ -88,13 +83,11 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 			else if (strcmp(data.c_str(), "left game") == 0) {
 				// remove the player (that left) from the list of players
 				std::string leftPlayerId;
-				//copyPacket >> leftPlayerId;
 				packet >> leftPlayerId;
 				printf("[Client] %s left game\n", leftPlayerId.c_str());
 				for (int i = 0; i < otherPlayers.size(); i++) {
 					if (leftPlayerId == otherPlayers[i].userID) {
-						delete otherPlayers[i].userCharacter;
-						otherPlayers.erase(otherPlayers.begin() + i);
+						otherPlayers[i].isViable = false;
 						break;
 					}
 				}
@@ -106,8 +99,6 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 				wasServerClosed = true;
 				break;
 			}
-			//std::string senderId;
-			//packet >> senderId;
 			std::string fighterName;
 			packet >> fighterName;
 			if (data == clientIDfromServer) {
@@ -143,10 +134,10 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 						userData.userID = data;
 						userData.fighterClass = fighterName;
 						if (fighterName == "Knight") {
-							userData.userCharacter = (Character *)new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.5f);
+							userData.userCharacter = (Character *)new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.8f, 100, 90);
 						}
 						else if (fighterName == "Mage") {
-							userData.userCharacter = (Character *)new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 3.0f, 0.7f, 0.3f);
+							userData.userCharacter = (Character *)new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 0.7f, 3.0f, 0.7f, 0.3f);
 						}
 						else if (fighterName == "Ranger") {
 							userData.userCharacter = (Character *)new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.7f, 3.0f, 0.7f, 0.3f);
@@ -165,10 +156,10 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 				userData.userID = data;
 				userData.fighterClass = fighterName;
 				if (fighterName == "Knight") {
-					userData.userCharacter = (Character *)new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.5f);
+					userData.userCharacter = (Character *)new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.8f, 100, 90);
 				}
 				else if (fighterName == "Mage") {
-					userData.userCharacter = (Character *)new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 3.0f, 0.7f, 0.3f);
+					userData.userCharacter = (Character *)new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 0.7f, 3.0f, 0.7f, 0.3f);
 				}
 				else if (fighterName == "Ranger") {
 					userData.userCharacter = (Character *)new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.7f, 3.0f, 0.7f, 0.3f);

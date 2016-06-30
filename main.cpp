@@ -645,28 +645,52 @@ int main() {
 				}
 				// respawn when respawnTime spent as dead or in peace time
 				if (player->getTimeAsDead() > respawnTime || !runningClient.isGameInProgress()) {
-					if (currentClass == knight) {
-						delete (Knight *)player;
-						player = NULL;
-					}
-					else if (currentClass == ranger) {
-						delete (Ranger *)player;
-						player = NULL;
-					}
-					else if (currentClass == mage) {
-						delete (Mage *)player;
-						player = NULL;
-					}
 					if (respawnClass == knight) {
-						player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.5f));
+						if (currentClass == knight) {
+							delete (Knight *)player;
+							player = NULL;
+						}
+						else if (currentClass == ranger) {
+							delete (Ranger *)player;
+							player = NULL;
+						}
+						else if (currentClass == mage) {
+							delete (Mage *)player;
+							player = NULL;
+						}
+						player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.9f, 100, 90));
 						currentClass = knight;
 					}
 					else if (respawnClass == ranger) {
+						if (currentClass == knight) {
+							delete (Knight *)player;
+							player = NULL;
+						}
+						else if (currentClass == ranger) {
+							delete (Ranger *)player;
+							player = NULL;
+						}
+						else if (currentClass == mage) {
+							delete (Mage *)player;
+							player = NULL;
+						}
 						player = (Character*)(new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.7f, 3.0f, 0.7f, 0.3f));
 						currentClass = ranger;
 					}
 					else if (respawnClass == mage) {
-						player = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 3.0f, 0.7f, 0.3f));
+						if (currentClass == knight) {
+							delete (Knight *)player;
+							player = NULL;
+						}
+						else if (currentClass == ranger) {
+							delete (Ranger *)player;
+							player = NULL;
+						}
+						else if (currentClass == mage) {
+							delete (Mage *)player;
+							player = NULL;
+						}
+						player = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 0.7f, 3.0f, 0.7f, 0.3f));
 						currentClass = mage;
 					}
 					player->setIsPlayer(true);
