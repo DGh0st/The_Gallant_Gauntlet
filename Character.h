@@ -43,6 +43,7 @@ public:
 	float getCharSpeed();
 	// set position
 	void setPosition(sf::Vector2f position);
+	bool justAdded = false; // character just added to list (internet character)
 protected:
 	sf::Sprite playerSprite; //sprite of character
 	float charSpeed; // normal character movement speed

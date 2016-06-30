@@ -1,7 +1,7 @@
 #include "Defines.h"
 #include "Knight.h"
 
-Knight::Knight(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & knightTexture, sf::Texture & swordTexture,float moveSpeed, int maxHealth, int damage) : Character(healthBarForegroundTexture, healthBarBackgroundTexture,maxHealth, damage) {
+Knight::Knight(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & knightTexture, sf::Texture & swordTexture, float moveSpeed, int maxHealth, int damage) : Character(healthBarForegroundTexture, healthBarBackgroundTexture,maxHealth, damage) {
 	playerSprite = sf::Sprite(knightTexture);
 	playerSprite.setOrigin(playerSprite.getGlobalBounds().width / 2, playerSprite.getGlobalBounds().height / 2);
 	playerSprite.setPosition(sf::Vector2f((float)(rand() % (550 + 550 + 1) - 550), (float)(rand() % (550 + 550 + 1) - 550)));
@@ -129,7 +129,11 @@ sf::Packet Knight::extractPacketToData(sf::Packet & packet) {
 	packet >> maxHealth >> health >> damage >> pos.x >> pos.y >> rotation >> isSwinging >> swingCount;
 	playerSprite.setPosition(pos);
 	playerSprite.setRotation(rotation);
-	if (swingCount > uniqueSwingCounter) {
+	if (justAdded) {
+		uniqueSwingCounter = swingCount;
+		justAdded = false;
+	}
+	else if (swingCount > uniqueSwingCounter) {
 		clockSwingTime.restart();
 		uniqueSwingCounter++;
 	}

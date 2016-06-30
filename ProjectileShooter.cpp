@@ -40,7 +40,6 @@ void ProjectileShooter::shoot(sf::RenderWindow & window) {
 			projectile = new Projectile(window, projectileTextureA, weaponSprite);
 		}
 		projectiles.push_back(projectile); //store projectile
-		//projectileCircles.push_back(&projectile->projectileCircle);
 		clockReload.restart();
 		clockProjectile.restart();
 	}

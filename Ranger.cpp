@@ -5,7 +5,7 @@ Ranger::Ranger(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBar
 	sf::Texture & arrowTextureA, sf::Texture & arrowTextureB, float moveSpeed, float arrowSpeed, float arrowReloadTime, float timeAfterShot, 
 	float slowSpeed, bool fromWeapon) : ProjectileShooter(healthBarForegroundTexture, healthBarBackgroundTexture,rangerTexture, bowTexture, arrowTextureA, arrowTextureB, arrowSpeed, arrowReloadTime, timeAfterShot, fromWeapon), 
 	moveSpeed(moveSpeed), slowSpeed(slowSpeed) {
-	charSpeed = moveSpeed;
+	charSpeed = moveSpeed * 1.2f;
 }
 
 Ranger::~Ranger() {
@@ -27,7 +27,7 @@ void Ranger::move(const sf::RenderWindow & window, const sf::Keyboard::Key relea
 }
 
 sf::Packet Ranger::chainDataToPacket(sf::Packet & packet, std::string value) {
-	sf::Vector2i mousePos = sf::Vector2i(-1, -1);
+	sf::Vector2i mousePos = sf::Vector2i(-10000, -10000);
 	if (projectiles.size() > 0) {
 		mousePos = projectiles[0]->mousePos;
 	}
@@ -44,7 +44,11 @@ sf::Packet Ranger::extractPacketToData(sf::Packet & packet) {
 	playerSprite.setPosition(pos);
 	playerSprite.setRotation(rotation);
 	weaponSprite.setRotation(angle);
-	if (mousePos != sf::Vector2i(-1, -1) && projectilesCounter > uniqueProjectilesCounter) {
+	if (justAdded) {
+		uniqueProjectilesCounter = projectilesCounter;
+		justAdded = false;
+	}
+	else if (mousePos != sf::Vector2i(-10000, -10000) && projectilesCounter > uniqueProjectilesCounter) {
 		uniqueProjectilesCounter++;
 		Projectile * projectile;
 		if (!fromWeapon) { //shoot projectile from playerSprite

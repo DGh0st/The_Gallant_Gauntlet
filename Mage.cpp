@@ -45,7 +45,11 @@ sf::Packet Mage::extractPacketToData(sf::Packet & packet) {
 	playerSprite.setPosition(pos);
 	playerSprite.setRotation(rotation);
 	weaponSprite.setRotation(angle);
-	if (mousePos != sf::Vector2i(-1, -1) && projectilesCounter > uniqueProjectilesCounter) {
+	if (justAdded) {
+		uniqueProjectilesCounter = projectilesCounter;
+		justAdded = false;
+	}
+	else if (mousePos != sf::Vector2i(-1, -1) && projectilesCounter > uniqueProjectilesCounter) {
 		uniqueProjectilesCounter++;
 		Projectile * projectile;
 		if (!fromWeapon) { //shoot projectile from playerSprite

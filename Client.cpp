@@ -26,7 +26,10 @@ Client::~Client() {
 void Client::operator=(const Client & other) {
 	port = other.port;
 	server = other.server;
-	other.~Client();
+	otherPlayers = std::vector<PlayerData>(0);
+	if (other.running) {
+		other.~Client();
+	}
 }
 
 void Client::sendPacket(sf::UdpSocket & socket, sf::Packet & packet) {
@@ -101,19 +104,13 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 			packet >> fighterName;
 			if (senderId == clientIDfromServer) {
 				if (fighterName == "Knight") {
-					Knight knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture);
-					knight.extractPacketToData(packet);
-					knight.setPosition(sf::Vector2f(-1000, -1000));
+					Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture).extractPacketToData(packet);
 				}
 				else if (fighterName == "Mage") {
-					Mage mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB);
-					mage.extractPacketToData(packet);
-					mage.setPosition(sf::Vector2f(-1000, -1000));
+					Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB).extractPacketToData(packet);
 				}
 				else if (fighterName == "Ranger") {
-					Ranger ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture);
-					ranger.extractPacketToData(packet);
-					ranger.setPosition(sf::Vector2f(-1000, -1000));
+					Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture).extractPacketToData(packet);
 				}
 				packet >> timeLeftInGame >> gameNotInProgress;
 				continue;
@@ -138,14 +135,15 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 						userData.userID = senderId;
 						userData.fighterClass = fighterName;
 						if (fighterName == "Knight") {
-							userData.userCharacter = (Character *)new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f);
+							userData.userCharacter = (Character *)new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.5f);
 						}
 						else if (fighterName == "Mage") {
-							userData.userCharacter = (Character *)new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
+							userData.userCharacter = (Character *)new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 3.0f, 0.3f, 1.0f);
 						}
 						else if (fighterName == "Ranger") {
-							userData.userCharacter = (Character *)new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
+							userData.userCharacter = (Character *)new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.7f, 3.0f, 0.3f, 1.0f);
 						}
+						userData.userCharacter->justAdded = true;
 						userData.userCharacter->extractPacketToData(packet);
 						packet >> timeLeftInGame >> gameNotInProgress;
 						otherPlayers.push_back(userData);

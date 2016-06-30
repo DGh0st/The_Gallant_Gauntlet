@@ -15,7 +15,10 @@ Server::~Server() {
 void Server::operator=(const Server & other) {
 	port = other.port;
 	connections = std::vector<userInfo>(0);
-	other.~Server();
+	running = true;
+	if (other.running) {
+		other.~Server();
+	}
 }
 
 void Server::runServer() {

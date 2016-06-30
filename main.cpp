@@ -138,8 +138,8 @@ void onBackClickFromServer() {
 	leavingPacket.clear();
 	leavingPacket << "left game";
 	runningClient.sendPacket(clientSocket, leavingPacket);
-	runningServer.stopServer();
 	if (isServerInitializedAndRunning) {
+		runningServer.stopServer();
 		serverThread.join();
 		isServerInitializedAndRunning = false;
 	}
@@ -179,8 +179,8 @@ void onExitClickFromTitle() {
 	leavingPacket.clear();
 	leavingPacket << "left game";
 	runningClient.sendPacket(clientSocket, leavingPacket);
-	runningServer.stopServer();
 	if (isServerInitializedAndRunning) {
+		runningServer.stopServer();
 		serverThread.join();
 		isServerInitializedAndRunning = false;
 	}
@@ -197,8 +197,8 @@ void onExitClickFromGame() {
 	leavingPacket.clear();
 	leavingPacket << "left game";
 	runningClient.sendPacket(clientSocket, leavingPacket);
-	runningServer.stopServer();
 	if (isServerInitializedAndRunning) {
+		runningServer.stopServer();
 		serverThread.join();
 		isServerInitializedAndRunning = false;
 	}
@@ -250,7 +250,7 @@ int main() {
 
 	map = new Map(mapTexture, sf::Vector2f(0, 0));
 
-	player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f)); //default knight class to start
+	player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.5f)); //default knight class to start
 	if (player != NULL) {
 		player->setIsPlayer(true);
 		playerView = sf::View(player->getCenter(), (sf::Vector2f)windowSize);
@@ -656,15 +656,15 @@ int main() {
 						player = NULL;
 					}
 					if (respawnClass == knight) {
-						player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f));
+						player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.5f));
 						currentClass = knight;
 					}
 					else if (respawnClass == ranger) {
-						player = (Character*)(new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f));
+						player = (Character*)(new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.7f, 3.0f, 0.3f, 1.0f));
 						currentClass = ranger;
 					}
 					else if (respawnClass == mage) {
-						player = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f));
+						player = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 3.0f, 0.3f, 1.0f));
 						currentClass = mage;
 					}
 					player->setIsPlayer(true);
