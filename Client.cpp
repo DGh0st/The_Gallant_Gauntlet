@@ -125,6 +125,7 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 			for (i = 0; i < otherPlayers.size(); i++) {
 				if (data == otherPlayers[i].userID && otherPlayers[i].isViable) {
 					if (fighterName == otherPlayers[i].fighterClass) {
+						float heath = otherPlayers[i].userCharacter->getHealth();
 						if (fighterName == "Knight" && otherPlayers[i].userCharacter != NULL) {
 							((Knight *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
 						}
@@ -133,6 +134,10 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 						}
 						else if (fighterName == "Ranger" && otherPlayers[i].userCharacter != NULL) {
 							((Ranger *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
+						}
+						if (heath > otherPlayers[i].userCharacter->getHealth()) {
+							otherPlayers[i].didTakeDamage = true;
+							otherPlayers[i].confirmDamageTaken = false;
 						}
 					}
 					else if (fighterName != otherPlayers[i].fighterClass && data != "") {
@@ -149,6 +154,8 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 						else if (fighterName == "Ranger") {
 							userData.userCharacter = (Character *)new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.7f, 3.0f, 0.7f, 0.3f);
 						}
+						userData.confirmDamageTaken = true;
+						userData.didTakeDamage = false;
 						userData.userCharacter->justAdded = true;
 						userData.userCharacter->extractPacketToData(packet);
 						packet >> timeLeftInGame >> gameNotInProgress;
@@ -171,6 +178,8 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 				else if (fighterName == "Ranger") {
 					userData.userCharacter = (Character *)new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.7f, 3.0f, 0.7f, 0.3f);
 				}
+				userData.confirmDamageTaken = true;
+				userData.didTakeDamage = false;
 				userData.userCharacter->extractPacketToData(packet);
 				packet >> timeLeftInGame >> gameNotInProgress;
 				otherPlayers.push_back(userData);
@@ -198,7 +207,7 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 		if (otherPlayers[i].isViable) {
 			if (otherPlayers[i].fighterClass == "Knight") {
 				if (otherPlayers[i].userCharacter != NULL && player != NULL && ((Knight *)(otherPlayers[i].userCharacter))->collisionSP(player->getCollisionCircle())) {
-					if (!gameNotInProgress && !player->getIsDead() && player->takeDamage(((Knight *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
+					if (!gameNotInProgress && !player->getIsDead() && player->takeDamage(((Knight *)(otherPlayers[i].userCharacter))->getDamage()) == 0) {
 						sf::Packet killPacket;
 						killPacket.clear();
 						killPacket << "kill" << otherPlayers[i].userID;
@@ -210,7 +219,7 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 			}
 			else if (otherPlayers[i].fighterClass == "Mage") {
 				if (otherPlayers[i].userCharacter != NULL && player != NULL && ((Mage  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
-					if (!gameNotInProgress && !player->getIsDead() && player->takeDamage(((Mage *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
+					if (!gameNotInProgress && !player->getIsDead() && player->takeDamage(((Mage *)(otherPlayers[i].userCharacter))->getDamage()) == 0) {
 						sf::Packet killPacket;
 						killPacket.clear();
 						killPacket << "kill" << otherPlayers[i].userID << clientIDfromServer;
@@ -222,7 +231,7 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 			}
 			else if (otherPlayers[i].fighterClass == "Ranger") {
 				if (otherPlayers[i].userCharacter != NULL && player != NULL && ((Ranger  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
-					if (!gameNotInProgress && !player->getIsDead() && player->takeDamage(((Ranger *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
+					if (!gameNotInProgress && !player->getIsDead() && player->takeDamage(((Ranger *)(otherPlayers[i].userCharacter))->getDamage()) == 0) {
 						sf::Packet killPacket;
 						killPacket.clear();
 						killPacket << "kill" << otherPlayers[i].userID;
@@ -232,14 +241,40 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 					damageTakenVisualEffectTimer.restart();
 				}
 			}
-			if (currentClass == knight && (((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
-				doDamageSound.play();
+			// get rid of projectiles if colliding
+			if (currentClass == knight) {
+				((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle());
+				if (gameNotInProgress) {
+					doDamageSound.play();
+				}
 			}
-			else if (currentClass == mage && (((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
-				doDamageSound.play();
+			else if (currentClass == mage) {
+				((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle());
+				if (gameNotInProgress) {
+					doDamageSound.play();
+				}
 			}
-			else if (currentClass == ranger && (((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
-				doDamageSound.play();
+			else if (currentClass == ranger) {
+				((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle());
+				if (gameNotInProgress) {
+					doDamageSound.play();
+				}
+			}
+			// play damage sound if needed
+			if (!gameNotInProgress && !otherPlayers[i].confirmDamageTaken) {
+				if (currentClass == knight) {
+					doDamageSound.play();
+					otherPlayers[i].didTakeDamage = false;
+				}
+				else if (currentClass == mage) {
+					doDamageSound.play();
+					otherPlayers[i].didTakeDamage = false;
+				}
+				else if (currentClass == ranger) {
+					doDamageSound.play();
+					otherPlayers[i].didTakeDamage = false;
+				}
+				otherPlayers[i].confirmDamageTaken = true;
 			}
 		}
 	}

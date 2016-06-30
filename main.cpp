@@ -94,7 +94,7 @@ void onCreateGameClick() {
 
 void onJoinGameClickFromClient() {
 	if (connectToIPandPort.size() < 9) {
-		// string shorter than 0.0.0.0:1
+		// string shorter than 0.0.0.0:0
 		return;
 	}
 	else if (connectToIPandPort.find_first_of(":", 0) == std::string::npos) {
@@ -102,9 +102,10 @@ void onJoinGameClickFromClient() {
 		return;
 	}
 	if (serverInfo.name != "Server" || screenReseted || runningClient.serverConnectionStatus <= 1) {
-		if (screenReseted || runningClient.serverConnectionStatus <= 1) {
+		if ((screenReseted || runningClient.serverConnectionStatus <= 1) && serverInfo.name == "Server") {
 			// stop client and try again
 			runningClient.stopReceivingPackets();
+			clientThread.join();
 		}
 		// parse ip and port
 		size_t offset = connectToIPandPort.find_first_of(":", 0);
@@ -113,9 +114,6 @@ void onJoinGameClickFromClient() {
 		serverInfo.port = (unsigned short)atoi(connectToIPandPort.substr(offset + 1, connectToIPandPort.length() - offset).c_str());
 		// create client to join server
 		runningClient = Client(clientSocket, serverInfo);
-		if (screenReseted || runningClient.serverConnectionStatus <= 1) {
-			clientThread.join();
-		}
 		runningClient.serverConnectionStatus = 0;
 		clientThread = std::thread(&runClient);
 	}
@@ -678,7 +676,8 @@ int main() {
 							delete (Mage *)player;
 							player = NULL;
 						}
-						player = (Character*)(new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 3.0f, 0.7f, 0.3f, 0.5f, 100, 10, 0.7f));						currentClass = ranger;
+						player = (Character*)(new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 3.0f, 0.7f, 0.3f, 0.5f, 100, 10, 0.7f));
+						currentClass = ranger;
 					}
 					else if (respawnClass == mage) {
 						if (currentClass == knight) {
@@ -693,7 +692,8 @@ int main() {
 							delete (Mage *)player;
 							player = NULL;
 						}
-						player = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 2.0f, 0.7f, 0.3f, 0.0f, 100, 10, 0.6f));						currentClass = mage;
+						player = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 2.0f, 0.7f, 0.3f, 0.0f, 100, 10, 0.6f));
+						currentClass = mage;
 					}
 					player->setIsPlayer(true);
 					if (runningClient.isGameInProgress()) {

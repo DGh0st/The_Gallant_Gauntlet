@@ -10,6 +10,8 @@ struct PlayerData {
 	bool isViable = true;
 	std::string userID;
 	std::string fighterClass;
+	bool didTakeDamage = false;
+	bool confirmDamageTaken = false;
 	Character *userCharacter;
 };
 

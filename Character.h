@@ -37,6 +37,8 @@ public:
 	sf::Int16 takeDamage(sf::Int16 damage);
 	// get damage
 	sf::Int16 getDamage();
+	// get health
+	sf::Int16 getHealth();
 	// get playerSprite
 	sf::Sprite* getPlayerSprite();
 	// get charSpeed

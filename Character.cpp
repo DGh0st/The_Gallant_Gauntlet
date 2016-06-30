@@ -100,6 +100,9 @@ sf::CircleShape Character::getCollisionCircle() {
 }
 
 sf::Int16 Character::takeDamage(sf::Int16 damage) {
+	if (isDead) {
+		return -1;
+	}
 	health -= damage;
 	if (health < 0) {
 		health = 0;
@@ -109,6 +112,10 @@ sf::Int16 Character::takeDamage(sf::Int16 damage) {
 
 sf::Int16 Character::getDamage() {
 	return damage;
+}
+
+sf::Int16 Character::getHealth() {
+	return health;
 }
 
 sf::Sprite* Character::getPlayerSprite() {
