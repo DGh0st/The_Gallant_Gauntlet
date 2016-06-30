@@ -2,11 +2,10 @@
 #include "Mage.h"
 
 Mage::Mage(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & mageTexture, 
-	sf::Texture & staffTexture, sf::Texture & fireballTextureA, sf::Texture & fireballTextureB, float moveSpeed, float fireballSpeed,
-	float fireballReloadTime, float timeAfterShot, float slowSpeed, bool fromWeapon) : 
-	ProjectileShooter(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballTextureA, fireballTextureB, fireballSpeed, fireballReloadTime, timeAfterShot, fromWeapon), 
-	moveSpeed(moveSpeed), slowSpeed(slowSpeed) {
-	charSpeed = moveSpeed;
+	sf::Texture & staffTexture, sf::Texture & fireballTextureA, sf::Texture & fireballTextureB, float fireballSpeed,
+	float fireballReloadTime, float timeAfterShot, float slowSpeed, int maxHealth,	int damage, float moveSpeed, bool fromWeapon) :
+	ProjectileShooter(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballTextureA, fireballTextureB,
+	fireballSpeed, fireballReloadTime, timeAfterShot, fromWeapon, maxHealth, damage, moveSpeed), moveSpeed(moveSpeed), slowSpeed(slowSpeed) {
 }
 
 Mage::~Mage() {

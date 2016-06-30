@@ -1,11 +1,11 @@
 #include "Defines.h"
 #include "Ranger.h"
 
-Ranger::Ranger(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & rangerTexture, sf::Texture & bowTexture, 
-	sf::Texture & arrowTextureA, sf::Texture & arrowTextureB, float moveSpeed, float arrowSpeed, float arrowReloadTime, float timeAfterShot, 
-	float slowSpeed, bool fromWeapon) : ProjectileShooter(healthBarForegroundTexture, healthBarBackgroundTexture,rangerTexture, bowTexture, arrowTextureA, arrowTextureB, arrowSpeed, arrowReloadTime, timeAfterShot, fromWeapon), 
-	moveSpeed(moveSpeed), slowSpeed(slowSpeed) {
-	charSpeed = moveSpeed;
+Ranger::Ranger(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & rangerTexture,
+	sf::Texture & bowTexture, sf::Texture & arrowTextureA, sf::Texture & arrowTextureB, float arrowSpeed, float arrowReloadTime, 
+	float timeAfterShot, float slowSpeed, int maxHealth, int damage, float moveSpeed, bool fromWeapon) :
+	ProjectileShooter(healthBarForegroundTexture, healthBarBackgroundTexture,rangerTexture, bowTexture, arrowTextureA, arrowTextureB, 
+	arrowSpeed, arrowReloadTime, timeAfterShot, fromWeapon, maxHealth, damage, moveSpeed), moveSpeed(moveSpeed), slowSpeed(slowSpeed) {
 }
 
 Ranger::~Ranger() {

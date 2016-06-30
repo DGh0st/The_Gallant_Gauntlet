@@ -36,7 +36,7 @@ public:
 	//@param fromWeapon: whether projectile should come from weapon (otherwise comes from player)
 	ProjectileShooter(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & projectileShooterTexture, 
 		sf::Texture & weaponTexture, sf::Texture & projectileTextureA, sf::Texture & projectileTextureB, float projectileSpeed = 0.25f,
-		float projectileReloadTime = 0.3f, float timeAfterShot = 1.0f, bool fromWeapon = false);
+		float projectileReloadTime = 0.3f, float timeAfterShot = 1.0f, bool fromWeapon = false, int maxHealth = 100, int damage = 10, float charSpeed = 1.5f);
 	//draws projectileShooter
 	void draw(sf::RenderWindow & window);
 	//shoots projectile on left click, and updates "isShooting" based on "timeAfterShot"

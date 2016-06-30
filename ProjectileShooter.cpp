@@ -3,8 +3,8 @@
 
 ProjectileShooter::ProjectileShooter(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, 
 	sf::Texture & projectileShooterTexture, sf::Texture & weaponTexture, sf::Texture & projectileTextureA, sf::Texture & projectileTextureB,
-	float projectileSpeed, float projectileReloadTime, float timeAfterShot, bool fromWeapon) : 
-	Character(healthBarForegroundTexture, healthBarBackgroundTexture), projectileTextureA(projectileTextureA),
+	float projectileSpeed, float projectileReloadTime, float timeAfterShot, bool fromWeapon, int maxHealth, int damage, float charSpeed) :
+	Character(healthBarForegroundTexture, healthBarBackgroundTexture, maxHealth, damage, charSpeed), projectileTextureA(projectileTextureA),
 	projectileTextureB(projectileTextureB), projectileSpeed(projectileSpeed), projectileReloadTime(projectileReloadTime),
 	timeAfterShot(timeAfterShot), fromWeapon(fromWeapon) {
 	playerSprite = sf::Sprite(projectileShooterTexture);

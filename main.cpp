@@ -256,7 +256,7 @@ int main() {
 
 	map = new Map(mapTexture, sf::Vector2f(0, 0));
 
-	player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.5f)); //default knight class to start
+	player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.8f, 150, 50)); //default knight class to start
 	if (player != NULL) {
 		player->setIsPlayer(true);
 		playerView = sf::View(player->getCenter(), (sf::Vector2f)windowSize);
@@ -662,7 +662,7 @@ int main() {
 							delete (Mage *)player;
 							player = NULL;
 						}
-						player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.9f, 100, 90));
+						player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.8f, 150, 50));
 						currentClass = knight;
 					}
 					else if (respawnClass == ranger) {
@@ -678,8 +678,7 @@ int main() {
 							delete (Mage *)player;
 							player = NULL;
 						}
-						player = (Character*)(new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.7f, 3.0f, 0.7f, 0.3f));
-						currentClass = ranger;
+						player = (Character*)(new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 3.0f, 0.7f, 0.3f, 0.5f, 100, 10, 0.7f));						currentClass = ranger;
 					}
 					else if (respawnClass == mage) {
 						if (currentClass == knight) {
@@ -694,8 +693,7 @@ int main() {
 							delete (Mage *)player;
 							player = NULL;
 						}
-						player = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 0.7f, 3.0f, 0.7f, 0.3f));
-						currentClass = mage;
+						player = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 2.0f, 0.7f, 0.3f, 0.0f, 100, 10, 0.6f));						currentClass = mage;
 					}
 					player->setIsPlayer(true);
 					if (runningClient.isGameInProgress()) {
