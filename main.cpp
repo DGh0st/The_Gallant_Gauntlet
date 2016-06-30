@@ -101,7 +101,11 @@ void onJoinGameClickFromClient() {
 		// port not included
 		return;
 	}
-	if (serverInfo.name != "Server" || screenReseted) {
+	if (serverInfo.name != "Server" || screenReseted || runningClient.serverConnectionStatus <= 1) {
+		if (screenReseted || runningClient.serverConnectionStatus <= 1) {
+			// stop client and try again
+			runningClient.stopReceivingPackets();
+		}
 		// parse ip and port
 		size_t offset = connectToIPandPort.find_first_of(":", 0);
 		serverInfo.ip = sf::IpAddress(connectToIPandPort.substr(0, offset));
@@ -109,7 +113,7 @@ void onJoinGameClickFromClient() {
 		serverInfo.port = (unsigned short)atoi(connectToIPandPort.substr(offset + 1, connectToIPandPort.length() - offset).c_str());
 		// create client to join server
 		runningClient = Client(clientSocket, serverInfo);
-		if (screenReseted) {
+		if (screenReseted || runningClient.serverConnectionStatus <= 1) {
 			clientThread.join();
 		}
 		runningClient.serverConnectionStatus = 0;

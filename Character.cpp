@@ -6,13 +6,10 @@
 #include "Character.h"
 #include "Defines.h"
 
-Character::Character(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, int maxHealth, int damage, float divingAccuracy, float charSpeed, float diveSpeed, float diveResetTime, float diveResistance) : maxHealth(maxHealth), health(maxHealth), damage(damage), divingAccuracy(divingAccuracy), charSpeed(charSpeed), diveSpeed(diveSpeed), diveResetTime(diveResetTime), diveResistance(diveResistance) {
+Character::Character(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, int maxHealth, int damage, float charSpeed) : maxHealth(maxHealth), health(maxHealth), damage(damage), charSpeed(charSpeed) {
 	healthBarBackgroundSprite = sf::Sprite(healthBarBackgroundTexture);
 	healthBarBackgroundSprite.setOrigin(healthBarBackgroundSprite.getGlobalBounds().width / 2.0f, healthBarBackgroundSprite.getGlobalBounds().height);
 	healthBarForegroundSprite = sf::Sprite(healthBarForegroundTexture);
-	divingMovement = sf::Vector2f(0.0f, 0.0f);
-	lastKey = sf::Keyboard::Unknown;
-	diveResetTimer.restart();
 	playerCircle = sf::CircleShape(46.0f);
 	playerCircle.setOrigin(playerCircle.getRadius(), playerCircle.getRadius());
 }
@@ -25,14 +22,7 @@ void Character::operator=(const Character & other) {
 	maxHealth = other.maxHealth;
 	health = other.health;
 	damage = other.damage;
-	divingMovement = other.divingMovement;
-	lastKey = other.lastKey;
-	diveResetTimer = other.diveResetTimer;
-	divingAccuracy = other.divingAccuracy;
 	charSpeed = other.charSpeed;
-	diveSpeed = other.diveSpeed;
-	diveResetTime = other.diveResetTime;
-	diveResistance = other.diveResistance;
 }
 
 void Character::draw(sf::RenderWindow & window) {
@@ -56,37 +46,6 @@ void Character::move(const sf::RenderWindow & window, const sf::Keyboard::Key re
 	sf::Vector2i diff = mousePos - charPos;
 	float angle = (float)atan2(diff.y, diff.x) * (180 / PI);
 	playerSprite.setRotation(angle);
-	// dive/roll in progress if needed
-	if (divingMovement != sf::Vector2f(0.0f, 0.0f)) {
-		playerSprite.move(divingMovement);
-		divingMovement = sf::Vector2f(divingMovement.x * diveResistance, divingMovement.y * diveResistance);
-		if (abs(divingMovement.x) < divingAccuracy && abs(divingMovement.y) < divingAccuracy) {
-			divingMovement = sf::Vector2f(0.0f, 0.0f);
-		}
-		return;
-	}
-	// beginning of dive/roll
-	if (releasedKey != sf::Keyboard::Unknown && diveResetTimer.getElapsedTime().asSeconds() < diveResetTime) {
-		if (releasedKey == moveUpKey && lastKey == moveUpKey) {
-			divingMovement = sf::Vector2f(0.0f, -diveSpeed); // up
-		}
-		else if (releasedKey == moveDownKey && lastKey == moveDownKey) {
-			divingMovement = sf::Vector2f(0.0f, diveSpeed); // down
-		}
-		else if (releasedKey == moveLeftKey && lastKey == moveLeftKey) {
-			divingMovement = sf::Vector2f(-diveSpeed, 0.0f); // left
-		}
-		else if (releasedKey == moveRightKey && lastKey == moveRightKey) {
-			divingMovement = sf::Vector2f(diveSpeed, 0.0f); // right
-		}
-		lastKey = releasedKey;
-		diveResetTimer.restart();
-		return;
-	}
-	else if (diveResetTimer.getElapsedTime().asSeconds() >= diveResetTime) {
-		lastKey = sf::Keyboard::Unknown;
-		diveResetTimer.restart();
-	}
 	// normal movement
 	if (sf::Keyboard::isKeyPressed(moveUpKey)) {
 		playerSprite.setPosition(playerSprite.getPosition() + sf::Vector2f(0.0f, -charSpeed)); // up

@@ -8,7 +8,7 @@ public:
 	// constructor that creates the player
 	// @param maxHealth: health that character starts with
 	// @param damage: damage that the character can do to enemy
-	Character(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, int maxHealth = 100, int damage = 10, float divingAccuracy = 0.05f, float charSpeed = 1.5f, float diveSpeed = 25.0f, float diveResetTime = 0.5f, float diveResistance = 0.8f);
+	Character(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, int maxHealth = 100, int damage = 10, float charSpeed = 1.5f);
 	// destructor
 	~Character();
 	// equal operator
@@ -52,13 +52,6 @@ protected:
 	bool isDead = false; // is player dead
 private:
 	sf::CircleShape playerCircle = sf::CircleShape(); //circle used for player collisions
-	sf::Clock diveResetTimer; // reset timer for diving in specific direction
-	sf::Vector2f divingMovement; // movement of the character when diving
-	sf::Keyboard::Key lastKey; // last key released (W, A, S, D) required for diving
-	float divingAccuracy; // stop diving once movement is less than this
-	float diveSpeed; // character dive speed
-	float diveResetTime; // time required to reset the dive key (cooldown on diving)
-	float diveResistance; // resistance when diving (simply to not make it jump in one frame)
 	sf::Clock respawnTimer = sf::Clock(); // respawn timer
 	sf::Sprite healthBarForegroundSprite, healthBarBackgroundSprite; // health bar
 };

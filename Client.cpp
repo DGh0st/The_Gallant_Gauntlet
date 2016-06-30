@@ -74,9 +74,16 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 			}
 			else if (strcmp(data.c_str(), "kill") == 0) {
 				std::string killerId;
-				packet >> killerId >> timeLeftInGame >> gameNotInProgress;
+				std::string killedId;
+				packet >> killerId >> killedId >> timeLeftInGame >> gameNotInProgress;
 				if (killerId == clientIDfromServer) {
 					kills++;
+				}
+				for (int i = 0; i < otherPlayers.size(); i++) {
+					if (killedId == otherPlayers[i].userID) {
+						otherPlayers[i].isViable = false;
+						break;
+					}
 				}
 				continue;
 			}
@@ -116,7 +123,7 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 			}
 			int i;
 			for (i = 0; i < otherPlayers.size(); i++) {
-				if (data == otherPlayers[i].userID) {
+				if (data == otherPlayers[i].userID && otherPlayers[i].isViable) {
 					if (fighterName == otherPlayers[i].fighterClass) {
 						if (fighterName == "Knight" && otherPlayers[i].userCharacter != NULL) {
 							((Knight *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
@@ -188,50 +195,52 @@ void Client::stopReceivingPackets() {
 
 void Client::checkCollisions(Character * player, classTypes currentClass, sf::UdpSocket & socket, sf::Sound & takeDamageSound, sf::Sound & doDamageSound) {
 	for (int i = 0; i < otherPlayers.size(); i++) {
-		if (otherPlayers[i].fighterClass == "Knight") {
-			if (otherPlayers[i].userCharacter != NULL && player != NULL && ((Knight *)(otherPlayers[i].userCharacter))->collisionSP(player->getCollisionCircle())) {
-				if (!gameNotInProgress && !player->getIsDead() && player->takeDamage(((Knight *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
-					sf::Packet killPacket;
-					killPacket.clear();
-					killPacket << "kill" << otherPlayers[i].userID;
-					sendPacket(socket, killPacket);
+		if (otherPlayers[i].isViable) {
+			if (otherPlayers[i].fighterClass == "Knight") {
+				if (otherPlayers[i].userCharacter != NULL && player != NULL && ((Knight *)(otherPlayers[i].userCharacter))->collisionSP(player->getCollisionCircle())) {
+					if (!gameNotInProgress && !player->getIsDead() && player->takeDamage(((Knight *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
+						sf::Packet killPacket;
+						killPacket.clear();
+						killPacket << "kill" << otherPlayers[i].userID;
+						sendPacket(socket, killPacket);
+					}
+					takeDamageSound.play();
+					damageTakenVisualEffectTimer.restart();
 				}
-				takeDamageSound.play();
-				damageTakenVisualEffectTimer.restart();
 			}
-		}
-		else if (otherPlayers[i].fighterClass == "Mage") {
-			if (otherPlayers[i].userCharacter != NULL && player != NULL && ((Mage  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
-				if (!gameNotInProgress && !player->getIsDead() && player->takeDamage(((Mage *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
-					sf::Packet killPacket;
-					killPacket.clear();
-					killPacket << "kill" << otherPlayers[i].userID;
-					sendPacket(socket, killPacket);
+			else if (otherPlayers[i].fighterClass == "Mage") {
+				if (otherPlayers[i].userCharacter != NULL && player != NULL && ((Mage  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
+					if (!gameNotInProgress && !player->getIsDead() && player->takeDamage(((Mage *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
+						sf::Packet killPacket;
+						killPacket.clear();
+						killPacket << "kill" << otherPlayers[i].userID << clientIDfromServer;
+						sendPacket(socket, killPacket);
+					}
+					takeDamageSound.play();
+					damageTakenVisualEffectTimer.restart();
 				}
-				takeDamageSound.play();
-				damageTakenVisualEffectTimer.restart();
 			}
-		}
-		else if (otherPlayers[i].fighterClass == "Ranger") {
-			if (otherPlayers[i].userCharacter != NULL && player != NULL && ((Ranger  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
-				if (!gameNotInProgress && !player->getIsDead() && player->takeDamage(((Ranger *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
-					sf::Packet killPacket;
-					killPacket.clear();
-					killPacket << "kill" << otherPlayers[i].userID;
-					sendPacket(socket, killPacket);
+			else if (otherPlayers[i].fighterClass == "Ranger") {
+				if (otherPlayers[i].userCharacter != NULL && player != NULL && ((Ranger  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
+					if (!gameNotInProgress && !player->getIsDead() && player->takeDamage(((Ranger *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
+						sf::Packet killPacket;
+						killPacket.clear();
+						killPacket << "kill" << otherPlayers[i].userID;
+						sendPacket(socket, killPacket);
+					}
+					takeDamageSound.play();
+					damageTakenVisualEffectTimer.restart();
 				}
-				takeDamageSound.play();
-				damageTakenVisualEffectTimer.restart();
 			}
-		}
-		if (currentClass == knight && (((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
-			doDamageSound.play();
-		}
-		else if (currentClass == mage && (((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
-			doDamageSound.play();
-		}
-		else if (currentClass == ranger && (((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
-			doDamageSound.play();
+			if (currentClass == knight && (((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
+				doDamageSound.play();
+			}
+			else if (currentClass == mage && (((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
+				doDamageSound.play();
+			}
+			else if (currentClass == ranger && (((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
+				doDamageSound.play();
+			}
 		}
 	}
 }
