@@ -243,20 +243,17 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 			}
 			// get rid of projectiles if colliding
 			if (currentClass == knight) {
-				((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle());
-				if (gameNotInProgress) {
+				if (((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle()) && gameNotInProgress) {
 					doDamageSound.play();
 				}
 			}
 			else if (currentClass == mage) {
-				((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle());
-				if (gameNotInProgress) {
+				if (((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()) && gameNotInProgress) {
 					doDamageSound.play();
 				}
 			}
 			else if (currentClass == ranger) {
-				((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle());
-				if (gameNotInProgress) {
+				if (((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()) && gameNotInProgress) {
 					doDamageSound.play();
 				}
 			}
