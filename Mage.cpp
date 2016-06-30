@@ -44,7 +44,7 @@ sf::Packet Mage::extractPacketToData(sf::Packet & packet) {
 	playerSprite.setPosition(pos);
 	playerSprite.setRotation(rotation);
 	weaponSprite.setRotation(angle);
-	if (justAdded && health > 0) {
+	if (justAdded || projectilesCounter < uniqueProjectilesCounter) {
 		uniqueProjectilesCounter = projectilesCounter;
 		justAdded = false;
 	}
