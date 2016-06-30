@@ -51,17 +51,23 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 	unsigned short senderPort;
 	bool wasServerClosed = false;
 	running = true;
+	Knight knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture);
+	Mage mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB);
+	Ranger ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture);
 
 	while (running) {
 		packet.clear();
 		int rec = socket.receive(packet, senderIp, senderPort);
 		if (rec == sf::Socket::Done) {
 			// manage packet data
-			sf::Packet copyPacket(packet);
+			/*sf::Packet copyPacket(packet);
 			char *data = (char *)copyPacket.getData();
-			copyPacket >> data;
-			if (strcmp(data, "success") == 0) {
-				copyPacket >> clientIDfromServer >> timeLeftInGame >> gameNotInProgress;
+			copyPacket >> data;*/
+			std::string data;
+			packet >> data;
+			if (strcmp(data.c_str(), "success") == 0) {
+				//copyPacket >> clientIDfromServer >> timeLeftInGame >> gameNotInProgress;
+				packet >> clientIDfromServer >> timeLeftInGame >> gameNotInProgress;
 				serverConnectionStatus = 2;
 				printf("[Client] joined server as %s\n", clientIDfromServer.c_str());
 				continue; // connected to server successfully
@@ -70,18 +76,20 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 				serverConnectionStatus = 1;
 				continue;
 			}
-			else if (strcmp(data, "kill") == 0) {
+			else if (strcmp(data.c_str(), "kill") == 0) {
 				std::string killerId;
-				copyPacket >> killerId >> timeLeftInGame >> gameNotInProgress;
+				//copyPacket >> killerId >> timeLeftInGame >> gameNotInProgress;
+				packet >> killerId >> timeLeftInGame >> gameNotInProgress;
 				if (killerId == clientIDfromServer) {
 					kills++;
 				}
 				continue;
 			}
-			else if (strcmp(data, "left game") == 0) {
+			else if (strcmp(data.c_str(), "left game") == 0) {
 				// remove the player (that left) from the list of players
 				std::string leftPlayerId;
-				copyPacket >> leftPlayerId;
+				//copyPacket >> leftPlayerId;
+				packet >> leftPlayerId;
 				printf("[Client] %s left game\n", leftPlayerId.c_str());
 				for (int i = 0; i < otherPlayers.size(); i++) {
 					if (leftPlayerId == otherPlayers[i].userID) {
@@ -92,32 +100,32 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 				}
 				continue;
 			}
-			else if (strcmp(data, "closed") == 0) {
+			else if (strcmp(data.c_str(), "closed") == 0) {
 				printf("[Client] server closed so returning to main menu in 3 seconds...\n");
 				sf::sleep(sf::seconds(3));
 				wasServerClosed = true;
 				break;
 			}
-			std::string senderId;
-			packet >> senderId;
+			//std::string senderId;
+			//packet >> senderId;
 			std::string fighterName;
 			packet >> fighterName;
-			if (senderId == clientIDfromServer) {
+			if (data == clientIDfromServer) {
 				if (fighterName == "Knight") {
-					Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture).extractPacketToData(packet);
+					knight.extractPacketToData(packet);
 				}
 				else if (fighterName == "Mage") {
-					Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB).extractPacketToData(packet);
+					mage.extractPacketToData(packet);
 				}
 				else if (fighterName == "Ranger") {
-					Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture).extractPacketToData(packet);
+					ranger.extractPacketToData(packet);
 				}
 				packet >> timeLeftInGame >> gameNotInProgress;
 				continue;
 			}
 			int i;
 			for (i = 0; i < otherPlayers.size(); i++) {
-				if (senderId == otherPlayers[i].userID) {
+				if (data == otherPlayers[i].userID) {
 					if (fighterName == otherPlayers[i].fighterClass) {
 						if (fighterName == "Knight" && otherPlayers[i].userCharacter != NULL) {
 							((Knight *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
@@ -129,19 +137,19 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 							((Ranger *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
 						}
 					}
-					else if (fighterName != otherPlayers[i].fighterClass && senderId != "") {
+					else if (fighterName != otherPlayers[i].fighterClass && data != "") {
 						otherPlayers[i].isViable = false;
 						PlayerData userData;
-						userData.userID = senderId;
+						userData.userID = data;
 						userData.fighterClass = fighterName;
 						if (fighterName == "Knight") {
 							userData.userCharacter = (Character *)new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.5f);
 						}
 						else if (fighterName == "Mage") {
-							userData.userCharacter = (Character *)new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 3.0f, 0.3f, 1.0f);
+							userData.userCharacter = (Character *)new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 3.0f, 0.7f, 0.3f);
 						}
 						else if (fighterName == "Ranger") {
-							userData.userCharacter = (Character *)new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.7f, 3.0f, 0.3f, 1.0f);
+							userData.userCharacter = (Character *)new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.7f, 3.0f, 0.7f, 0.3f);
 						}
 						userData.userCharacter->justAdded = true;
 						userData.userCharacter->extractPacketToData(packet);
@@ -152,18 +160,18 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 					break;
 				}
 			}
-			if (i == otherPlayers.size() && senderId != "") {
+			if (i == otherPlayers.size() && data != "") {
 				PlayerData userData;
-				userData.userID = senderId;
+				userData.userID = data;
 				userData.fighterClass = fighterName;
 				if (fighterName == "Knight") {
-					userData.userCharacter = (Character *)new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.2f);
+					userData.userCharacter = (Character *)new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.5f);
 				}
 				else if (fighterName == "Mage") {
-					userData.userCharacter = (Character *)new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 0.5f, 0.3f, 0.3f);
+					userData.userCharacter = (Character *)new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 3.0f, 0.7f, 0.3f);
 				}
 				else if (fighterName == "Ranger") {
-					userData.userCharacter = (Character *)new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.3f, 0.5f, 0.3f, 0.3f);
+					userData.userCharacter = (Character *)new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.7f, 3.0f, 0.7f, 0.3f);
 				}
 				userData.userCharacter->extractPacketToData(packet);
 				packet >> timeLeftInGame >> gameNotInProgress;
@@ -203,7 +211,7 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 		}
 		else if (otherPlayers[i].fighterClass == "Mage") {
 			if (otherPlayers[i].userCharacter != NULL && player != NULL && ((Mage  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
-				if (!gameNotInProgress && player->takeDamage(((Mage *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
+				if (!gameNotInProgress && !player->getIsDead() && player->takeDamage(((Mage *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
 					sf::Packet killPacket;
 					killPacket.clear();
 					killPacket << "kill" << otherPlayers[i].userID;
@@ -215,7 +223,7 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 		}
 		else if (otherPlayers[i].fighterClass == "Ranger") {
 			if (otherPlayers[i].userCharacter != NULL && player != NULL && ((Ranger  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
-				if (!gameNotInProgress && player->takeDamage(((Ranger *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
+				if (!gameNotInProgress && !player->getIsDead() && player->takeDamage(((Ranger *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
 					sf::Packet killPacket;
 					killPacket.clear();
 					killPacket << "kill" << otherPlayers[i].userID;

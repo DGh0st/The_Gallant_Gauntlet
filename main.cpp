@@ -660,11 +660,11 @@ int main() {
 						currentClass = knight;
 					}
 					else if (respawnClass == ranger) {
-						player = (Character*)(new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.7f, 3.0f, 0.3f, 1.0f));
+						player = (Character*)(new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 0.7f, 3.0f, 0.7f, 0.3f));
 						currentClass = ranger;
 					}
 					else if (respawnClass == mage) {
-						player = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 3.0f, 0.3f, 1.0f));
+						player = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 1.0f, 3.0f, 0.7f, 0.3f));
 						currentClass = mage;
 					}
 					player->setIsPlayer(true);
