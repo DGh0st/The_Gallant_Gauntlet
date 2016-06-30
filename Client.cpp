@@ -135,9 +135,8 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 						else if (fighterName == "Ranger" && otherPlayers[i].userCharacter != NULL) {
 							((Ranger *)(otherPlayers[i].userCharacter))->extractPacketToData(packet);
 						}
-						if (heath > otherPlayers[i].userCharacter->getHealth()) {
-							otherPlayers[i].didTakeDamage = true;
-							otherPlayers[i].confirmDamageTaken = false;
+						if (heath > otherPlayers[i].userCharacter->getHealth() && otherPlayers[i].didTakeDamage) {
+							otherPlayers[i].confirmDamageTaken = true;
 						}
 					}
 					else if (fighterName != otherPlayers[i].fighterClass && data != "") {
@@ -243,35 +242,34 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 			}
 			// get rid of projectiles if colliding
 			if (currentClass == knight) {
-				if (((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle()) && gameNotInProgress) {
-					doDamageSound.play();
+				if (((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle())) {
+					otherPlayers[i].didTakeDamage = true;
+					if (gameNotInProgress) {
+						doDamageSound.play();
+					}
 				}
 			}
 			else if (currentClass == mage) {
-				if (((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()) && gameNotInProgress) {
-					doDamageSound.play();
+				if (((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle())) {
+					otherPlayers[i].didTakeDamage = true;
+					if (gameNotInProgress) {
+						doDamageSound.play();
+					}
 				}
 			}
 			else if (currentClass == ranger) {
-				if (((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()) && gameNotInProgress) {
-					doDamageSound.play();
+				if (((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle())) {
+					otherPlayers[i].didTakeDamage = true;
+					if (gameNotInProgress) {
+						doDamageSound.play();
+					}
 				}
 			}
 			// play damage sound if needed
-			if (!gameNotInProgress && !otherPlayers[i].confirmDamageTaken) {
-				if (currentClass == knight) {
-					doDamageSound.play();
-					otherPlayers[i].didTakeDamage = false;
-				}
-				else if (currentClass == mage) {
-					doDamageSound.play();
-					otherPlayers[i].didTakeDamage = false;
-				}
-				else if (currentClass == ranger) {
-					doDamageSound.play();
-					otherPlayers[i].didTakeDamage = false;
-				}
-				otherPlayers[i].confirmDamageTaken = true;
+			if (!gameNotInProgress && otherPlayers[i].confirmDamageTaken && otherPlayers[i].didTakeDamage) {
+				doDamageSound.play();
+				otherPlayers[i].didTakeDamage = false;
+				otherPlayers[i].confirmDamageTaken = false;
 			}
 		}
 	}
