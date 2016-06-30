@@ -236,6 +236,8 @@ int main() {
 	doDamageMSoundBuffer.loadFromFile("sounds/fireballHit.wav");
 	titleMusic.openFromFile("sounds/titleMusic.ogg");
 	ingameMusic.openFromFile("sounds/ingameMusic.ogg");
+	titleMusic.setLoop(true);
+	ingameMusic.setLoop(true);
 	titleMusic.play();
 	sf::Sound takeDamageSound(takeDamageSoundBuffer);
 	sf::Sound doDamageKSound(doDamageKSoundBuffer);
