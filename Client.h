@@ -4,6 +4,7 @@
 #include <SFML/Audio.hpp>
 #include "Defines.h"
 #include "Character.h"
+#include "Map.h"
 
 struct PlayerData {
 	bool isViable = true;
@@ -33,7 +34,7 @@ public:
 	// stop receiving packets
 	void stopReceivingPackets();
 	// draw other players
-	void draw(sf::RenderWindow & window, sf::Vector2f playerPosition);
+	void draw(sf::RenderWindow & window, sf::Vector2f playerPosition, Map *map);
 	// check collisions and send data over server if needed
 	void checkCollisions(Character *player, classTypes currentClass, sf::UdpSocket & socket, sf::Sound & takeDamageSound, sf::Sound & doDamageSound);
 	// get client id
@@ -51,6 +52,8 @@ private:
 	std::string clientIDfromServer; // id of the client gotten from the server
 	bool gameNotInProgress; // is game currently in progress
 	sf::Clock damageTakenVisualEffectTimer; // timer for damage taken visuals
+
+	bool isDuplicate(std::string name, int start);
 };
 
 #endif // !CLIENT_H

@@ -557,18 +557,16 @@ int main() {
 			gameTimeText.setOrigin(gameTimeText.getGlobalBounds().width / 2.0f, 0.0f);
 			gameTimeText.setPosition(sf::Vector2f(player->getCenter().x, player->getCenter().y - windowSize.y / 2.0f));
 			map->collisionMP(*player);
-			//if (runningClient.isGameInProgress()) {
-				// check collision
-				if (currentClass == knight) {
-					runningClient.checkCollisions(player, currentClass, clientSocket, takeDamageSound, doDamageKSound);
-				}
-				else if (currentClass == ranger) {
-					runningClient.checkCollisions(player, currentClass, clientSocket, takeDamageSound, doDamageRSound);
-				}
-				else if (currentClass == mage) {
-					runningClient.checkCollisions(player, currentClass, clientSocket, takeDamageSound, doDamageMSound);
-				}
-			//}
+			// check collision
+			if (currentClass == knight) {
+				runningClient.checkCollisions(player, currentClass, clientSocket, takeDamageSound, doDamageKSound);
+			}
+			else if (currentClass == ranger) {
+				runningClient.checkCollisions(player, currentClass, clientSocket, takeDamageSound, doDamageRSound);
+			}
+			else if (currentClass == mage) {
+				runningClient.checkCollisions(player, currentClass, clientSocket, takeDamageSound, doDamageMSound);
+			}
 			if (window.hasFocus() && !isSelectionScreenDisplayed && !player->getIsDead() && !isEscapeScreenDisplayed) {
 				// player movement
 				if (currentClass == knight) {
@@ -591,7 +589,7 @@ int main() {
 			packet.clear();
 			// draw
 			map->draw(window);
-			runningClient.draw(window, player->getCenter());
+			runningClient.draw(window, player->getCenter(), map);
 			if (currentClass == knight) {
 				packet = ((Knight*)player)->chainDataToPacket(packet, runningClient.getClientId());
 				((Knight*)player)->draw(window);

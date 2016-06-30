@@ -193,62 +193,53 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 	for (int i = 0; i < otherPlayers.size(); i++) {
 		if (otherPlayers[i].fighterClass == "Knight") {
 			if (otherPlayers[i].userCharacter != NULL && player != NULL && ((Knight *)(otherPlayers[i].userCharacter))->collisionSP(player->getCollisionCircle())) {
-				if (!player->getIsDead() &&player->takeDamage(((Knight *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
+				if (!gameNotInProgress && !player->getIsDead() && player->takeDamage(((Knight *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
 					sf::Packet killPacket;
 					killPacket.clear();
 					killPacket << "kill" << otherPlayers[i].userID;
 					sendPacket(socket, killPacket);
 				}
-				//sf::Sound takeDamageSound(takeDamageSoundBuffer);
 				takeDamageSound.play();
 				damageTakenVisualEffectTimer.restart();
 			}
 		}
 		else if (otherPlayers[i].fighterClass == "Mage") {
 			if (otherPlayers[i].userCharacter != NULL && player != NULL && ((Mage  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
-				if (player->takeDamage(((Mage *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
+				if (!gameNotInProgress && player->takeDamage(((Mage *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
 					sf::Packet killPacket;
 					killPacket.clear();
 					killPacket << "kill" << otherPlayers[i].userID;
 					sendPacket(socket, killPacket);
 				}
-				//sf::Sound takeDamageSound(takeDamageSoundBuffer);
 				takeDamageSound.play();
 				damageTakenVisualEffectTimer.restart();
 			}
 		}
 		else if (otherPlayers[i].fighterClass == "Ranger") {
 			if (otherPlayers[i].userCharacter != NULL && player != NULL && ((Ranger  *)(otherPlayers[i].userCharacter))->collisionPP(player->getCollisionCircle())) {
-				if (player->takeDamage(((Ranger *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
+				if (!gameNotInProgress && player->takeDamage(((Ranger *)(otherPlayers[i].userCharacter))->getDamage()) <= 0) {
 					sf::Packet killPacket;
 					killPacket.clear();
 					killPacket << "kill" << otherPlayers[i].userID;
 					sendPacket(socket, killPacket);
 				}
-				//sf::Sound takeDamageSound(takeDamageSoundBuffer);
 				takeDamageSound.play();
 				damageTakenVisualEffectTimer.restart();
 			}
 		}
 		if (currentClass == knight && (((Knight *)player)->collisionSP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
-			otherPlayers[i].userCharacter->takeDamage(((Knight *)player)->getDamage());
-			//sf::Sound doDamageSound(doDamageSoundBuffer);
 			doDamageSound.play();
 		}
 		else if (currentClass == mage && (((Mage *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
-			otherPlayers[i].userCharacter->takeDamage(((Mage *)player)->getDamage());
-			//sf::Sound doDamageSound(doDamageSoundBuffer);
 			doDamageSound.play();
 		}
 		else if (currentClass == ranger && (((Ranger *)player)->collisionPP(otherPlayers[i].userCharacter->getCollisionCircle()))) {
-			otherPlayers[i].userCharacter->takeDamage(((Ranger *)player)->getDamage());
-			//sf::Sound doDamageSound(doDamageSoundBuffer);
 			doDamageSound.play();
 		}
 	}
 }
 
-void Client::draw(sf::RenderWindow & window, sf::Vector2f playerPosition) {
+void Client::draw(sf::RenderWindow & window, sf::Vector2f playerPosition, Map *map) {
 	if (damageTakenVisualEffectTimer.getElapsedTime().asSeconds() < damageTakenVisualTime) {
 		sf::RectangleShape frontdrop((sf::Vector2f) windowSize);
 		frontdrop.setFillColor(sf::Color(255, 0, 0, 25));
@@ -256,7 +247,7 @@ void Client::draw(sf::RenderWindow & window, sf::Vector2f playerPosition) {
 		window.draw(frontdrop);
 	}
 	for (int i = 0; i < otherPlayers.size(); i++) {
-		if (!otherPlayers[i].isViable || otherPlayers[i].userID.find_first_of("Player") == std::string::npos) {
+		if (!otherPlayers[i].isViable || otherPlayers[i].userID.find_first_of("Player") == std::string::npos || isDuplicate(otherPlayers[i].userID, i + 1)) {
 			if (otherPlayers[i].fighterClass == "Knight" && otherPlayers[i].userCharacter != NULL) {
 				delete (Knight *)(otherPlayers[i].userCharacter);
 				otherPlayers[i].userCharacter = NULL;
@@ -281,12 +272,14 @@ void Client::draw(sf::RenderWindow & window, sf::Vector2f playerPosition) {
 			}
 			else if (otherPlayers[i].fighterClass == "Mage" && otherPlayers[i].userCharacter != NULL) {
 				((Mage *)(otherPlayers[i].userCharacter))->shoot(window);
+				map->collisionMProj(*(ProjectileShooter*)otherPlayers[i].userCharacter);
 				((Mage *)(otherPlayers[i].userCharacter))->setWeapon(window);
 				((Mage *)(otherPlayers[i].userCharacter))->drawProjectiles(window);
 				((Mage *)(otherPlayers[i].userCharacter))->draw(window);
 			}
 			else if (otherPlayers[i].fighterClass == "Ranger" && otherPlayers[i].userCharacter != NULL) {
 				((Ranger *)(otherPlayers[i].userCharacter))->shoot(window);
+				map->collisionMProj(*(ProjectileShooter*)otherPlayers[i].userCharacter);
 				((Ranger *)(otherPlayers[i].userCharacter))->setWeapon(window);
 				((Ranger *)(otherPlayers[i].userCharacter))->drawProjectiles(window);
 				((Ranger *)(otherPlayers[i].userCharacter))->draw(window);
@@ -301,4 +294,13 @@ std::string Client::getClientId() {
 
 bool Client::isGameInProgress() {
 	return !gameNotInProgress;
+}
+
+bool Client::isDuplicate(std::string name, int start) {
+	for (; start < otherPlayers.size(); start++) {
+		if (otherPlayers[start].userID == name) {
+			return true;
+		}
+	}
+	return false;
 }
