@@ -61,10 +61,10 @@ Map* map;
 void runClient() {
 	runningClient.receivePackets(clientSocket, kills, rangerTexture, mageTexture, knightTexture, arrowTexture, fireballA, fireballB, swordTexture, bowTexture, staffTexture, healthBarForegroundTexture, healthBarBackgroundTexture);
 	screenReseted = true;
+	isSelectionScreenDisplayed = false;
+	isEscapeScreenDisplayed = false;
 	if (runningClient.serverConnectionStatus == 2) {
 		currentScreenDisplayed = title;
-		isSelectionScreenDisplayed = false;
-		isEscapeScreenDisplayed = false;
 		runningClient.serverConnectionStatus = 0;
 	}
 }
@@ -74,7 +74,7 @@ void onPlayClick() {
 }
 
 void onCreateGameClick() {
-	if (!isSelectionScreenDisplayed) {
+	if (!isServerInitializedAndRunning) {
 		runningServer = Server(9000);
 		serverThread = std::thread(&Server::runServer, &runningServer);
 		isServerInitializedAndRunning = true;
@@ -140,8 +140,8 @@ void onBackClickFromServer() {
 	runningClient.sendPacket(clientSocket, leavingPacket);
 	runningServer.stopServer();
 	if (isServerInitializedAndRunning) {
-		isServerInitializedAndRunning = false;
 		serverThread.join();
+		isServerInitializedAndRunning = false;
 	}
 	currentScreenDisplayed = title;
 }
@@ -181,8 +181,8 @@ void onExitClickFromTitle() {
 	runningClient.sendPacket(clientSocket, leavingPacket);
 	runningServer.stopServer();
 	if (isServerInitializedAndRunning) {
-		isServerInitializedAndRunning = false;
 		serverThread.join();
+		isServerInitializedAndRunning = false;
 	}
 	if (serverInfo.name == "Server") {
 		clientThread.join();
@@ -199,8 +199,8 @@ void onExitClickFromGame() {
 	runningClient.sendPacket(clientSocket, leavingPacket);
 	runningServer.stopServer();
 	if (isServerInitializedAndRunning) {
-		isServerInitializedAndRunning = false;
 		serverThread.join();
+		isServerInitializedAndRunning = false;
 	}
 	currentScreenDisplayed = title;
 	titleMusic.play();
@@ -211,6 +211,7 @@ int main() {
 	windowSize = window.getSize();
 	icon.loadFromFile("textures/icon.png");
 	window.setIcon(32, 32, icon.getPixelsPtr());
+	srand((unsigned int)time(NULL));
 
 	sf::Font font;
 	font.loadFromFile("fonts/times.ttf");
@@ -463,6 +464,10 @@ int main() {
 		window.clear();
 
 		if (currentScreenDisplayed == title) {
+			if (ingameMusic.getStatus() == sf::Sound::Playing) {
+				ingameMusic.stop();
+				titleMusic.play();
+			}
 			window.setView(normalView);
 			// set positions
 			titleSprite.setPosition(sf::Vector2f(windowSize.x / 2.0f, windowSize.y / 4.7f));

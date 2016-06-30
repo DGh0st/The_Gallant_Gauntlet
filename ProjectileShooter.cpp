@@ -39,8 +39,8 @@ void ProjectileShooter::shoot(sf::RenderWindow & window) {
 		else { //shoot projectile from weaponSprite
 			projectile = new Projectile(window, projectileTextureA, weaponSprite);
 		}
-		projectiles.insert(projectiles.begin(), projectile); //store projectile
-		projectileCircles.insert(projectileCircles.begin(), &projectile->projectileCircle);
+		projectiles.push_back(projectile); //store projectile
+		//projectileCircles.push_back(&projectile->projectileCircle);
 		clockReload.restart();
 		clockProjectile.restart();
 	}
@@ -88,16 +88,10 @@ void ProjectileShooter::drawProjectiles(sf::RenderWindow & window) {
 			moveProjectile(projectiles[i]);
 		}
 		else { //otherwise off screen, so delete projectile
-			if (i < projectileCircles.size()) {
-				projectileCircles.erase(projectileCircles.begin() + i);  //remove NULL from vector
-			}
-
-			if (i < projectiles.size()) {
-				delete projectiles[i];
-				projectiles[i] = NULL;
-				projectiles.erase(projectiles.begin() + i);  //remove NULL from vector
-				i--;
-			}
+			delete projectiles[i];
+			projectiles[i] = NULL;
+			projectiles.erase(projectiles.begin() + i);  //remove NULL from vector
+			i--;
 		}
 	}
 }
@@ -153,11 +147,17 @@ void ProjectileShooter::setWeapon(sf::RenderWindow & window) {
 }
 
 std::vector<sf::CircleShape*> ProjectileShooter::getProjectileCircles() {
+	std::vector<sf::CircleShape *> projectileCircles(0);
+	for (int i = 0; i < projectiles.size(); i++) {
+		projectileCircles.push_back(&projectiles[i]->projectileCircle);
+	}
 	return projectileCircles;
 }
 
 void ProjectileShooter::setHitWall(int i) {
-	projectiles[i]->hitWall = true;
+	if (i < projectiles.size() && projectiles[i] != NULL) {
+		projectiles[i]->hitWall = true;
+	}
 }
 
 //--PROJECTILE--

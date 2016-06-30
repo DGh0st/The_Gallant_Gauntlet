@@ -260,10 +260,8 @@ void Client::draw(sf::RenderWindow & window, sf::Vector2f playerPosition, Map *m
 				delete (Ranger *)(otherPlayers[i].userCharacter);
 				otherPlayers[i].userCharacter = NULL;
 			}
-			if (i < otherPlayers.size()) {
-				otherPlayers.erase(otherPlayers.begin() + i);
-				i--;
-			}
+			otherPlayers.erase(otherPlayers.begin() + i);
+			i--;
 		}
 		else {
 			if (otherPlayers[i].fighterClass == "Knight" && otherPlayers[i].userCharacter != NULL) {

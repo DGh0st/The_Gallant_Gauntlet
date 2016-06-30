@@ -62,7 +62,6 @@ protected:
 	sf::Texture projectileTextureA; //texture for first animation frame of projectile
 	sf::Texture projectileTextureB; //texture for second animation frame of projectile
 	std::vector<Projectile*> projectiles; //stores all projectiles
-	std::vector<sf::CircleShape*> projectileCircles; //stores all projectiles
 	sf::Clock clockProjectile; //used for checking time since projectile was fired
 	sf::Clock clockReload; //used for projectile shooting
 	sf::Uint16 uniqueProjectilesCounter = 0; // number of projectiles shot so far by player
