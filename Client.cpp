@@ -76,12 +76,11 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 				std::string killerId;
 				std::string killedId;
 				packet >> killerId >> killedId >> timeLeftInGame >> gameNotInProgress;
-				if (killerId != clientIDfromServer) {
-					continue;
+				if (killerId == clientIDfromServer) {
+					kills++;
 				}
 				for (int i = 0; i < otherPlayers.size(); i++) {
-					if (killedId == otherPlayers[i].userID && otherPlayers[i].isViable) {
-						kills++;
+					if (killedId == otherPlayers[i].userID) {
 						otherPlayers[i].isViable = false;
 						break;
 					}
@@ -157,6 +156,7 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 						userData.confirmDamageTaken = true;
 						userData.didTakeDamage = false;
 						userData.userCharacter->justAdded = true;
+						userData.isViable = true;
 						userData.userCharacter->extractPacketToData(packet);
 						packet >> timeLeftInGame >> gameNotInProgress;
 						otherPlayers.push_back(userData);
@@ -180,6 +180,8 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 				}
 				userData.confirmDamageTaken = true;
 				userData.didTakeDamage = false;
+				userData.userCharacter->justAdded = true;
+				userData.isViable = true;
 				userData.userCharacter->extractPacketToData(packet);
 				packet >> timeLeftInGame >> gameNotInProgress;
 				otherPlayers.push_back(userData);
@@ -211,9 +213,7 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 						sf::Packet killPacket;
 						killPacket.clear();
 						killPacket << "kill" << otherPlayers[i].userID;
-						for (int i = 0; i < 5; i++) {
-							sendPacket(socket, killPacket);
-						}
+						sendPacket(socket, killPacket);
 					}
 					takeDamageSound.play();
 					damageTakenVisualEffectTimer.restart();
@@ -225,9 +225,7 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 						sf::Packet killPacket;
 						killPacket.clear();
 						killPacket << "kill" << otherPlayers[i].userID << clientIDfromServer;
-						for (int i = 0; i < 5; i++) {
-							sendPacket(socket, killPacket);
-						}
+						sendPacket(socket, killPacket);
 					}
 					takeDamageSound.play();
 					damageTakenVisualEffectTimer.restart();
@@ -239,9 +237,7 @@ void Client::checkCollisions(Character * player, classTypes currentClass, sf::Ud
 						sf::Packet killPacket;
 						killPacket.clear();
 						killPacket << "kill" << otherPlayers[i].userID;
-						for (int i = 0; i < 5; i++) {
-							sendPacket(socket, killPacket);
-						}
+						sendPacket(socket, killPacket);
 					}
 					takeDamageSound.play();
 					damageTakenVisualEffectTimer.restart();
