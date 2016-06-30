@@ -44,7 +44,7 @@ sf::Packet Ranger::extractPacketToData(sf::Packet & packet) {
 	playerSprite.setPosition(pos);
 	playerSprite.setRotation(rotation);
 	weaponSprite.setRotation(angle);
-	if (justAdded) {
+	if (justAdded && health > 0) {
 		uniqueProjectilesCounter = projectilesCounter;
 		justAdded = false;
 	}

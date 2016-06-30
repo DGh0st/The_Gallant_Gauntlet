@@ -129,7 +129,7 @@ sf::Packet Knight::extractPacketToData(sf::Packet & packet) {
 	packet >> maxHealth >> health >> damage >> pos.x >> pos.y >> rotation >> swingCount;
 	playerSprite.setPosition(pos);
 	playerSprite.setRotation(rotation);
-	if (justAdded) {
+	if (justAdded && health > 0) {
 		uniqueSwingCounter = swingCount;
 		justAdded = false;
 	}

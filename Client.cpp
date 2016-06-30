@@ -81,7 +81,7 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 				}
 				for (int i = 0; i < otherPlayers.size(); i++) {
 					if (killedId == otherPlayers[i].userID) {
-						otherPlayers[i].isViable = false;
+						otherPlayers[i].userCharacter->justAdded = true;
 						break;
 					}
 				}
@@ -123,7 +123,7 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 			}
 			int i;
 			for (i = 0; i < otherPlayers.size(); i++) {
-				if (data == otherPlayers[i].userID && otherPlayers[i].isViable) {
+				if (data == otherPlayers[i].userID) {
 					if (fighterName == otherPlayers[i].fighterClass) {
 						float heath = otherPlayers[i].userCharacter->getHealth();
 						if (fighterName == "Knight" && otherPlayers[i].userCharacter != NULL) {
