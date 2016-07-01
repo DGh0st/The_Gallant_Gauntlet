@@ -209,7 +209,7 @@ void onExitClickFromGame() {
 }
 
 int main() {
-	sf::RenderWindow window(sf::VideoMode(1600, 900), "Game 2", sf::Style::Close | sf::Style::Titlebar);
+	sf::RenderWindow window(sf::VideoMode(1600, 900), "The Gallant Gauntlet", sf::Style::Close | sf::Style::Titlebar);
 	windowSize = window.getSize();
 	icon.loadFromFile("textures/icon.png");
 	window.setIcon(32, 32, icon.getPixelsPtr());
@@ -263,7 +263,7 @@ int main() {
 
 	sf::Keyboard::Key releasedKey = sf::Keyboard::Unknown;
 
-	Textfield joinTF(font, sf::Vector2f(310.0f, 50.0f));
+	Textfield joinTF(font, sf::Vector2f(340.0f, 50.0f));
 	Button playButton, createButton, joinButton, joinLocalButton, stopServerButton, knightButton, rangerButton, mageButton, backButton, exitButton, leaveButton;
 	
 	// -- title screen --
