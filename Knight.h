@@ -8,7 +8,8 @@
 class Knight : public Character {
 public:
 	//constructor that creates the knight
-	Knight(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & knightTexture, sf::Texture & swordTexture, float moveSpeed = 1.5f, int maxHealth = 100.0f, int damage = 10.0f);
+	Knight(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & knightTexture, 
+		sf::Texture & swordTexture, float moveSpeed = 1.5f, int maxHealth = 100.0f, int damageMin = 10, int damageMax = 10);
 	//destructor for knight
 	~Knight();
 	//draws sword using "swordSprite"
@@ -23,6 +24,8 @@ public:
 	sf::Packet chainDataToPacket(sf::Packet & packet, std::string value);
 	// extract packets of type Knight
 	sf::Packet extractPacketToData(sf::Packet & packet);
+	//get damage for knight
+	sf::Int16 getDamage();
 private:
 	sf::Sprite swordSprite; //sprite for sword
 	sf::CircleShape swordCircle; //circle that sword rotates around
@@ -33,6 +36,8 @@ private:
 	sf::CircleShape swordCircles[3]; //bounding circles for sword
 	bool swordIntersected = false; //whether or not sword already hit something this swing
 	sf::Uint16 uniqueSwingCounter = 0; // number of swings so far by player
+	int damageMin; //min sword damage
+	int damageMax; //max sword damage
 };
 
 #endif

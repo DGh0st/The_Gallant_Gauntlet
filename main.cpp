@@ -254,7 +254,7 @@ int main() {
 
 	map = new Map(mapTexture, sf::Vector2f(0, 0));
 
-	player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.8f, 150, 50)); //default knight class to start
+	player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.8f, 125, 22, 37)); //default knight class to start
 	if (player != NULL) {
 		player->setIsPlayer(true);
 		playerView = sf::View(player->getCenter(), (sf::Vector2f)windowSize);
@@ -660,7 +660,7 @@ int main() {
 							delete (Mage *)player;
 							player = NULL;
 						}
-						player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.8f, 150, 50));
+						player = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.8f, 125, 22, 37));
 						currentClass = knight;
 					}
 					else if (respawnClass == ranger) {
@@ -676,7 +676,7 @@ int main() {
 							delete (Mage *)player;
 							player = NULL;
 						}
-						player = (Character*)(new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 3.0f, 0.7f, 0.3f, 0.5f, 100, 10, 0.7f));
+						player = (Character*)(new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 3.0f, 0.7f, 0.3f, 0.3f, 110, 16, 22, 0.7f));
 						currentClass = ranger;
 					}
 					else if (respawnClass == mage) {
@@ -692,7 +692,7 @@ int main() {
 							delete (Mage *)player;
 							player = NULL;
 						}
-						player = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 2.0f, 0.7f, 0.3f, 0.0f, 100, 10, 0.6f));
+						player = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 2.0f, 0.7f, 0.3f, 0.0f, 80, 25, 35, 0.6f));
 						currentClass = mage;
 					}
 					player->setIsPlayer(true);

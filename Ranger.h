@@ -17,13 +17,14 @@ public:
 	//@param timeAfterShot: amount of time you want slowSpeed to last
 	//@param slowSpeed: movement speed when shooting
 	//@param maxHealth: health that ranger starts with
-	//@param damage: ranger's arrow damage to enemy
+	//@param damageMin: min arrow damage
+	//@param damageMax: max arrow damage
 	//@param moveSpeed: movement speed for ranger
 	//@param fromWeapon: whether arrow shoots from weapon (or from player)
 	Ranger(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & rangerTexture, 
 		sf::Texture & bowTexture, sf::Texture & arrowTextureA, sf::Texture & arrowTextureB,	float arrowSpeed = 1.0f, 
 		float arrowReloadTime = 0.3f, float timeAfterShot = 1.0f, float slowSpeed = 0.5f, int maxHealth = 100,
-		int damage = 10, float moveSpeed = 1.5f, bool fromWeapon = false);
+		int damageMin = 10, int damageMax = 20, float moveSpeed = 1.5f, bool fromWeapon = false);
 	//destructor for ranger
 	~Ranger();
 	//movement for ranger
@@ -32,10 +33,13 @@ public:
 	sf::Packet chainDataToPacket(sf::Packet & packet, std::string value);
 	// extract packets of type Knight
 	sf::Packet extractPacketToData(sf::Packet & packet);
-	
+	//get damage for ranger
+	sf::Int16 getDamage();
 private:
 	float moveSpeed; //regular movement speed
 	float slowSpeed; //movement speed when shooting arrows
+	int damageMin; //min arrow damage
+	int damageMax; //max arrow damage
 };
 
 #endif

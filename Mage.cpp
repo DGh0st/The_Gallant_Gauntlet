@@ -3,9 +3,10 @@
 
 Mage::Mage(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & mageTexture, 
 	sf::Texture & staffTexture, sf::Texture & fireballTextureA, sf::Texture & fireballTextureB, float fireballSpeed,
-	float fireballReloadTime, float timeAfterShot, float slowSpeed, int maxHealth,	int damage, float moveSpeed, bool fromWeapon) :
+	float fireballReloadTime, float timeAfterShot, float slowSpeed, int maxHealth,	int damageMin, int damageMax,float moveSpeed, bool fromWeapon) :
 	ProjectileShooter(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballTextureA, fireballTextureB,
-	fireballSpeed, fireballReloadTime, timeAfterShot, fromWeapon, maxHealth, damage, moveSpeed), moveSpeed(moveSpeed), slowSpeed(slowSpeed) {
+	fireballSpeed, fireballReloadTime, timeAfterShot, fromWeapon, maxHealth, damage, moveSpeed), moveSpeed(moveSpeed), slowSpeed(slowSpeed),
+	damageMin(damageMin), damageMax(damageMax) {
 }
 
 Mage::~Mage() {
@@ -62,4 +63,9 @@ sf::Packet Mage::extractPacketToData(sf::Packet & packet) {
 		clockProjectile.restart();
 	}
 	return packet;
+}
+
+sf::Int16 Mage::getDamage() {
+	damage = rand() % (damageMax - damageMin + 1) + damageMin; // rand()%(max-min + 1) + min;
+	return damage;
 }

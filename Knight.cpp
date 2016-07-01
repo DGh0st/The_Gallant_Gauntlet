@@ -1,7 +1,9 @@
 #include "Defines.h"
 #include "Knight.h"
 
-Knight::Knight(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & knightTexture, sf::Texture & swordTexture, float moveSpeed, int maxHealth, int damage) : Character(healthBarForegroundTexture, healthBarBackgroundTexture,maxHealth, damage) {
+Knight::Knight(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & knightTexture, 
+	sf::Texture & swordTexture, float moveSpeed, int maxHealth, int damageMin, int damageMax) : Character(healthBarForegroundTexture, 
+	healthBarBackgroundTexture,maxHealth, damageMin), damageMin(damageMin), damageMax(damageMax) {
 	playerSprite = sf::Sprite(knightTexture);
 	playerSprite.setOrigin(playerSprite.getGlobalBounds().width / 2, playerSprite.getGlobalBounds().height / 2);
 	playerSprite.setPosition(sf::Vector2f((float)(rand() % (550 + 550 + 1) - 550), (float)(rand() % (550 + 550 + 1) - 550)));
@@ -139,4 +141,9 @@ sf::Packet Knight::extractPacketToData(sf::Packet & packet) {
 		clockSwingTime.restart();
 	}
 	return packet;
+}
+
+sf::Int16 Knight::getDamage() {
+	damage = rand() % (damageMax - damageMin + 1) + damageMin; // rand()%(max-min + 1) + min;
+	return damage;
 }

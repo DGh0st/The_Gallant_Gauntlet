@@ -3,9 +3,10 @@
 
 Ranger::Ranger(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & rangerTexture,
 	sf::Texture & bowTexture, sf::Texture & arrowTextureA, sf::Texture & arrowTextureB, float arrowSpeed, float arrowReloadTime, 
-	float timeAfterShot, float slowSpeed, int maxHealth, int damage, float moveSpeed, bool fromWeapon) :
+	float timeAfterShot, float slowSpeed, int maxHealth, int damageMin, int damageMax, float moveSpeed, bool fromWeapon) :
 	ProjectileShooter(healthBarForegroundTexture, healthBarBackgroundTexture,rangerTexture, bowTexture, arrowTextureA, arrowTextureB, 
-	arrowSpeed, arrowReloadTime, timeAfterShot, fromWeapon, maxHealth, damage, moveSpeed), moveSpeed(moveSpeed), slowSpeed(slowSpeed) {
+	arrowSpeed, arrowReloadTime, timeAfterShot, fromWeapon, maxHealth, damageMin, moveSpeed), moveSpeed(moveSpeed), slowSpeed(slowSpeed),
+	damageMin(damageMin), damageMax(damageMax) {
 }
 
 Ranger::~Ranger() {
@@ -62,4 +63,9 @@ sf::Packet Ranger::extractPacketToData(sf::Packet & packet) {
 		clockProjectile.restart();
 	}
 	return packet;
+}
+
+sf::Int16 Ranger::getDamage() {
+	damage = rand() % (damageMax - damageMin + 1) + damageMin; // rand()%(max-min + 1) + min;
+	return damage;
 }
