@@ -83,7 +83,7 @@ void ProjectileShooter::drawProjectiles(sf::RenderWindow & window) {
 				projectiles[i]->clockAnim.restart();
 			}
 			window.draw(projectiles[i]->projectileSprite);
-			window.draw(projectiles[i]->projectileCircle);
+			//window.draw(projectiles[i]->projectileCircle);
 			moveProjectile(projectiles[i]);
 		}
 		else { //otherwise off screen, so delete projectile

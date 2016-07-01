@@ -395,9 +395,9 @@ int main() {
 
 	// -- exit overlay in game screen --
 	// backdrop
-	sf::RectangleShape exitBackdrop(sf::Vector2f(windowSize.x / 4.0f, windowSize.y / 4.0f));
+	sf::RectangleShape exitBackdrop(sf::Vector2f(windowSize.x / 3.3f, windowSize.y / 4.0f));
 	exitBackdrop.setFillColor(sf::Color(0, 0, 0, 150));
-	exitBackdrop.setPosition(windowSize.x * 3.0f / 8.0f, windowSize.y * 3.0f / 8.0f);
+	exitBackdrop.setPosition(windowSize.x * 2.8f / 8.0f, windowSize.y * 3.0f / 8.0f);
 	//title text
 	sf::Text exitTitleText("Are you sure?", font, 64U);
 	exitTitleText.setOrigin(exitTitleText.getGlobalBounds().width / 2, exitTitleText.getGlobalBounds().height / 2);
@@ -547,7 +547,7 @@ int main() {
 			// kills and deaths at top right corner text
 			std::ostringstream killsDeathString;
 			killsDeathString << "Kills: " << kills << " Deaths: " << deaths;
-			sf::Text playerStats(killsDeathString.str(), font, 15U);
+			sf::Text playerStats(killsDeathString.str(), font, 25U);
 			playerStats.setOrigin(playerStats.getGlobalBounds().width, 0.0f);
 			playerStats.setPosition(sf::Vector2f(player->getCenter().x + windowSize.x / 2.0f - 10.0f, player->getCenter().y - windowSize.y / 2.0f));
 			// game time displayed in the center text

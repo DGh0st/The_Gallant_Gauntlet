@@ -16,9 +16,9 @@ Knight::Knight(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBar
 	swordCircles[0] = sf::CircleShape(16.0f);
 	swordCircles[1] = sf::CircleShape(16.0f);
 	swordCircles[2] = sf::CircleShape(16.0f);
-	swordCircles[0].setFillColor(sf::Color::White);
+	/*swordCircles[0].setFillColor(sf::Color::White); //for drawing sword collision circles
 	swordCircles[1].setFillColor(sf::Color::White);
-	swordCircles[2].setFillColor(sf::Color::White);
+	swordCircles[2].setFillColor(sf::Color::White);*/
 	swordCircles[0].setOrigin(0.0f, swordCircles[0].getRadius());
 	swordCircles[1].setOrigin(-swordCircles[1].getGlobalBounds().width, swordCircles[1].getRadius());
 	swordCircles[2].setOrigin(-swordCircles[2].getGlobalBounds().width * 2.0f, swordCircles[2].getRadius());
@@ -35,9 +35,9 @@ void Knight::draw(sf::RenderWindow & window) {
 	swordCircles[0].setRotation(swordSprite.getRotation());
 	swordCircles[1].setRotation(swordSprite.getRotation());
 	swordCircles[2].setRotation(swordSprite.getRotation());
-	window.draw(swordCircles[0]);
+	/*window.draw(swordCircles[0]);
 	window.draw(swordCircles[1]);
-	window.draw(swordCircles[2]);
+	window.draw(swordCircles[2]);*/
 	window.draw(swordSprite);
 	Character::draw(window);
 }
