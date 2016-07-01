@@ -3,13 +3,12 @@
 
 Knight::Knight(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & knightTexture, 
 	sf::Texture & swordTexture, float moveSpeed, int maxHealth, int damageMin, int damageMax) : Character(healthBarForegroundTexture, 
-	healthBarBackgroundTexture,maxHealth, damageMin), damageMin(damageMin), damageMax(damageMax) {
+	healthBarBackgroundTexture,maxHealth, damageMin, moveSpeed), damageMin(damageMin), damageMax(damageMax) {
 	playerSprite = sf::Sprite(knightTexture);
 	playerSprite.setOrigin(playerSprite.getGlobalBounds().width / 2, playerSprite.getGlobalBounds().height / 2);
 	playerSprite.setPosition(sf::Vector2f((float)(rand() % (550 + 550 + 1) - 550), (float)(rand() % (550 + 550 + 1) - 550)));
 	swordSprite = sf::Sprite(swordTexture);
 	swordSprite.setOrigin((swordSprite.getGlobalBounds().width / 2)-30, swordSprite.getGlobalBounds().height / 2);
-	charSpeed = moveSpeed;
 	swordCircle = sf::CircleShape(60.0f);
 	swordCircle.setOrigin(swordCircle.getRadius(), swordCircle.getRadius());
 	//swordRect = sf::RectangleShape(sf::Vector2f(100.0f, 30.0f));
