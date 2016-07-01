@@ -216,7 +216,7 @@ int main() {
 	srand((unsigned int)time(NULL));
 
 	sf::Font font;
-	font.loadFromFile("fonts/times.ttf");
+	font.loadFromFile("fonts/ALGER.ttf");
 	rangerTexture.loadFromFile("textures/ranger.png");
 	mageTexture.loadFromFile("textures/mage.png");
 	knightTexture.loadFromFile("textures/knight.png");
@@ -279,7 +279,7 @@ int main() {
 	//create game button
 	sf::Text createText("Create Game", font, 32U);
 	createText.setColor(sf::Color::Black);
-	createButton = Button(createText, sf::Vector2f(200.0f, 70.0f), onCreateGameClick);
+	createButton = Button(createText, sf::Vector2f(240.0f, 70.0f), onCreateGameClick);
 	createButton.setOrigin(createButton.getGlobalBounds().width / 2.0f, createButton.getGlobalBounds().height / 2.0f);
 	createButton.setTexture(&buttonTexture);
 	// exit button
@@ -404,7 +404,7 @@ int main() {
 	// exit button
 	sf::Text leaveText("Leave Game", font, 32U);
 	leaveText.setColor(sf::Color::Black);
-	leaveButton = Button(leaveText, sf::Vector2f(200.0f, 70.0f), onExitClickFromGame);
+	leaveButton = Button(leaveText, sf::Vector2f(220.0f, 70.0f), onExitClickFromGame);
 	leaveButton.setOrigin(leaveButton.getGlobalBounds().width / 2.0f, leaveButton.getGlobalBounds().height / 2.0f);
 	leaveButton.setTexture(&buttonTexture);
 
