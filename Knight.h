@@ -9,7 +9,7 @@ class Knight : public Character {
 public:
 	//constructor that creates the knight
 	Knight(sf::Texture & healthBarForegroundTexture, sf::Texture & healthBarBackgroundTexture, sf::Texture & knightTexture, 
-		sf::Texture & swordTexture, float moveSpeed = 1.5f, int maxHealth = 100.0f, int damageMin = 10, int damageMax = 10);
+		sf::Texture & swordTexture, float moveSpeed = 0.8f, int maxHealth = 100.0f, int damageMin = 10, int damageMax = 10);
 	//destructor for knight
 	~Knight();
 	//draws sword using "swordSprite"

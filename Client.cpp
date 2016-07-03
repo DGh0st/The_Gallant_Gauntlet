@@ -145,13 +145,13 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 						userData.userID = data;
 						userData.fighterClass = fighterName;
 						if (fighterName == "Knight") {
-							userData.userCharacter = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.8f, 125, 22, 37));
+							userData.userCharacter = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 3.2f, 125, 22, 37));
 						}
 						else if (fighterName == "Mage") {
-							userData.userCharacter = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 2.0f, 0.7f, 0.3f, 0.0f, 80, 25, 35, 0.6f));
+							userData.userCharacter = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 7.0f, 0.7f, 0.3f, 0.0f, 80, 25, 40, 2.2f));
 						}
 						else if (fighterName == "Ranger") {
-							userData.userCharacter = (Character*)(new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 3.0f, 0.7f, 0.3f, 0.3f, 110, 16, 22, 0.7f));
+							userData.userCharacter = (Character*)(new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 10.0f, 0.7f, 0.3f, 1.3f, 110, 16, 22, 2.6f));
 						}
 						userData.confirmDamageTaken = true;
 						userData.didTakeDamage = false;
@@ -170,13 +170,13 @@ void Client::receivePackets(sf::UdpSocket & socket, int & kills, sf::Texture & r
 				userData.userID = data;
 				userData.fighterClass = fighterName;
 				if (fighterName == "Knight") {
-					userData.userCharacter = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 0.8f, 125, 22, 37));
+					userData.userCharacter = (Character*)(new Knight(healthBarForegroundTexture, healthBarBackgroundTexture, knightTexture, swordTexture, 3.2f, 125, 22, 37));
 				}
 				else if (fighterName == "Mage") {
-					userData.userCharacter = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 2.0f, 0.7f, 0.3f, 0.0f, 80, 25, 35, 0.6f));
+					userData.userCharacter = (Character*)(new Mage(healthBarForegroundTexture, healthBarBackgroundTexture, mageTexture, staffTexture, fireballA, fireballB, 7.0f, 0.7f, 0.3f, 0.0f, 80, 25, 40, 2.2f));
 				}
 				else if (fighterName == "Ranger") {
-					userData.userCharacter = (Character*)(new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 3.0f, 0.7f, 0.3f, 0.3f, 110, 16, 22, 0.7f));
+					userData.userCharacter = (Character*)(new Ranger(healthBarForegroundTexture, healthBarBackgroundTexture, rangerTexture, bowTexture, arrowTexture, arrowTexture, 10.0f, 0.7f, 0.3f, 1.3f, 110, 16, 22, 2.6f));
 				}
 				userData.confirmDamageTaken = true;
 				userData.didTakeDamage = false;
